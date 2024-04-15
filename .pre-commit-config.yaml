@@ -37,6 +37,8 @@ repos:
       - id: mypy
         files: semantix_agent_tools/
         args: [--explicit-package-bases]
+        additional_dependencies:
+          - "langchain==0.1.6"
         stages: [pre-commit]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.2.0
