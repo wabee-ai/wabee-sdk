@@ -1,18 +1,9 @@
 import json
-from typing import Any
-
-from pydantic import field_validator
 import pytest
 
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 from semantix_agent_tools.semantix_agent_tool_input import SemantixAgentToolInput
-
-
-def semantix_agent_tool_field_validator(
-    __field: str,
-    *fields: str,
-) -> Any:
-    return field_validator(__field, *fields, mode="after", check_fields=None)
+from semantix_agent_tools.semantix_agent_tool_field_validator import semantix_agent_tool_field_validator
 
 
 class TestSemantixAgentToolFieldValidator:
