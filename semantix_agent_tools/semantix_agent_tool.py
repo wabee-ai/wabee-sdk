@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Awaitable
+from typing import Any, Awaitable, Coroutine
 
 from langchain.tools import BaseTool
 from langchain.callbacks.manager import CallbackManagerForToolRun
@@ -12,7 +12,7 @@ class SemantixAgentTool(BaseTool):
     def execute(self, query: str) -> str:
         raise NotImplementedError("abstract method")
 
-    async def execute_async(self, query: str) -> Awaitable[str]:
+    async def execute_async(self, query: str) -> Coroutine[Any, Any, Awaitable[str]]:
         raise NotImplementedError("abstract method")
 
     @classmethod
@@ -22,7 +22,7 @@ class SemantixAgentTool(BaseTool):
     def _run(self, query: str, run_manager: CallbackManagerForToolRun | None = None) -> str:
         return self.execute(query)
 
-    async def _arun(self, query: str, run_manager: CallbackManagerForToolRun | None = None) -> Awaitable[str]:
+    async def _arun(self, query: str, run_manager: CallbackManagerForToolRun | None = None) -> Coroutine[Any, Any, Awaitable[str]]:
         return await self.execute_async(query)
 
     def __init_subclass__(cls) -> None:
