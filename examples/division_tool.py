@@ -60,6 +60,7 @@ def main() -> None:
     logging.info(f"Calling DivisionTool with query: {division_tool_query}")
 
     try:
-        division_tool._run(division_tool_query)
+        division_tool_output = division_tool._run(division_tool_query)
+        logging.info(f"DivisionTool returned output: {division_tool_output}")
     except Exception as e:
         logging.error(f"DivisionTool returned an error: {str(e)}")
