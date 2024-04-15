@@ -30,11 +30,11 @@ class SemantixAgentTool(BaseTool):
             hasattr(cls, "execute")
             and callable(cls.execute)
             and cls.execute.__annotations__
-            == {"query": str, "return": str}
+            == {"query": "str", "return": "str"}
             and hasattr(cls, "execute_async")
             and callable(cls.execute_async)
             and cls.execute_async.__annotations__
-            == {"query": str, "return": Awaitable[str]}
+            == {"query": "str", "return": "Awaitable[str]"}
             and hasattr(cls, "create")
             and callable(cls.create)
         ):

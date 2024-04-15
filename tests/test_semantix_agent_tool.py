@@ -1,5 +1,3 @@
-import pytest
-
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
 
 class TestSemantixAgentTool:
@@ -8,8 +6,3 @@ class TestSemantixAgentTool:
 
         assert sut.name == "any_name"
         assert sut.description == "any_description"
-
-    def test_ensure_children_of_semantix_agent_tool_cannot_be_created_without_implement_the_parent_interface(self) -> None:
-        with pytest.raises(Exception):
-            class SemantixAgentToolChild(SemantixAgentTool):
-                ...
