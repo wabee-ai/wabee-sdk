@@ -1,9 +1,21 @@
 [tool.poetry]
 name = "semantix-agent-tools"
 version = "0.1.0"
-description = ""
+description = "Semantix Agent Tools Software Development Kit"
 authors = ["GDalforno <gabriel.dalforno@semantix.ai>"]
+maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>"]
+license = "Proprietary"
 readme = "README.md"
+keywords = ["semantix", "generative ai"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: Other/Proprietary License",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
