@@ -5,9 +5,7 @@ import json
 import logging
 from typing import Any, Awaitable
 
-from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
-from semantix_agent_tools.semantix_agent_tool_input import SemantixAgentToolInput
-from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
+from semantix_agent_tools import SemantixAgentTool, SemantixAgentToolInput, SemantixAgentToolConfig
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
