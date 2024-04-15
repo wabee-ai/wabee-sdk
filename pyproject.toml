@@ -21,6 +21,9 @@ classifiers = [
 python = "^3.10"
 langchain = "0.1.6"
 
+[tool.poetry.scripts]
+power_tool_example = 'examples.power_tool:main'
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
