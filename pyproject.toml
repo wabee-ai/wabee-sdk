@@ -23,6 +23,7 @@ langchain = "0.1.6"
 
 [tool.poetry.scripts]
 power_tool_example = 'examples.power_tool:main'
+division_tool_example = 'examples.division_tool:main'
 
 
 [tool.poetry.group.dev.dependencies]
