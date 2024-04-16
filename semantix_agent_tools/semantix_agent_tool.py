@@ -42,7 +42,10 @@ class SemantixAgentTool(BaseTool):
         if not (
             hasattr(cls, "execute")
             and callable(cls.execute)
-            and cls.execute.__annotations__ == {"query": str, "return": str}
+            and (
+                cls.execute.__annotations__ == {"query": str, "return": str}
+                or cls.execute.__annotations__ == {"query": "str", "return": "str"}
+            )
             and hasattr(cls, "execute_async")
             and callable(cls.execute_async)
             and cls.execute_async.__annotations__
