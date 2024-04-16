@@ -4,6 +4,7 @@ from typing import Any, Awaitable
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.tools import BaseTool
+from langchain_core.runnables.config import run_in_executor
 
 
 class SemantixAgentTool(BaseTool):
@@ -28,13 +29,16 @@ class SemantixAgentTool(BaseTool):
     async def _arun(
         self, query: str, run_manager: CallbackManagerForToolRun | None = None
     ) -> Awaitable[str]:
-        return await self.execute_async(query)
+        try:
+            return await self.execute_async(query)
+        except NotImplementedError:
+            return await run_in_executor(None, self._run, query)  # type: ignore
 
     def __init_subclass__(cls) -> None:
         if not (
             hasattr(cls, "execute")
             and callable(cls.execute)
-            and cls.execute.__annotations__ == {"query": "str", "return": "str"}
+            and cls.execute.__annotations__ == {"query": str, "return": str}
             and hasattr(cls, "execute_async")
             and callable(cls.execute_async)
             and cls.execute_async.__annotations__
