@@ -4,6 +4,7 @@ import pytest
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agent_tools.dates.date_handler import DateHandler
+from semantix_agent_tools.exec.python_execution_handler import PythonExecutionHandler
 from semantix_agent_tools.files.file_handler import FileHandler
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
@@ -23,6 +24,7 @@ class TestSemantixAgentTool:
         assert sut.llm == fake_llm
         assert isinstance(sut.date_handler, DateHandler)
         assert isinstance(sut.file_handler, FileHandler)
+        assert isinstance(sut.python_execution_handler, PythonExecutionHandler)
 
     def test_ensure_children_of_semantix_agent_tool_cannot_be_created_without_implement_the_parent_interface(
         self,
