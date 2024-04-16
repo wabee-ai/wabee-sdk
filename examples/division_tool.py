@@ -6,6 +6,8 @@ from asyncio import AbstractEventLoop, get_event_loop
 from functools import partial
 from typing import Any, Awaitable
 
+from langchain_community.llms.fake import FakeListLLM
+
 from semantix_agent_tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
@@ -64,6 +66,7 @@ def main() -> None:
     division_tool_config = {
         "name": "division_tool",
         "description": "tool that divides two numbers",
+        "llm": FakeListLLM(responses=["any_response"]),
     }
     division_tool = _create_tool(**division_tool_config)
     logging.info(f"Creating DivisionTool with config: {division_tool_config}")
@@ -75,5 +78,4 @@ def main() -> None:
         division_tool_output = division_tool._run(division_tool_query)
         logging.info(f"DivisionTool returned output: {division_tool_output}")
     except Exception as e:
-        logging.error(f"DivisionTool returned an error: {str(e)}")
         logging.error(f"DivisionTool returned an error: {str(e)}")
