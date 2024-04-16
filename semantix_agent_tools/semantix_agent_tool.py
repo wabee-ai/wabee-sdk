@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 from typing import Any, Awaitable
 
-from langchain.tools import BaseTool
 from langchain.callbacks.manager import CallbackManagerForToolRun
+from langchain.tools import BaseTool
 
 
 class SemantixAgentTool(BaseTool):
@@ -19,18 +20,21 @@ class SemantixAgentTool(BaseTool):
     def create(cls, semantix_agent_tool_factory_input: Any) -> SemantixAgentTool:
         raise NotImplementedError("abstract class method")
 
-    def _run(self, query: str, run_manager: CallbackManagerForToolRun | None = None) -> str:
+    def _run(
+        self, query: str, run_manager: CallbackManagerForToolRun | None = None
+    ) -> str:
         return self.execute(query)
 
-    async def _arun(self, query: str, run_manager: CallbackManagerForToolRun | None = None) -> Awaitable[str]:
+    async def _arun(
+        self, query: str, run_manager: CallbackManagerForToolRun | None = None
+    ) -> Awaitable[str]:
         return await self.execute_async(query)
 
     def __init_subclass__(cls) -> None:
         if not (
             hasattr(cls, "execute")
             and callable(cls.execute)
-            and cls.execute.__annotations__
-            == {"query": "str", "return": "str"}
+            and cls.execute.__annotations__ == {"query": "str", "return": "str"}
             and hasattr(cls, "execute_async")
             and callable(cls.execute_async)
             and cls.execute_async.__annotations__

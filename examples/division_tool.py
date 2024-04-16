@@ -1,22 +1,23 @@
 from __future__ import annotations
-from asyncio import get_event_loop, AbstractEventLoop
-from functools import partial
+
 import json
 import logging
+from asyncio import AbstractEventLoop, get_event_loop
+from functools import partial
 from typing import Any, Awaitable
 
 from semantix_agent_tools import (
     SemantixAgentTool,
-    SemantixAgentToolInput,
     SemantixAgentToolConfig,
-    semantix_agent_tool_field_validator
+    SemantixAgentToolInput,
+    semantix_agent_tool_field_validator,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
 
-class DivisionToolConfig(SemantixAgentToolConfig):
-    ...
+class DivisionToolConfig(SemantixAgentToolConfig): ...
+
 
 class DivisionToolInput(SemantixAgentToolInput):
     a: float
@@ -39,20 +40,31 @@ class DivisionTool(SemantixAgentTool):
         return str(division_tool_input.a / division_tool_input.b)
 
     async def execute_async(self, query: str) -> Awaitable[str]:
-        async def run(*args: Any, loop: AbstractEventLoop | None=None, executor: Any=None, **kwargs: Any):
+        async def run(
+            *args: Any,
+            loop: AbstractEventLoop | None = None,
+            executor: Any = None,
+            **kwargs: Any,
+        ):
             if loop is None:
                 loop = get_event_loop()
             pfunc = partial(self.execute, *args, **kwargs)
             return await loop.run_in_executor(executor, pfunc)
+
         return await run(query)
 
     @classmethod
     def create(cls, division_tool_config: DivisionToolConfig) -> DivisionTool:
-        return cls(name=division_tool_config.name, description=division_tool_config.description)
+        return cls(
+            name=division_tool_config.name, description=division_tool_config.description
+        )
 
 
 def main() -> None:
-    division_tool_config = {"name": "division_tool", "description": "tool that divides two numbers"}
+    division_tool_config = {
+        "name": "division_tool",
+        "description": "tool that divides two numbers",
+    }
     division_tool = _create_tool(**division_tool_config)
     logging.info(f"Creating DivisionTool with config: {division_tool_config}")
 
@@ -63,4 +75,5 @@ def main() -> None:
         division_tool_output = division_tool._run(division_tool_query)
         logging.info(f"DivisionTool returned output: {division_tool_output}")
     except Exception as e:
+        logging.error(f"DivisionTool returned an error: {str(e)}")
         logging.error(f"DivisionTool returned an error: {str(e)}")

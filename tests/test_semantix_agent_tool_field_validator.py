@@ -1,9 +1,12 @@
 import json
+
 import pytest
 
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
+from semantix_agent_tools.semantix_agent_tool_field_validator import (
+    semantix_agent_tool_field_validator,
+)
 from semantix_agent_tools.semantix_agent_tool_input import SemantixAgentToolInput
-from semantix_agent_tools.semantix_agent_tool_field_validator import semantix_agent_tool_field_validator
 
 
 class TestSemantixAgentToolFieldValidator:
@@ -18,9 +21,10 @@ class TestSemantixAgentToolFieldValidator:
                     raise ValueError("Field cannot be smaller than zero!")
                 return value
 
-
         with pytest.raises(Exception):
-            SemantixAgentToolConfigChild(x=-1, y=0, name="any_name", description="any_description")
+            SemantixAgentToolConfigChild(
+                x=-1, y=0, name="any_name", description="any_description"
+            )
 
     def test_should_validate_agent_tool_fields_on_input(self) -> None:
         class SemantixAgentToolInputChild(SemantixAgentToolInput):
@@ -32,6 +36,8 @@ class TestSemantixAgentToolFieldValidator:
                     raise ValueError("Field cannot be smaller than zero!")
                 return value
 
+        with pytest.raises(Exception):
+            SemantixAgentToolInputChild.query_to_tool_input(json.dumps({"x": -1}))
 
         with pytest.raises(Exception):
             SemantixAgentToolInputChild.query_to_tool_input(json.dumps({"x": -1}))
