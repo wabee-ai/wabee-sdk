@@ -1,6 +1,7 @@
 import asyncio
 
 import pytest
+from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
@@ -41,12 +42,15 @@ class TestSemantixAgentTool:
                 return cls(
                     name=semantix_agent_tool_config.name,
                     description=semantix_agent_tool_config.description,
+                    llm=semantix_agent_tool_config.llm,
                 )
 
         async def get_tool_output():
             semantix_agent_tool_child = SemantixAgentToolChild.create(
                 SemantixAgentToolConfigChild(
-                    name="any_name", description="any_description"
+                    name="any_name",
+                    description="any_description",
+                    llm=FakeListLLM(responses=["any_response"]),
                 )
             )
             output = await semantix_agent_tool_child._arun("any_query")
