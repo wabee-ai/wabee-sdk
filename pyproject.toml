@@ -20,6 +20,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 langchain = "0.1.6"
+chardet = "^5.2.0"
 
 [tool.poetry.scripts]
 power_tool_example = 'examples.power_tool:main'

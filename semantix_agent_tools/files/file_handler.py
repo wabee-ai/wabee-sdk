@@ -1,5 +1,7 @@
 from collections import Counter
 
+import chardet
+
 
 class FileHandler:
     def find_split_in_csv(self, file_path: str) -> str:
@@ -13,3 +15,9 @@ class FileHandler:
 
             split_char = delimiter_count.most_common(1)[0][0]
             return split_char
+
+    def find_encoding_csv(self, file_path: str) -> str | None:
+        # Detect file encoding
+        with open(file_path, "rb") as rawdata:
+            result = chardet.detect(rawdata.read(4096))
+        return result["encoding"]

@@ -39,6 +39,7 @@ repos:
         args: [--explicit-package-bases]
         additional_dependencies:
           - "langchain==0.1.6"
+          - "chardet==5.2.0"
         stages: [pre-commit]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.2.0
