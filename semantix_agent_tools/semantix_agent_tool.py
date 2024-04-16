@@ -7,9 +7,11 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agent_tools.dates.date_handler import DateHandler
-from semantix_agent_tools.exec.python_execution_handler import PythonExecutionHandler
-from semantix_agent_tools.files.file_handler import FileHandler
+from semantix_agent_tools.handlers.dates.date_handler import DateHandler
+from semantix_agent_tools.handlers.exec.python_execution_handler import (
+    PythonExecutionHandler,
+)
+from semantix_agent_tools.handlers.files.file_handler import FileHandler
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
