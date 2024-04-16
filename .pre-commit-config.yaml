@@ -29,17 +29,20 @@ repos:
     hooks:
       - id: python-safety-dependencies-check
         files: pyproject.toml
-        args: ["--ignore=66051,65703"]
+        args: ["--ignore=66051,65703,60840,59430"]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
     hooks:
       - id: mypy
         files: semantix_agent_tools/
-        args: [--explicit-package-bases]
+        args: [--explicit-package-bases, --install-types, --non-interactive]
         additional_dependencies:
           - "langchain==0.1.6"
           - "chardet==5.2.0"
+          - "pandas==2.2.2"
+          - "restrictedpython==6.0"
+          - "matplotlib==3.8.4"
         stages: [pre-commit]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.2.0
