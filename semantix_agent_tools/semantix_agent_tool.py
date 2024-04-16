@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Awaitable
+from typing import Awaitable
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
+
+from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
 class SemantixAgentTool(BaseTool):
@@ -18,7 +20,9 @@ class SemantixAgentTool(BaseTool):
         raise NotImplementedError("abstract method")
 
     @classmethod
-    def create(cls, semantix_agent_tool_factory_input: Any) -> SemantixAgentTool:
+    def create(
+        cls, semantix_agent_tool_config: SemantixAgentToolConfig
+    ) -> SemantixAgentTool:
         raise NotImplementedError("abstract class method")
 
     def _run(
