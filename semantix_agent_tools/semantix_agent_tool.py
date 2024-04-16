@@ -3,15 +3,21 @@ from __future__ import annotations
 from typing import Awaitable
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
+from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
+from semantix_agent_tools.dates.date_handler import DateHandler
+from semantix_agent_tools.files.file_handler import FileHandler
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
 class SemantixAgentTool(BaseTool):
     name: str
     description: str
+    llm: BaseLanguageModel
+    date_handler: DateHandler = DateHandler()
+    file_handler: FileHandler = FileHandler()
 
     def execute(self, query: str) -> str:
         raise NotImplementedError("abstract method")
