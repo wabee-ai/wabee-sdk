@@ -64,3 +64,15 @@ class TestSemantixAgentTool:
             return output
 
         assert asyncio.run(get_tool_output()) == "execute"
+
+    def test_handlers_should_be_created_for_each_semantix_agent_tools(self) -> None:
+        fake_llm = FakeListLLM(responses=["any_response"])
+        sut1 = SemantixAgentTool(
+            name="any_name", description="any_description", llm=fake_llm
+        )
+        sut2 = SemantixAgentTool(
+            name="any_name", description="any_description", llm=fake_llm
+        )
+
+        assert sut1.date_handler != sut2.date_handler
+        assert sut1.file_handler != sut2.file_handler
