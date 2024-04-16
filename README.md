@@ -5,6 +5,6 @@
 - Add file handling module to be shared by multiple tools, with the required objects:
   - \_ALLOWED_MODULES
   - PythonExecutor
-  - find_split_in_csv
+  - ✅ find_split_in_csv
   - find_encoding_csv
   - get_timestamp
