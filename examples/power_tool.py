@@ -40,6 +40,7 @@ class PowerTool(SemantixAgentTool):
             name=power_tool_config.name,
             description=power_tool_config.description,
             exponent=power_tool_config.exponent,
+            llm=power_tool_config.llm,
         )
 
 

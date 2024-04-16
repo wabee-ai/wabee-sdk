@@ -98,6 +98,7 @@ class FoodOrderingTool(SemantixAgentTool):
         return cls(
             name=food_ordering_tool_config.name,
             description=food_ordering_tool_config.description,
+            llm=food_ordering_tool_config.llm,
             http_client=http_client,
         )
 
@@ -123,11 +124,6 @@ def main() -> None:
             ],
         }
     )
-    logging.info(f"Calling FoodOrderingTool with query: {food_ordering_tool_query}")
-
-    food_ordering_tool_output = food_ordering_tool._run(food_ordering_tool_query)
-    logging.info(f"FoodOrderingTool returned output: {food_ordering_tool_output}")
-
     logging.info(f"Calling FoodOrderingTool with query: {food_ordering_tool_query}")
 
     food_ordering_tool_output = food_ordering_tool._run(food_ordering_tool_query)

@@ -58,7 +58,9 @@ class DivisionTool(SemantixAgentTool):
     @classmethod
     def create(cls, division_tool_config: DivisionToolConfig) -> DivisionTool:
         return cls(
-            name=division_tool_config.name, description=division_tool_config.description
+            name=division_tool_config.name,
+            description=division_tool_config.description,
+            llm=division_tool_config.llm,
         )
 
 
