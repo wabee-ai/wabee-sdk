@@ -9,6 +9,7 @@ class TestFileHandler:
 
         with NamedTemporaryFile() as f:
             f.write(b"x1,x2\na,1\nb,2\nc,3")
+            f.seek(0)
             separator = sut.find_split_in_csv(f.name)
 
             assert separator == ","
