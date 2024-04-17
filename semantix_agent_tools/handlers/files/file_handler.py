@@ -5,6 +5,13 @@ import chardet
 
 
 class FileHandler:
+    __base_url: str
+
+    def __init__(self) -> None:
+        self.__base_url = os.getenv(
+            "BASE_FILE_URL", "https://{agent_name}.ml.semantixhub.com/v1/files"
+        )
+
     def find_split_in_csv(self, file_path: str) -> str:
         with open(file_path, "r", encoding="unicode_escape") as file:
             first_line = file.readline()
@@ -30,3 +37,13 @@ class FileHandler:
             return os.path.join(run_path, path)
         else:
             return os.path.join(run_path, "outputs", session_id, path)
+
+    def mount_file_url(self, run_path: str, file_path: str, agent_name: str) -> str:
+        # image_url = URL.format(
+        #     agent_name=settings.AGENT_NAME,
+        #     image_path=image_path.replace(settings.AGENT_OUTPUT_PATH, "")
+        # )
+        file_url = self.__base_url.format(agent_name=agent_name) + file_path.replace(
+            run_path, ""
+        )
+        return file_url

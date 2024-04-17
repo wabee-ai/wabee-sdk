@@ -35,3 +35,11 @@ class TestFileHandler:
             sut.get_outputfile_path("run_path", "outputs/path", "session_id")
             == "run_path/outputs/path"
         )
+
+    def test_should_mount_file_url_based_on_the_file_path(self) -> None:
+        sut = FileHandler()
+
+        assert (
+            sut.mount_file_url("run_path", "/file_path", "agent_name")
+            == "https://agent_name.ml.semantixhub.com/v1/files/file_path"
+        )
