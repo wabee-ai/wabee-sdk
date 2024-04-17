@@ -11,7 +11,7 @@
 - ✅ Provide user a base tool class that should be the parent class of all tools
 - ✅ Ensure base tool class works as a facade for the [langchain base tool](https://python.langchain.com/docs/modules/tools) and contains `name` and `description` as fields
 
-### First team suggestions
+### First team meeting suggestions
 
 - ✅ Enable user to implement either the sync or async version of execute on a SemantixAgentTool child class
 - ✅ Set a default llm on the SemantixAgentToolConfig class
@@ -23,6 +23,13 @@
   - ✅ get_timestamp
   - ✅ get_outputfile_path
   - ✅ mount_file_url
+
+### Second team meeting suggestions
+
+- ⬜ Remove name and description from config
+- ⬜ Force developer to define the name and description on the create method
+- ⬜ Remove binding between handlers and semantix agent tool
+- ⬜ Explore input typing on tool run
 
 ### Publishing
 
