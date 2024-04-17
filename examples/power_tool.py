@@ -37,8 +37,8 @@ class PowerTool(SemantixAgentTool):
     @classmethod
     def create(cls, power_tool_config: PowerToolConfig) -> PowerTool:
         return cls(
-            name=power_tool_config.name,
-            description=power_tool_config.description,
+            name="power_tool",
+            description="tool that raises a number to the power of other number",
             exponent=power_tool_config.exponent,
             llm=power_tool_config.llm,
         )
@@ -46,8 +46,6 @@ class PowerTool(SemantixAgentTool):
 
 def main() -> None:
     power_tool_config = {
-        "name": "power_tool",
-        "description": "tool that raises a number to the power of other number",
         "exponent": 2,
         "llm": FakeListLLM(responses=["any_response"]),
     }

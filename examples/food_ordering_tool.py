@@ -96,8 +96,8 @@ class FoodOrderingTool(SemantixAgentTool):
             headers={"Authorization": f"Bearer {food_ordering_tool_config.api_token}"},
         )
         return cls(
-            name=food_ordering_tool_config.name,
-            description=food_ordering_tool_config.description,
+            name="food_ordering_tool",
+            description="tool that orders food online",
             llm=food_ordering_tool_config.llm,
             http_client=http_client,
         )
@@ -105,8 +105,6 @@ class FoodOrderingTool(SemantixAgentTool):
 
 def main() -> None:
     food_ordering_tool_config = {
-        "name": "food_ordering_tool",
-        "description": "tool that orders food online",
         "api_url": "https://any-food-ordering-app/orders",
         "api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
         "llm": FakeListLLM(responses=["any_response"]),

@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from asyncio import AbstractEventLoop, get_event_loop
-from functools import partial
-from typing import Any, Awaitable
+from typing import Any
 
 from langchain_community.llms.fake import FakeListLLM
 
@@ -41,33 +39,17 @@ class DivisionTool(SemantixAgentTool):
         division_tool_input = DivisionToolInput.query_to_tool_input(query)
         return str(division_tool_input.a / division_tool_input.b)
 
-    async def execute_async(self, query: str) -> Awaitable[str]:
-        async def run(
-            *args: Any,
-            loop: AbstractEventLoop | None = None,
-            executor: Any = None,
-            **kwargs: Any,
-        ):
-            if loop is None:
-                loop = get_event_loop()
-            pfunc = partial(self.execute, *args, **kwargs)
-            return await loop.run_in_executor(executor, pfunc)
-
-        return await run(query)
-
     @classmethod
     def create(cls, division_tool_config: DivisionToolConfig) -> DivisionTool:
         return cls(
-            name=division_tool_config.name,
-            description=division_tool_config.description,
+            name="division_tool",
+            description="tool that divides two numbers",
             llm=division_tool_config.llm,
         )
 
 
 def main() -> None:
     division_tool_config = {
-        "name": "division_tool",
-        "description": "tool that divides two numbers",
         "llm": FakeListLLM(responses=["any_response"]),
     }
     division_tool = _create_tool(**division_tool_config)
