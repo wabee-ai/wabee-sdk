@@ -23,3 +23,15 @@ class TestFileHandler:
             encoding = sut.find_encoding_csv(f.name)
 
             assert encoding == "ascii"
+
+    def test_should_build_the_file_path_for_storing_outputs(self) -> None:
+        sut = FileHandler()
+
+        assert (
+            sut.get_outputfile_path("run_path", "path", "session_id")
+            == "run_path/outputs/session_id/path"
+        )
+        assert (
+            sut.get_outputfile_path("run_path", "outputs/path", "session_id")
+            == "run_path/outputs/path"
+        )

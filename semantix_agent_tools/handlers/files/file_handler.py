@@ -1,3 +1,4 @@
+import os
 from collections import Counter
 
 import chardet
@@ -21,3 +22,11 @@ class FileHandler:
         with open(file_path, "rb") as rawdata:
             result = chardet.detect(rawdata.read(4096))
         return result["encoding"]
+
+    def get_outputfile_path(
+        self, run_path: str, path: str, session_id: str = ""
+    ) -> str:
+        if "outputs/" in path:
+            return os.path.join(run_path, path)
+        else:
+            return os.path.join(run_path, "outputs", session_id, path)
