@@ -26,8 +26,8 @@
 
 ### Second team meeting suggestions
 
-- ⬜ Remove name and description from config
-- ⬜ Force developer to define the name and description on the create method
+- ✅ Remove name and description from config
+- ✅ Force developer to define the name and description on the create method
 - ⬜ Remove binding between handlers and semantix agent tool
 - ⬜ Explore input typing on tool run
 

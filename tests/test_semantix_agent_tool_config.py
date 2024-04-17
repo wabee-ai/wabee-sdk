@@ -5,22 +5,15 @@ from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolCon
 
 
 class TestSemantixAgentToolConfig:
-    def test_should_have_name_and_description_and_llm_as_default_attributes(
+    def test_should_have_llm_as_default_attribute(
         self,
     ) -> None:
         fake_llm = FakeListLLM(responses=["any_response"])
-        sut = SemantixAgentToolConfig(
-            name="any_name", description="any_description", llm=fake_llm
-        )
-
-        assert sut.name == "any_name"
-        assert sut.description == "any_description"
+        sut = SemantixAgentToolConfig(llm=fake_llm)
         assert sut.llm == fake_llm
 
     def test_should_check_if_llm_belongs_to_allowed_llms_by_langchain(self) -> None:
         class InvalidLLM: ...
 
         with pytest.raises(ValueError):
-            SemantixAgentToolConfig(
-                name="any_name", description="any_description", llm=InvalidLLM()
-            )
+            SemantixAgentToolConfig(llm=InvalidLLM())

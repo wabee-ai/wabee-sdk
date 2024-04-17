@@ -9,8 +9,6 @@ from semantix_agent_tools.semantix_agent_tool_field_validator import (
 
 
 class SemantixAgentToolConfig(BaseModel):
-    name: str
-    description: str
     llm: Any
 
     @semantix_agent_tool_field_validator("llm")

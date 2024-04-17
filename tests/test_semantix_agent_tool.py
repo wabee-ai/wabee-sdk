@@ -51,16 +51,14 @@ class TestSemantixAgentTool:
                 cls, semantix_agent_tool_config: SemantixAgentToolConfigChild
             ) -> SemantixAgentTool:
                 return cls(
-                    name=semantix_agent_tool_config.name,
-                    description=semantix_agent_tool_config.description,
+                    name="any_name",
+                    description="any_description",
                     llm=semantix_agent_tool_config.llm,
                 )
 
         async def get_tool_output():
             semantix_agent_tool_child = SemantixAgentToolChild.create(
                 SemantixAgentToolConfigChild(
-                    name="any_name",
-                    description="any_description",
                     llm=FakeListLLM(responses=["any_response"]),
                 )
             )
