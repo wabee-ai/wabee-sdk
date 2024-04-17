@@ -25,7 +25,6 @@ class FileHandler:
             return split_char
 
     def find_encoding_csv(self, file_path: str) -> str | None:
-        # Detect file encoding
         with open(file_path, "rb") as rawdata:
             result = chardet.detect(rawdata.read(4096))
         return result["encoding"]
@@ -39,10 +38,6 @@ class FileHandler:
             return os.path.join(run_path, "outputs", session_id, path)
 
     def mount_file_url(self, run_path: str, file_path: str, agent_name: str) -> str:
-        # image_url = URL.format(
-        #     agent_name=settings.AGENT_NAME,
-        #     image_path=image_path.replace(settings.AGENT_OUTPUT_PATH, "")
-        # )
         file_url = self.__base_url.format(agent_name=agent_name) + file_path.replace(
             run_path, ""
         )
