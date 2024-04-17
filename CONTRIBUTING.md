@@ -58,12 +58,10 @@ The project folder/file structure is given down below for reference:
 ├── README.md
 ├── semantix_agent_tools
 │   ├── handlers
-│   │   ├── dates
-│   │   │   └── date_handler.py
-│   │   ├── exec
-│   │   │   └── python_execution_handler.py
-│   │   └── files
-│   │       └── file_handler.py
+│   │   ├── date_handler.py
+│   │   ├── file_handler.py
+│   │   ├── __init__.py
+│   │   └── python_execution_handler.py
 │   ├── __init__.py
 │   ├── semantix_agent_tool_config.py
 │   ├── semantix_agent_tool_field_validator.py
@@ -71,12 +69,9 @@ The project folder/file structure is given down below for reference:
 │   └── semantix_agent_tool.py
 └── tests
     ├── handlers
-    │   ├── dates
-    │   │   └── test_date_handler.py
-    │   ├── exec
-    │   │   └── test_python_execution_handler.py
-    │   └── files
-    │       └── test_file_handler.py
+    │   ├── test_date_handler.py
+    │   ├── test_file_handler.py
+    │   └── test_python_execution_handler.py
     ├── __init__.py
     ├── test_semantix_agent_tool_config.py
     ├── test_semantix_agent_tool_field_validator.py
