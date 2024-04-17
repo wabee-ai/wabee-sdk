@@ -7,11 +7,6 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agent_tools.handlers.dates.date_handler import DateHandler
-from semantix_agent_tools.handlers.exec.python_execution_handler import (
-    PythonExecutionHandler,
-)
-from semantix_agent_tools.handlers.files.file_handler import FileHandler
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
@@ -19,9 +14,6 @@ class SemantixAgentTool(BaseTool):
     name: str
     description: str
     llm: BaseLanguageModel
-    date_handler: DateHandler = DateHandler()
-    file_handler: FileHandler = FileHandler()
-    python_execution_handler: PythonExecutionHandler = PythonExecutionHandler()
 
     def execute(self, query: str) -> str:
         raise NotImplementedError("abstract method")

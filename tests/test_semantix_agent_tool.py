@@ -3,17 +3,12 @@ import asyncio
 import pytest
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agent_tools.handlers.dates.date_handler import DateHandler
-from semantix_agent_tools.handlers.exec.python_execution_handler import (
-    PythonExecutionHandler,
-)
-from semantix_agent_tools.handlers.files.file_handler import FileHandler
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
 from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
 class TestSemantixAgentTool:
-    def test_ensure_semantix_agent_tool_contains_name_and_description_and_llm_and_handlers_by_default(
+    def test_ensure_semantix_agent_tool_contains_name_and_description_and_llm_by_default(
         self,
     ) -> None:
         fake_llm = FakeListLLM(responses=["any_response"])
@@ -24,9 +19,6 @@ class TestSemantixAgentTool:
         assert sut.name == "any_name"
         assert sut.description == "any_description"
         assert sut.llm == fake_llm
-        assert isinstance(sut.date_handler, DateHandler)
-        assert isinstance(sut.file_handler, FileHandler)
-        assert isinstance(sut.python_execution_handler, PythonExecutionHandler)
 
     def test_ensure_children_of_semantix_agent_tool_cannot_be_created_without_implement_the_parent_interface(
         self,
@@ -66,15 +58,3 @@ class TestSemantixAgentTool:
             return output
 
         assert asyncio.run(get_tool_output()) == "execute"
-
-    def test_handlers_should_be_created_for_each_semantix_agent_tools(self) -> None:
-        fake_llm = FakeListLLM(responses=["any_response"])
-        sut1 = SemantixAgentTool(
-            name="any_name", description="any_description", llm=fake_llm
-        )
-        sut2 = SemantixAgentTool(
-            name="any_name", description="any_description", llm=fake_llm
-        )
-
-        assert sut1.date_handler != sut2.date_handler
-        assert sut1.file_handler != sut2.file_handler
