@@ -1,4 +1,4 @@
-from semantix_agent_tools.handlers.exec.python_execution_handler import (
+from semantix_agent_tools.handlers.python_execution_handler import (
     _ALLOWED_MODULES,
     PythonExecutionHandler,
 )
