@@ -1,6 +1,6 @@
-# Contributing Guide
+# 🤝 Contributing Guide
 
-## Project Setup
+## 🚧 Project Setup
 
 First of all, clone this repository from git using the following command:
 
@@ -29,7 +29,7 @@ poetry install
 
 Now we are good to go
 
-## Functionality Testing
+## 🧪 Functionality Testing
 
 To run the project tests use:
 
@@ -39,7 +39,7 @@ poetry run pytest -vv
 
 Add the flag `--cov` to the command above if you also want to include test coverage
 
-## Project Structure
+## 🌳 Project Structure
 
 The project folder/file structure is given down below for reference:
 
@@ -84,7 +84,7 @@ The project folder/file structure is given down below for reference:
     └── test_semantix_agent_tool.py
 ```
 
-## How to Contribute
+## 👩‍💻 How to Contribute
 
 To add new features to this project, first of all, create a feature branch from the main branch using:
 
