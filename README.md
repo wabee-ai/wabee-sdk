@@ -24,6 +24,11 @@
   - ✅ get_outputfile_path
   - ✅ mount_file_url
 
+### Publishing
+
+- ⬜ Publish package on pypi
+- ⬜ Create CI/CD to publish the package on pypi at every package release
+
 ## Issues
 
 ### Vulnerabilities
