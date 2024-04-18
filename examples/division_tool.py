@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any
+from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
@@ -35,8 +35,9 @@ def _create_tool(**kwargs: Any) -> SemantixAgentTool:
 
 
 class DivisionTool(SemantixAgentTool):
-    def execute(self, query: str) -> str:
-        division_tool_input = DivisionToolInput.query_to_tool_input(query)
+    args_schema: Type[SemantixAgentToolInput] = DivisionToolInput
+
+    def execute(self, division_tool_input: DivisionToolInput) -> str:
         return str(division_tool_input.a / division_tool_input.b)
 
     @classmethod
@@ -54,6 +55,11 @@ def main() -> None:
     }
     division_tool = _create_tool(**division_tool_config)
     logging.info(f"Creating DivisionTool with config: {division_tool_config}")
+
+    logging.info("Displaying tool information:")
+    print(f"name: {division_tool.name}")
+    print(f"description: {division_tool.description}")
+    print(f"args: {division_tool.args}")
 
     division_tool_query = json.dumps({"a": 1, "b": 0})
     logging.info(f"Calling DivisionTool with query: {division_tool_query}")

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import logging
-from asyncio import AbstractEventLoop, get_event_loop
+from asyncio import AbstractEventLoop, get_event_loop, run
 from functools import partial
-from typing import Any, Awaitable
+from typing import Any, Awaitable, Type
 from uuid import UUID
 
 from langchain_community.llms.fake import FakeListLLM
@@ -46,22 +46,31 @@ class HTTPClient:
         self.url = url
         self.headers = headers
 
-    def post(self, body: dict[str, Any]) -> dict[str, Any]:
-        request = {
-            "url": self.url,
-            "headers": self.headers,
-            "body": body,
-            "method": "POST",
-        }
-        return {"status_code": 201, "response": {"body": body}, "request": request}
+    async def post(self, body: dict[str, Any]) -> Awaitable[dict[str, Any]]:
+        async def run_as_async(
+            *args: Any,
+            loop: AbstractEventLoop | None = None,
+            executor: Any = None,
+            **kwargs: Any,
+        ):
+            if loop is None:
+                loop = get_event_loop()
+            pfunc = partial(
+                lambda: {"status_code": 201, "message": "created"}, *args, **kwargs
+            )
+            return await loop.run_in_executor(executor, pfunc)
+
+        return await run_as_async()
 
 
 class FoodOrderingTool(SemantixAgentTool):
+    args_schema: Type[SemantixAgentToolInput] = FoodOrderingToolInput
     http_client: HTTPClient
 
-    def execute(self, query: str) -> str:
-        food_ordering_tool_input = FoodOrderingToolInput.query_to_tool_input(query)
-        http_client_response = self.http_client.post(
+    async def execute_async(
+        self, food_ordering_tool_input: FoodOrderingToolInput
+    ) -> Awaitable[str]:
+        http_client_response = await self.http_client.post(
             {
                 "customer_id": food_ordering_tool_input.customer_id,
                 "restaurant_id": food_ordering_tool_input.restaurant_id,
@@ -72,20 +81,6 @@ class FoodOrderingTool(SemantixAgentTool):
             }
         )
         return str(http_client_response["status_code"])
-
-    async def execute_async(self, query: str) -> Awaitable[str]:
-        async def run(
-            *args: Any,
-            loop: AbstractEventLoop | None = None,
-            executor: Any = None,
-            **kwargs: Any,
-        ):
-            if loop is None:
-                loop = get_event_loop()
-            pfunc = partial(self.execute, *args, **kwargs)
-            return await loop.run_in_executor(executor, pfunc)
-
-        return await run(query)
 
     @classmethod
     def create(
@@ -112,6 +107,11 @@ def main() -> None:
     food_ordering_tool = _create_tool(**food_ordering_tool_config)
     logging.info(f"Creating FoodOrderingTool with config: {food_ordering_tool_config}")
 
+    logging.info("Displaying tool information:")
+    print(f"name: {food_ordering_tool.name}")
+    print(f"description: {food_ordering_tool.description}")
+    print(f"args: {food_ordering_tool.args}")
+
     food_ordering_tool_query = json.dumps(
         {
             "customer_id": "47b30ed0-d4cc-436c-a21b-08a9115e9373",
@@ -124,5 +124,5 @@ def main() -> None:
     )
     logging.info(f"Calling FoodOrderingTool with query: {food_ordering_tool_query}")
 
-    food_ordering_tool_output = food_ordering_tool._run(food_ordering_tool_query)
+    food_ordering_tool_output = run(food_ordering_tool.arun(food_ordering_tool_query))
     logging.info(f"FoodOrderingTool returned output: {food_ordering_tool_output}")

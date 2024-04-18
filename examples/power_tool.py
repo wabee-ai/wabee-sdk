@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Any
+from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
@@ -28,10 +28,10 @@ def _create_tool(**kwargs: Any) -> SemantixAgentTool:
 
 
 class PowerTool(SemantixAgentTool):
+    args_schema: Type[SemantixAgentToolInput] = PowerToolInput
     exponent: float
 
-    def execute(self, query: str) -> str:
-        power_tool_input = PowerToolInput.query_to_tool_input(query)
+    def execute(self, power_tool_input: PowerToolInput) -> str:
         return str(power_tool_input.base**self.exponent)
 
     @classmethod
@@ -52,8 +52,13 @@ def main() -> None:
     power_tool = _create_tool(**power_tool_config)
     logging.info(f"Creating PowerTool with config: {power_tool_config}")
 
+    logging.info("Displaying tool information:")
+    print(f"name: {power_tool.name}")
+    print(f"description: {power_tool.description}")
+    print(f"args: {power_tool.args}")
+
     power_tool_query = json.dumps({"base": 3})
     logging.info(f"Calling PowerTool with query: {power_tool_query}")
 
-    power_tool_output = power_tool._run(power_tool_query)
+    power_tool_output = power_tool.run(power_tool_query)
     logging.info(f"PowerTool returned output: {power_tool_output}")
