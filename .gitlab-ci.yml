@@ -10,7 +10,7 @@ workflow:
 
 lint-job:
   stage: lint
-  image: python3.10
+  image: python:3.10
   before_script:
     - pip install ruff mypy langchain==0.1.6 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
   script:
@@ -19,7 +19,7 @@ lint-job:
 
 test-job:
   stage: test
-  image: python3.10
+  image: python:3.10
   before_script:
     - pip install poetry==1.8.0
     - poetry install
@@ -28,7 +28,7 @@ test-job:
 
 build-job:
   stage: build
-  image: python3.10
+  image: python:3.10
   before_script:
     - pip install poetry==1.8.0
   script:
@@ -36,7 +36,7 @@ build-job:
 
 publish-job:
   stage: publish
-  image: python3.10
+  image: python:3.10
   dependencies:
     - build-job
   before_script:
