@@ -29,6 +29,16 @@ poetry install
 
 Now we are good to go
 
+## Examples
+
+To run the example tools, use one of the commands below:
+
+```sh
+poetry run power_tool_example
+poetry run division_tool_example
+poetry run food_ordering_tool_example
+```
+
 ## 🧪 Functionality Testing
 
 To run the project tests use:
