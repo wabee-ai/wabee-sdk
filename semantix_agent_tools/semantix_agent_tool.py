@@ -8,7 +8,6 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
 from semantix_agent_tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
@@ -18,18 +17,14 @@ class SemantixAgentTool(BaseTool):
     llm: BaseLanguageModel
     args_schema: Type[SemantixAgentToolInput]
 
-    def execute(self, semantix_agent_tool_input: SemantixAgentToolInput) -> str:
+    def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
 
-    async def execute_async(
-        self, semantix_agent_tool_input: SemantixAgentToolInput
-    ) -> Awaitable[str]:
+    async def execute_async(self, semantix_agent_tool_input: Any) -> Awaitable[str]:
         raise NotImplementedError("abstract method")
 
     @classmethod
-    def create(
-        cls, semantix_agent_tool_config: SemantixAgentToolConfig
-    ) -> SemantixAgentTool:
+    def create(cls, semantix_agent_tool_config: Any) -> SemantixAgentTool:
         raise NotImplementedError("abstract class method")
 
     def _run(

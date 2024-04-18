@@ -39,14 +39,14 @@ class TestSemantixAgentTool:
 
             def execute(
                 self,
-                semantix_agent_tool_input: SemantixAgentToolInputChild,  # type: ignore
+                semantix_agent_tool_input: SemantixAgentToolInputChild,
             ) -> str:
                 return "execute"
 
             @classmethod
             def create(
                 cls,
-                semantix_agent_tool_config: SemantixAgentToolConfigChild,  # type: ignore
+                semantix_agent_tool_config: SemantixAgentToolConfigChild,
             ) -> SemantixAgentTool:
                 return cls(
                     name="any_name",
@@ -86,14 +86,14 @@ class TestSemantixAgentTool:
 
             def execute(
                 self,
-                semantix_agent_tool_input: SemantixAgentToolInputChild,  # type: ignore
+                semantix_agent_tool_input: SemantixAgentToolInputChild,
             ) -> str:
                 return str(semantix_agent_tool_input)
 
             @classmethod
             def create(
                 cls,
-                semantix_agent_tool_config: SemantixAgentToolConfigChild,  # type: ignore
+                semantix_agent_tool_config: SemantixAgentToolConfigChild,
             ) -> SemantixAgentTool:
                 return cls(
                     name="any_name",
