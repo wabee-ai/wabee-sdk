@@ -31,6 +31,8 @@ workflow:
 publish-job:
   stage: publish
   image: python:3.10
+  only:
+    - tags
   before_script:
     - apt-get update
     - apt-get install pipx -y
