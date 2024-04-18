@@ -30,6 +30,8 @@
 - ✅ Force developer to define the name and description on the create method
 - ✅ Remove binding between handlers and semantix agent tool
 - ⬜ Explore input typing on tool run
+- ⬜ Overwrite \_parse_input and \_to_args_and_kwargs on semantix agent tool
+- ⬜ Enable calling the tool with typed input
 
 ### Publishing
 
