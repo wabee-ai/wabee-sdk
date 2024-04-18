@@ -29,6 +29,7 @@ matplotlib = "^3.8.4"
 power_tool_example = 'examples.power_tool:main'
 division_tool_example = 'examples.division_tool:main'
 food_ordering_tool_example = 'examples.food_ordering_tool:main'
+print_tool_example = 'examples.print_tool:main'
 
 
 [tool.poetry.group.dev.dependencies]
