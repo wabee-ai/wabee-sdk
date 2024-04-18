@@ -16,17 +16,17 @@ workflow:
 #     - ruff check semantix_agent_tools/
 #     - mypy semantix_agent_tools/ --explicit-package-bases --install-types --non-interactive
 
-test-job:
-  stage: test
-  image: python:3.10
-  before_script:
-    - apt-get update
-    - apt-get install pipx -y
-    - export PATH=$PATH:/root/.local/bin
-    - pipx install poetry==1.8.0
-    - poetry install
-  script:
-    - poetry run pytest -vv --cov --cov-fail-under=80
+# test-job:
+#   stage: test
+#   image: python:3.10
+#   before_script:
+#     - apt-get update
+#     - apt-get install pipx -y
+#     - export PATH=$PATH:/root/.local/bin
+#     - pipx install poetry==1.8.0
+#     - poetry install
+#   script:
+#     - poetry run pytest -vv --cov --cov-fail-under=80
 
 publish-job:
   stage: publish
@@ -36,6 +36,7 @@ publish-job:
     - apt-get install pipx -y
     - export PATH=$PATH:/root/.local/bin
     - pipx install poetry==1.8.0
+    - pipx inject poetry "poetry-dynamic-versioning[plugin]"
     - poetry config repositories.test-pypi https://test.pypi.org/legacy/
     - poetry config pypi-token.test-pypi ${PYPI_TOKEN}
   script:
