@@ -29,7 +29,7 @@ repos:
     hooks:
       - id: python-safety-dependencies-check
         files: pyproject.toml
-        args: ["--ignore=66051,65703,60840,59430"]
+        args: ["--ignore=66051,65703"]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0

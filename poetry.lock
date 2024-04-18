@@ -1644,13 +1644,13 @@ use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "restrictedpython"
-version = "6.0"
+version = "7.1"
 description = "RestrictedPython is a defined subset of the Python language which allows to provide a program input into a trusted environment."
 optional = false
-python-versions = ">=3.6, <3.12"
+python-versions = ">=3.7, <3.13"
 files = [
-    {file = "RestrictedPython-6.0-py3-none-any.whl", hash = "sha256:3479303f7bff48a7dedad76f96e7704993c5e86c5adbd67f607295d5352f0fb8"},
-    {file = "RestrictedPython-6.0.tar.gz", hash = "sha256:405cf0bd9eec2f19b1326b5f48228efe56d6590b4e91826b8cc3b2cd400a96ad"},
+    {file = "RestrictedPython-7.1-py3-none-any.whl", hash = "sha256:56d0c73e5de1757702053383601b0fcd3fb2e428039ee1df860409ad67b17d2b"},
+    {file = "RestrictedPython-7.1.tar.gz", hash = "sha256:875aeb51c139d78e34cef8605dc65309b449168060dd08551a1fe9edb47cb9a5"},
 ]
 
 [package.extras]
@@ -1951,4 +1951,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "24aa1192d4c3b232a2908db6c915109bf9da32aa6c0fa218f83388614a18bb1f"
+content-hash = "8e5ceddd6eaa6e9d890816a601409630c184ab9c513b39a21bc1e70b7fc652c0"

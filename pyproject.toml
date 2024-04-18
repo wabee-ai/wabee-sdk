@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "semantix-agent-tools"
-version = "0.1.0"
+version = "0.1.1"
 description = "Semantix Agent Tools Software Development Kit"
 authors = ["GDalforno <gabriel.dalforno@semantix.ai>"]
 maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>"]
@@ -22,8 +22,8 @@ python = ">=3.10,<3.12"
 langchain = "0.1.6"
 chardet = "^5.2.0"
 pandas = "^2.2.2"
-restrictedpython = "6.0"
 matplotlib = "^3.8.4"
+restrictedpython = "^7.1"
 
 [tool.poetry.scripts]
 power_tool_example = 'examples.power_tool:main'
