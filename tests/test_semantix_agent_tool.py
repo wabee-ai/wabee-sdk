@@ -115,7 +115,30 @@ class TestSemantixAgentTool:
         output, args = asyncio.run(get_tool_output())
         assert output == "x=0 y=Y(a='any_string') z=[Z(b=0.5)]"
         assert args == {
-            "x": {"title": "X", "type": "integer"},
-            "y": {"$ref": "#/definitions/Y"},
-            "z": {"items": {"$ref": "#/definitions/Z"}, "title": "Z", "type": "array"},
+            "title": "SemantixAgentToolInputChild",
+            "type": "object",
+            "properties": {
+                "x": {"title": "X", "type": "integer"},
+                "y": {"$ref": "#/definitions/Y"},
+                "z": {
+                    "title": "Z",
+                    "type": "array",
+                    "items": {"$ref": "#/definitions/Z"},
+                },
+            },
+            "required": ["x", "y", "z"],
+            "definitions": {
+                "Y": {
+                    "title": "Y",
+                    "type": "object",
+                    "properties": {"a": {"title": "A", "type": "string"}},
+                    "required": ["a"],
+                },
+                "Z": {
+                    "title": "Z",
+                    "type": "object",
+                    "properties": {"b": {"title": "B", "type": "number"}},
+                    "required": ["b"],
+                },
+            },
         }

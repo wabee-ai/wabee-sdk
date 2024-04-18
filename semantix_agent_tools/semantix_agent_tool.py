@@ -61,6 +61,10 @@ class SemantixAgentTool(BaseTool):
             return (self.args_schema.parse_raw(tool_input),), {}
         return (), tool_input
 
+    @property
+    def args(self) -> dict:
+        return self.args_schema.schema()
+
     def __init_subclass__(cls) -> None:
         if not (
             hasattr(cls, "execute")
