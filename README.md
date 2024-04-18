@@ -31,6 +31,7 @@
 - ✅ Remove binding between handlers and semantix agent tool
 - ✅ Explore input typing on tool run
 - ✅ Enable calling the tool with typed input
+- ⬜ Enhance error messages when input does not match the expected format
 
 ### Publishing
 
