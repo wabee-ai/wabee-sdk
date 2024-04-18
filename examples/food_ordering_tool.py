@@ -13,6 +13,7 @@ from semantix_agent_tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,
+    SemantixAgentToolInputField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
@@ -24,14 +25,32 @@ class FoodOrderingToolConfig(SemantixAgentToolConfig):
 
 
 class Item(SemantixAgentToolInput):
-    product_id: UUID
-    quantity: int
+    product_id: UUID = SemantixAgentToolInputField(
+        name="product_id",
+        description="product unique identifier",
+        example="0f09c33f-51d1-46df-91dd-dd7c2ba89a20",
+    )
+    quantity: int = SemantixAgentToolInputField(
+        name="quantity", description="product quantity", example=4
+    )
 
 
 class FoodOrderingToolInput(SemantixAgentToolInput):
-    customer_id: UUID
-    restaurant_id: UUID
-    items: list[Item]
+    customer_id: UUID = SemantixAgentToolInputField(
+        name="customer_id",
+        description="customer unique identifier",
+        example="47b30ed0-d4cc-436c-a21b-08a9115e9373",
+    )
+    restaurant_id: UUID = SemantixAgentToolInputField(
+        name="restaurant_id",
+        description="restaurant unique identifier",
+        example="bdeffffd-c6e6-4ff7-acf9-5cc7b1ba8f34",
+    )
+    items: list[Item] = SemantixAgentToolInputField(
+        name="items",
+        description="order items",
+        example=[{"product_id": "0f09c33f-51d1-46df-91dd-dd7c2ba89a20", "quantity": 4}],
+    )
 
 
 def _create_tool(**kwargs: Any) -> SemantixAgentTool:
