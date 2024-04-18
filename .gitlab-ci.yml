@@ -21,7 +21,7 @@ test-job:
   image: python:3.10
   before_script:
     - apt-get update
-    - apt-get install pipx
+    - apt-get install pipx -y
     - pipx install poetry==1.8.0
     - poetry install
   script:
@@ -32,7 +32,7 @@ publish-job:
   image: python:3.10
   before_script:
     - apt-get update
-    - apt-get install pipx
+    - apt-get install pipx -y
     - pipx install poetry==1.8.0
     - poetry config repositories.test-pypi https://test.pypi.org/legacy/
     - poetry config pypi-token.test-pypi ${PYPI_TOKEN}
