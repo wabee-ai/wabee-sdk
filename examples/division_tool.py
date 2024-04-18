@@ -72,5 +72,5 @@ def main() -> None:
     try:
         division_tool_output = division_tool.run(division_tool_query)
         logging.info(f"DivisionTool returned output: {division_tool_output}")
-    except ZeroDivisionError as e:
+    except TypeError as e:
         logging.error(f"DivisionTool returned an error: {str(e)}")
