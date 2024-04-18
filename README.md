@@ -29,14 +29,14 @@
 - ✅ Remove name and description from config
 - ✅ Force developer to define the name and description on the create method
 - ✅ Remove binding between handlers and semantix agent tool
-- ⬜ Explore input typing on tool run
+- ✅ Explore input typing on tool run
 - ✅ Enable calling the tool with typed input
 
 ### Publishing
 
 - ⬜ Publish package on [pypi](https://pypi.org)
-- ⬜ Create CI/CD to publish the package on pypi at every package release
-- ⬜ Enable dynamic version on poetry with git tags
+- ✅ Create CI/CD to publish the package on pypi at every package release
+- ✅ Enable dynamic version on poetry with git tags
 
 ## ⚠️ Issues
 
