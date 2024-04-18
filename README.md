@@ -36,6 +36,7 @@
 
 - ⬜ Publish package on [pypi](https://pypi.org)
 - ⬜ Create CI/CD to publish the package on pypi at every package release
+- ⬜ Enable dynamic version on poetry with git tags
 
 ## ⚠️ Issues
 
