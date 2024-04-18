@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 
-class SemantixAgentToolInput(BaseModel):
-    @classmethod
-    def query_to_tool_input(cls, query: str) -> SemantixAgentToolInput:
-        return cls.model_validate_json(query)
+class SemantixAgentToolInput(BaseModel): ...
