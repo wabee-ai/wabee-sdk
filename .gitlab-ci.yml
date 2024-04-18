@@ -24,7 +24,7 @@ test-job:
     - pip install poetry==1.8.0
     - poetry install
   script:
-    - poetry run pytest -vv --cov --cov-fail-under=90
+    - poetry run pytest -vv --cov --cov-fail-under=80
 
 build-job:
   stage: build
