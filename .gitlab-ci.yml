@@ -28,8 +28,6 @@ workflow:
 publish-job:
   stage: publish
   image: python:3.10
-  dependencies:
-    - build-job
   before_script:
     - pip install poetry==1.8.0
     - poetry config repositories.test-pypi https://test.pypi.org/legacy/
