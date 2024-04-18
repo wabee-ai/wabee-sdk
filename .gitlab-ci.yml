@@ -1,7 +1,6 @@
 stages:
   - lint
   - test
-  - build
   - publish
 
 workflow:
@@ -26,14 +25,6 @@ test-job:
   script:
     - poetry run pytest -vv --cov --cov-fail-under=80
 
-build-job:
-  stage: build
-  image: python:3.10
-  before_script:
-    - pip install poetry==1.8.0
-  script:
-    - poetry build
-
 publish-job:
   stage: publish
   image: python:3.10
@@ -44,4 +35,4 @@ publish-job:
     - poetry config repositories.test-pypi https://test.pypi.org/legacy/
     - poetry config pypi-token.test-pypi ${PYPI_TOKEN}
   script:
-    - poetry publish -r test-pypi
+    - poetry publish --build -r test-pypi
