@@ -30,7 +30,7 @@
 - ✅ Force developer to define the name and description on the create method
 - ✅ Remove binding between handlers and semantix agent tool
 - ⬜ Explore input typing on tool run
-- ⬜ Enable calling the tool with typed input
+- ✅ Enable calling the tool with typed input
 
 ### Publishing
 
