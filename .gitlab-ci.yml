@@ -1,32 +1,28 @@
 stages:
-  # - lint
+  - lint
   - test
   - publish
 
-workflow:
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
+lint-job:
+  stage: lint
+  image: python:3.10
+  before_script:
+    - pip install ruff mypy langchain==0.1.6 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
+  script:
+    - ruff check semantix_agent_tools/
+    - mypy semantix_agent_tools/ --explicit-package-bases --install-types --non-interactive
 
-# lint-job:
-#   stage: lint
-#   image: python:3.10
-#   before_script:
-#     - pip install ruff mypy langchain==0.1.6 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
-#   script:
-#     - ruff check semantix_agent_tools/
-#     - mypy semantix_agent_tools/ --explicit-package-bases --install-types --non-interactive
-
-# test-job:
-#   stage: test
-#   image: python:3.10
-#   before_script:
-#     - apt-get update
-#     - apt-get install pipx -y
-#     - export PATH=$PATH:/root/.local/bin
-#     - pipx install poetry==1.8.0
-#     - poetry install
-#   script:
-#     - poetry run pytest -vv --cov --cov-fail-under=80
+test-job:
+  stage: test
+  image: python:3.10
+  before_script:
+    - apt-get update
+    - apt-get install pipx -y
+    - export PATH=$PATH:/root/.local/bin
+    - pipx install poetry==1.8.0
+    - poetry install
+  script:
+    - poetry run pytest -vv --cov --cov-fail-under=80
 
 publish-job:
   stage: publish
