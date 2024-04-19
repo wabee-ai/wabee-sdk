@@ -3,7 +3,7 @@ from typing import Any
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.language_model import BaseLanguageModel
 
-from semantix_agent_tools.semantix_agent_tool_field_validator import (
+from semantix_agents.semantix_agent_tool_field_validator import (
     semantix_agent_tool_field_validator,
 )
 

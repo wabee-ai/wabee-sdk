@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "semantix-agent-tools"
+name = "semantix-agents"
 version = "0.1.0"
-description = "Semantix Agent Tools Software Development Kit"
+description = "Semantix Agents Software Development Kit"
 authors = ["GDalforno <gabriel.dalforno@semantix.ai>"]
 maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>"]
 license = "Proprietary"

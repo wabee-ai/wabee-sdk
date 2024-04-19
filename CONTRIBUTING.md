@@ -66,7 +66,7 @@ The project folder/file structure is given down below for reference:
 ├── poetry.lock
 ├── pyproject.toml
 ├── README.md
-├── semantix_agent_tools
+├── semantix_agents
 │   ├── handlers
 │   │   ├── date_handler.py
 │   │   ├── file_handler.py

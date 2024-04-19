@@ -1,4 +1,4 @@
-# 🔧 Semantix Agent Tools
+# 🔧 Semantix Agents
 
 ## 📋 Requirements
 

@@ -2,11 +2,11 @@ import json
 
 import pytest
 
-from semantix_agent_tools.semantix_agent_tool_config import SemantixAgentToolConfig
-from semantix_agent_tools.semantix_agent_tool_field_validator import (
+from semantix_agents.semantix_agent_tool_config import SemantixAgentToolConfig
+from semantix_agents.semantix_agent_tool_field_validator import (
     semantix_agent_tool_field_validator,
 )
-from semantix_agent_tools.semantix_agent_tool_input import SemantixAgentToolInput
+from semantix_agents.semantix_agent_tool_input import SemantixAgentToolInput
 
 
 class TestSemantixAgentToolFieldValidator:

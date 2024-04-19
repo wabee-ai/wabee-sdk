@@ -1,4 +1,4 @@
-from semantix_agent_tools.handlers.date_handler import DateHandler
+from semantix_agents.handlers.date_handler import DateHandler
 
 
 class TestDateHandler:

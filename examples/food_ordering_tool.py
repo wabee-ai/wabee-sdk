@@ -9,7 +9,7 @@ from uuid import UUID
 
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agent_tools import (
+from semantix_agents import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,

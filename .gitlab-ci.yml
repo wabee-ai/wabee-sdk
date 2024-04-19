@@ -9,8 +9,8 @@ lint-job:
   before_script:
     - pip install ruff mypy langchain==0.1.6 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
   script:
-    - ruff check semantix_agent_tools/
-    - mypy semantix_agent_tools/ --explicit-package-bases --install-types --non-interactive
+    - ruff check semantix_agents/
+    - mypy semantix_agents/ --explicit-package-bases --install-types --non-interactive
 
 test-job:
   stage: test
