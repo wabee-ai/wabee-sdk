@@ -53,7 +53,7 @@ class SemantixAgentTool(BaseTool):
                 self.args_schema.validate(json.loads(tool_input))
                 return tool_input
             return tool_input
-        except Exception:
+        except json.decoder.JSONDecodeError:
             return {}
 
     def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
