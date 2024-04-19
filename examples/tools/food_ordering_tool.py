@@ -49,7 +49,7 @@ class FoodOrderingToolInput(SemantixAgentToolInput):
     items: list[Item] = SemantixAgentToolInputField(
         name="items",
         description="order items",
-        example=[{"product_id": "0f09c33f-51d1-46df-91dd-dd7c2ba89a20", "quantity": 4}],
+        example=[Item.props()],
     )
 
 
