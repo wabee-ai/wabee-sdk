@@ -45,7 +45,7 @@ class PrintTool(SemantixAgentTool):
 
 def main() -> None:
     print_tool_config = {
-        "llm": FakeListLLM(responses=["any_response"]),
+        "_llm": FakeListLLM(responses=["any_response"]),
     }
     print_tool = _create_tool(**print_tool_config)
     logging.info(f"Creating PrintTool with config: {print_tool_config}")

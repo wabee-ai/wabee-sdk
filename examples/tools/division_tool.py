@@ -56,7 +56,7 @@ class DivisionTool(SemantixAgentTool):
 
 def main() -> None:
     division_tool_config = {
-        "llm": FakeListLLM(responses=["any_response"]),
+        "_llm": FakeListLLM(responses=["any_response"]),
     }
     division_tool = _create_tool(**division_tool_config)
     logging.info(f"Creating DivisionTool with config: {division_tool_config}")

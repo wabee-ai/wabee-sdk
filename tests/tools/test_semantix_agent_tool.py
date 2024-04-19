@@ -59,7 +59,7 @@ class TestSemantixAgentTool:
         async def get_tool_output():
             semantix_agent_tool_child = SemantixAgentToolChild.create(
                 SemantixAgentToolConfigChild(
-                    llm=FakeListLLM(responses=["any_response"]),
+                    _llm=FakeListLLM(responses=["any_response"]),
                 )
             )
             output = await semantix_agent_tool_child.arun(
@@ -106,7 +106,7 @@ class TestSemantixAgentTool:
         async def get_tool_output():
             semantix_agent_tool_child = SemantixAgentToolChild.create(
                 SemantixAgentToolConfigChild(
-                    llm=FakeListLLM(responses=["any_response"]),
+                    _llm=FakeListLLM(responses=["any_response"]),
                 )
             )
             output = await semantix_agent_tool_child.arun(
@@ -173,7 +173,7 @@ class TestSemantixAgentTool:
 
         semantix_agent_tool_child = SemantixAgentToolChild.create(
             SemantixAgentToolConfigChild(
-                llm=FakeListLLM(responses=["any_response"]),
+                _llm=FakeListLLM(responses=["any_response"]),
             )
         )
 
@@ -210,7 +210,7 @@ class TestSemantixAgentTool:
 
         semantix_agent_tool_child = SemantixAgentToolChild.create(
             SemantixAgentToolConfigChild(
-                llm=FakeListLLM(responses=["any_response"]),
+                _llm=FakeListLLM(responses=["any_response"]),
             )
         )
 

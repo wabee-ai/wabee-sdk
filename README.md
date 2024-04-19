@@ -36,6 +36,7 @@
 ### Third team meeting suggestions
 
 - ✅ Add string representation to semantix agent tool input
+- ✅ Update semantix agent config to accept `_llm` as parameter name
 
 ### Publishing
 

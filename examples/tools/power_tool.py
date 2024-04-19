@@ -50,7 +50,7 @@ class PowerTool(SemantixAgentTool):
 def main() -> None:
     power_tool_config = {
         "exponent": 2,
-        "llm": FakeListLLM(responses=["any_response"]),
+        "_llm": FakeListLLM(responses=["any_response"]),
     }
     power_tool = _create_tool(**power_tool_config)
     logging.info(f"Creating PowerTool with config: {power_tool_config}")

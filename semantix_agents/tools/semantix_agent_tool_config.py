@@ -1,6 +1,6 @@
 from typing import Any
 
-from langchain.pydantic_v1 import BaseModel
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain.schema.language_model import BaseLanguageModel
 
 from semantix_agents.tools.semantix_agent_tool_field_validator import (
@@ -9,7 +9,7 @@ from semantix_agents.tools.semantix_agent_tool_field_validator import (
 
 
 class SemantixAgentToolConfig(BaseModel):
-    llm: Any
+    llm: Any = Field(..., alias="_llm")
 
     @semantix_agent_tool_field_validator("llm")
     def check_llm(cls, value: Any) -> Any:
