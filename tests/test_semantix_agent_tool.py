@@ -3,6 +3,7 @@ import json
 from typing import Type
 
 import pytest
+from langchain.pydantic_v1 import ValidationError
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
@@ -178,3 +179,40 @@ class TestSemantixAgentTool:
 
         with pytest.raises(TypeError):
             semantix_agent_tool_child.run("invalid_input")
+
+    def test_semantix_agent_tool_propagates_validation_error_if_input_json_does_not_match_the_expected_format(
+        self,
+    ) -> None:
+        class SemantixAgentToolConfigChild(SemantixAgentToolConfig): ...
+
+        class SemantixAgentToolInputChild(SemantixAgentToolInput):
+            value: str
+
+        class SemantixAgentToolChild(SemantixAgentTool):
+            args_schema: Type[SemantixAgentToolInput] = SemantixAgentToolInputChild
+
+            def execute(
+                self,
+                semantix_agent_tool_input: SemantixAgentToolInputChild,
+            ) -> str:
+                return "execute"
+
+            @classmethod
+            def create(
+                cls,
+                semantix_agent_tool_config: SemantixAgentToolConfigChild,
+            ) -> SemantixAgentTool:
+                return cls(
+                    name="any_name",
+                    description="any_description",
+                    llm=semantix_agent_tool_config.llm,
+                )
+
+        semantix_agent_tool_child = SemantixAgentToolChild.create(
+            SemantixAgentToolConfigChild(
+                llm=FakeListLLM(responses=["any_response"]),
+            )
+        )
+
+        with pytest.raises(ValidationError):
+            semantix_agent_tool_child.run(json.dumps({"input": "invalid_input"}))
