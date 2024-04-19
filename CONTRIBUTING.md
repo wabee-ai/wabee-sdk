@@ -5,7 +5,7 @@
 First of all, clone this repository from git using the following command:
 
 ```sh
-git clone <TODO: ADD REPO URL>
+git clone git@gitlab.com:Semantix/ai/gen-ai/semantix-agents.git
 ```
 
 Then, install `poetry` and `pre-commit` with the following commands:
@@ -58,35 +58,43 @@ The project folder/file structure is given down below for reference:
 ├── CHANGES.txt
 ├── CONTRIBUTING.md
 ├── examples
-│   ├── division_tool.py
-│   ├── food_ordering_tool.py
 │   ├── __init__.py
-│   └── power_tool.py
+│   └── tools
+│       ├── division_tool.py
+│       ├── food_ordering_tool.py
+│       ├── __init__.py
+│       ├── power_tool.py
+│       └── print_tool.py
 ├── LICENSE
 ├── poetry.lock
 ├── pyproject.toml
 ├── README.md
 ├── semantix_agents
-│   ├── handlers
-│   │   ├── date_handler.py
-│   │   ├── file_handler.py
-│   │   ├── __init__.py
-│   │   └── python_execution_handler.py
 │   ├── __init__.py
-│   ├── semantix_agent_tool_config.py
-│   ├── semantix_agent_tool_field_validator.py
-│   ├── semantix_agent_tool_input.py
-│   └── semantix_agent_tool.py
+│   └── tools
+│       ├── handlers
+│       │   ├── date_handler.py
+│       │   ├── file_handler.py
+│       │   ├── __init__.py
+│       │   └── python_execution_handler.py
+│       ├── __init__.py
+│       ├── semantix_agent_tool_config.py
+│       ├── semantix_agent_tool_field_validator.py
+│       ├── semantix_agent_tool_input_field.py
+│       ├── semantix_agent_tool_input.py
+│       └── semantix_agent_tool.py
 └── tests
-    ├── handlers
-    │   ├── test_date_handler.py
-    │   ├── test_file_handler.py
-    │   └── test_python_execution_handler.py
     ├── __init__.py
-    ├── test_semantix_agent_tool_config.py
-    ├── test_semantix_agent_tool_field_validator.py
-    ├── test_semantix_agent_tool_input.py
-    └── test_semantix_agent_tool.py
+    └── tools
+        ├── handlers
+        │   ├── test_date_handler.py
+        │   ├── test_file_handler.py
+        │   └── test_python_execution_handler.py
+        ├── test_semantix_agent_tool_config.py
+        ├── test_semantix_agent_tool_field_validator.py
+        ├── test_semantix_agent_tool_input_field.py
+        ├── test_semantix_agent_tool_input.py
+        └── test_semantix_agent_tool.py
 ```
 
 ## 👩‍💻 How to Contribute
