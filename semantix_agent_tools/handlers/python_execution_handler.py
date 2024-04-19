@@ -1,5 +1,7 @@
 import ast
 import copy
+import json
+import os
 import re
 from contextlib import redirect_stdout
 from io import StringIO
@@ -15,24 +17,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 CHECK_IMPORT_OS = re.compile(r"(?<![\d\w])os(?=\.)")
 _ALLOWED_MODULES = frozenset(
-    (
-        "warnings",
-        "pandas",
-        "numpy",
-        "statsmodel",
-        "datetime",
-        "re",
-        "collections",
-        "scipy",
-        "sklearn",
-        "itertools",
-        "seaborn",
-        "matplotlib",
-        "plotly",
-        "time",
-        "_strptime",
-        "pytz",
-    )
+    json.loads(os.getenv("SEMANTIX_AGENT_TOOLS_ALLOWED_MODULES", "[]"))
 )
 
 
