@@ -2,6 +2,7 @@ import asyncio
 import json
 from typing import Type
 
+import pytest
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agent_tools.semantix_agent_tool import SemantixAgentTool
@@ -142,3 +143,38 @@ class TestSemantixAgentTool:
                 },
             },
         }
+
+    def test_semantix_agent_tool_raises_if_input_cannot_be_parsed_as_json(self) -> None:
+        class SemantixAgentToolConfigChild(SemantixAgentToolConfig): ...
+
+        class SemantixAgentToolInputChild(SemantixAgentToolInput):
+            value: str
+
+        class SemantixAgentToolChild(SemantixAgentTool):
+            args_schema: Type[SemantixAgentToolInput] = SemantixAgentToolInputChild
+
+            def execute(
+                self,
+                semantix_agent_tool_input: SemantixAgentToolInputChild,
+            ) -> str:
+                return "execute"
+
+            @classmethod
+            def create(
+                cls,
+                semantix_agent_tool_config: SemantixAgentToolConfigChild,
+            ) -> SemantixAgentTool:
+                return cls(
+                    name="any_name",
+                    description="any_description",
+                    llm=semantix_agent_tool_config.llm,
+                )
+
+        semantix_agent_tool_child = SemantixAgentToolChild.create(
+            SemantixAgentToolConfigChild(
+                llm=FakeListLLM(responses=["any_response"]),
+            )
+        )
+
+        with pytest.raises(TypeError):
+            semantix_agent_tool_child.run("invalid_input")
