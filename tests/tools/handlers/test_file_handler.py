@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from semantix_agents.handlers.file_handler import FileHandler
+from semantix_agents.tools.handlers.file_handler import FileHandler
 
 
 class TestFileHandler:

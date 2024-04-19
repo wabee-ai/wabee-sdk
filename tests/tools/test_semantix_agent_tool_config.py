@@ -1,7 +1,7 @@
 import pytest
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents.semantix_agent_tool_config import SemantixAgentToolConfig
+from semantix_agents.tools.semantix_agent_tool_config import SemantixAgentToolConfig
 
 
 class TestSemantixAgentToolConfig:

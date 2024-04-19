@@ -8,7 +8,7 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agents.semantix_agent_tool_input import SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
 class SemantixAgentTool(BaseTool):

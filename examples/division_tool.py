@@ -6,7 +6,7 @@ from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents import (
+from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,

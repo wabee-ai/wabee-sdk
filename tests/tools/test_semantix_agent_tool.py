@@ -6,9 +6,9 @@ import pytest
 from langchain.pydantic_v1 import ValidationError
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents.semantix_agent_tool import SemantixAgentTool
-from semantix_agents.semantix_agent_tool_config import SemantixAgentToolConfig
-from semantix_agents.semantix_agent_tool_input import SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool import SemantixAgentTool
+from semantix_agents.tools.semantix_agent_tool_config import SemantixAgentToolConfig
+from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
 class TestSemantixAgentTool:

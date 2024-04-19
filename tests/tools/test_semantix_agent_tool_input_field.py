@@ -1,4 +1,4 @@
-from semantix_agents.semantix_agent_tool_input_field import SemantixAgentToolInputField
+from semantix_agents.tools.semantix_agent_tool_input_field import SemantixAgentToolInputField
 
 
 class TestSemantixAgentToolInputField:
