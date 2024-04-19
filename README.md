@@ -33,6 +33,10 @@
 - ✅ Enable calling the tool with typed input
 - ✅ Enhance error messages when input does not match the expected format
 
+### Third team meeting suggestions
+
+- ✅ Add string representation to semantix agent tool input
+
 ### Publishing
 
 - ⬜ Publish package on [pypi](https://pypi.org)
