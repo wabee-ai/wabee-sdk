@@ -61,10 +61,6 @@ class SemantixAgentTool(BaseTool):
             return (self.args_schema.parse_raw(tool_input),), {}
         return (), tool_input
 
-    @property
-    def args(self) -> dict:
-        return self.args_schema.schema()
-
     def __init_subclass__(cls) -> None:
         if not (
             hasattr(cls, "execute")
@@ -77,3 +73,7 @@ class SemantixAgentTool(BaseTool):
             raise NotImplementedError(
                 f"{cls.__name__} does not correct implement the SemantixAgentTool interface"
             )
+
+    def __str__(self):
+        description = self.description.replace('\n', ' ').replace('\t', ' ')
+        return f"{self.name}:{description}. For the input use this JSON schema: {self.args}"
