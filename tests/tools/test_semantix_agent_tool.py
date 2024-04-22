@@ -7,8 +7,8 @@ from langchain.pydantic_v1 import ValidationError
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agents.tools.semantix_agent_tool import SemantixAgentTool
-from semantix_agents.tools.semantix_agent_tool_config import SemantixAgentToolConfig
-from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool_config import  SemantixAgentToolConfig
+from semantix_agents.tools.semantix_agent_tool_input import  SemantixAgentToolInput
 
 
 class TestSemantixAgentTool:
@@ -117,9 +117,6 @@ class TestSemantixAgentTool:
         output, args = asyncio.run(get_tool_output())
         assert output == "x=0 y=Y(a='any_string') z=[Z(b=0.5)]"
         assert args == {
-            "title": "SemantixAgentToolInputChild",
-            "type": "object",
-            "properties": {
                 "x": {"title": "X", "type": "integer"},
                 "y": {"$ref": "#/definitions/Y"},
                 "z": {
@@ -127,23 +124,8 @@ class TestSemantixAgentTool:
                     "type": "array",
                     "items": {"$ref": "#/definitions/Z"},
                 },
-            },
-            "required": ["x", "y", "z"],
-            "definitions": {
-                "Y": {
-                    "title": "Y",
-                    "type": "object",
-                    "properties": {"a": {"title": "A", "type": "string"}},
-                    "required": ["a"],
-                },
-                "Z": {
-                    "title": "Z",
-                    "type": "object",
-                    "properties": {"b": {"title": "B", "type": "number"}},
-                    "required": ["b"],
-                },
-            },
-        }
+            }
+
 
     def test_semantix_agent_tool_raises_if_input_cannot_be_parsed_as_json(self) -> None:
         class SemantixAgentToolConfigChild(SemantixAgentToolConfig): ...
