@@ -8,7 +8,8 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool_input import \
+    SemantixAgentToolInput
 
 
 class SemantixAgentTool(BaseTool):
@@ -59,7 +60,7 @@ class SemantixAgentTool(BaseTool):
     def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
         if isinstance(tool_input, str):
             return (self.args_schema.parse_raw(tool_input),), {}
-        return (), tool_input
+        return (self.args_schema(**tool_input),), {}
 
     def __init_subclass__(cls) -> None:
         if not (
