@@ -7,8 +7,6 @@ from functools import partial
 from typing import Any, Awaitable, Type
 from uuid import UUID
 
-from langchain_community.llms.fake import FakeListLLM
-
 from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
@@ -112,7 +110,6 @@ class FoodOrderingTool(SemantixAgentTool):
         return cls(
             name="food_ordering_tool",
             description="tool that orders food online",
-            llm=food_ordering_tool_config.llm,
             http_client=http_client,
         )
 
@@ -121,7 +118,6 @@ def main() -> None:
     food_ordering_tool_config = {
         "api_url": "https://any-food-ordering-app/orders",
         "api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
-        "_llm": FakeListLLM(responses=["any_response"]),
     }
     food_ordering_tool = _create_tool(**food_ordering_tool_config)
     logging.info(f"Creating FoodOrderingTool with config: {food_ordering_tool_config}")
