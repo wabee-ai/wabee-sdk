@@ -19,7 +19,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-langchain = "0.1.14"
+langchain = "^0.1.14"
 chardet = "^5.2.0"
 pandas = "^2.2.2"
 restrictedpython = "^7.1"
