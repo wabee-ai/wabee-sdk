@@ -4,6 +4,7 @@ import json
 from typing import Any, Awaitable, Type
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
+from langchain.pydantic_v1 import ValidationError
 from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
@@ -21,7 +22,8 @@ class SemantixAgentTool(BaseTool):
     def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
 
-    async def execute_async(self, semantix_agent_tool_input: Any) -> Awaitable[str]:
+    async def execute_async(self,
+                            semantix_agent_tool_input: Any) -> Awaitable[str]:
         raise NotImplementedError("abstract method")
 
     @classmethod
@@ -56,23 +58,21 @@ class SemantixAgentTool(BaseTool):
 
             self.args_schema.validate(tool_input)
             return tool_input
-        except Exception:
-            raise ValueError("Input is not valid")
+        except json.decoder.JSONDecodeError:
+            raise TypeError("Input is not Json valid")
+        except ValidationError:
+            raise TypeError("Input is not in the correct format")
 
-    def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
+    def _to_args_and_kwargs(self,
+                            tool_input: str | dict) -> tuple[tuple, dict]:
         if isinstance(tool_input, str):
-            return (self.args_schema.parse_raw(tool_input),), {}
-        return (self.args_schema(**tool_input),), {}
+            return (self.args_schema.parse_raw(tool_input), ), {}
+        return (self.args_schema(**tool_input), ), {}
 
     def __init_subclass__(cls) -> None:
-        if not (
-            hasattr(cls, "execute")
-            and callable(cls.execute)
-            and hasattr(cls, "execute_async")
-            and callable(cls.execute_async)
-            and hasattr(cls, "create")
-            and callable(cls.create)
-        ):
+        if not (hasattr(cls, "execute") and callable(cls.execute) and hasattr(
+                cls, "execute_async") and callable(cls.execute_async)
+                and hasattr(cls, "create") and callable(cls.create)):
             raise NotImplementedError(
                 f"{cls.__name__} does not correct implement the SemantixAgentTool interface"
             )

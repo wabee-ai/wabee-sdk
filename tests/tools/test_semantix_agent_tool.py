@@ -160,7 +160,7 @@ class TestSemantixAgentTool:
             )
         )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             semantix_agent_tool_child.run("invalid_input")
 
     def test_semantix_agent_tool_propagates_validation_error_if_input_json_does_not_match_the_expected_format(
@@ -197,5 +197,5 @@ class TestSemantixAgentTool:
             )
         )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             semantix_agent_tool_child.run(json.dumps({"input": "invalid_input"}))
