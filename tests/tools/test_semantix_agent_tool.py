@@ -3,12 +3,13 @@ import json
 from typing import Type
 
 import pytest
-from langchain.pydantic_v1 import ValidationError
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agents.tools.semantix_agent_tool import SemantixAgentTool
-from semantix_agents.tools.semantix_agent_tool_config import  SemantixAgentToolConfig
-from semantix_agents.tools.semantix_agent_tool_input import  SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool_config import \
+    SemantixAgentToolConfig
+from semantix_agents.tools.semantix_agent_tool_input import \
+    SemantixAgentToolInput
 
 
 class TestSemantixAgentTool:
@@ -159,7 +160,7 @@ class TestSemantixAgentTool:
             )
         )
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValueError):
             semantix_agent_tool_child.run("invalid_input")
 
     def test_semantix_agent_tool_propagates_validation_error_if_input_json_does_not_match_the_expected_format(
@@ -196,5 +197,5 @@ class TestSemantixAgentTool:
             )
         )
 
-        with pytest.raises(ValidationError):
+        with pytest.raises(ValueError):
             semantix_agent_tool_child.run(json.dumps({"input": "invalid_input"}))

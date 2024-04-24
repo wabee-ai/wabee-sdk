@@ -53,9 +53,11 @@ class SemantixAgentTool(BaseTool):
             if isinstance(tool_input, str):
                 self.args_schema.validate(json.loads(tool_input))
                 return tool_input
+
+            self.args_schema.validate(tool_input)
             return tool_input
-        except json.decoder.JSONDecodeError:
-            return {}
+        except Exception:
+            raise ValueError("Input is not valid")
 
     def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
         if isinstance(tool_input, str):
