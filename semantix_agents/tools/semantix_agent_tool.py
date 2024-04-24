@@ -9,21 +9,19 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agents.tools.semantix_agent_tool_input import \
-    SemantixAgentToolInput
+from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
 class SemantixAgentTool(BaseTool):
     name: str
     description: str
-    llm: BaseLanguageModel
+    llm: BaseLanguageModel | None = None
     args_schema: Type[SemantixAgentToolInput]
 
     def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
 
-    async def execute_async(self,
-                            semantix_agent_tool_input: Any) -> Awaitable[str]:
+    async def execute_async(self, semantix_agent_tool_input: Any) -> Awaitable[str]:
         raise NotImplementedError("abstract method")
 
     @classmethod
@@ -63,20 +61,24 @@ class SemantixAgentTool(BaseTool):
         except ValidationError:
             raise TypeError("Input is not in the correct format")
 
-    def _to_args_and_kwargs(self,
-                            tool_input: str | dict) -> tuple[tuple, dict]:
+    def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
         if isinstance(tool_input, str):
-            return (self.args_schema.parse_raw(tool_input), ), {}
-        return (self.args_schema(**tool_input), ), {}
+            return (self.args_schema.parse_raw(tool_input),), {}
+        return (self.args_schema(**tool_input),), {}
 
     def __init_subclass__(cls) -> None:
-        if not (hasattr(cls, "execute") and callable(cls.execute) and hasattr(
-                cls, "execute_async") and callable(cls.execute_async)
-                and hasattr(cls, "create") and callable(cls.create)):
+        if not (
+            hasattr(cls, "execute")
+            and callable(cls.execute)
+            and hasattr(cls, "execute_async")
+            and callable(cls.execute_async)
+            and hasattr(cls, "create")
+            and callable(cls.create)
+        ):
             raise NotImplementedError(
                 f"{cls.__name__} does not correct implement the SemantixAgentTool interface"
             )
 
     def __str__(self):
-        description = self.description.replace('\n', ' ').replace('\t', ' ')
+        description = self.description.replace("\n", " ").replace("\t", " ")
         return f"{self.name}:{description}. For the input use this JSON schema: {self.args}"

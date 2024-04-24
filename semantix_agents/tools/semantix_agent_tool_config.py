@@ -9,10 +9,12 @@ from semantix_agents.tools.semantix_agent_tool_field_validator import (
 
 
 class SemantixAgentToolConfig(BaseModel):
-    llm: Any = Field(..., alias="_llm")
+    llm: Any | None = Field(default=None, alias="_llm")
 
     @semantix_agent_tool_field_validator("llm")
     def check_llm(cls, value: Any) -> Any:
+        if value is None:
+            return value
         if not isinstance(value, BaseLanguageModel):
             raise ValueError(
                 "Provided llm does not implement the BaseLanguageModel interface"
