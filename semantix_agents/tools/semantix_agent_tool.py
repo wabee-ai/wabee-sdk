@@ -11,7 +11,7 @@ from langchain_core.runnables.config import run_in_executor
 from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
-def return_validation_error(e: Exception):
+def return_validation_error(e: Exception) -> str:
     return str(e)
 
 
