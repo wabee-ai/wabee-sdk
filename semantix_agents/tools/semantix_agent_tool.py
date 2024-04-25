@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Awaitable, Type
+from typing import Any, Awaitable, Callable, Type
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
 from langchain.schema.language_model import BaseLanguageModel
@@ -11,11 +11,16 @@ from langchain_core.runnables.config import run_in_executor
 from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
+def return_validation_error(e: Exception):
+    return str(e)
+
+
 class SemantixAgentTool(BaseTool):
     name: str
     description: str
     llm: BaseLanguageModel | None = None
     args_schema: Type[SemantixAgentToolInput]
+    handle_validation_error: Callable = return_validation_error
 
     def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
