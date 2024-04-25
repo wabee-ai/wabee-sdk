@@ -3,7 +3,6 @@ import json
 from typing import Type
 
 import pytest
-from langchain.pydantic_v1 import ValidationError
 from langchain_community.llms.fake import FakeListLLM
 
 from semantix_agents.tools.semantix_agent_tool import SemantixAgentTool
@@ -195,5 +194,7 @@ class TestSemantixAgentTool:
             )
         )
 
-        with pytest.raises(ValidationError):
-            semantix_agent_tool_child.run(json.dumps({"input": "invalid_input"}))
+        assert (
+            "field required (type=value_error.missing)"
+            in semantix_agent_tool_child.run(json.dumps({"input": "invalid_input"}))
+        )
