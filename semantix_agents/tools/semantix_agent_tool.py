@@ -20,7 +20,7 @@ class SemantixAgentTool(BaseTool):
     description: str
     llm: BaseLanguageModel | None = None
     args_schema: Type[SemantixAgentToolInput]
-    handle_validation_error: Callable = return_validation_error
+    handle_validation_error: Callable[[Exception], str] = return_validation_error
 
     def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
