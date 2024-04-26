@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Awaitable, Type
+from typing import Any, Awaitable, Callable, Type
 
 from langchain.callbacks.manager import CallbackManagerForToolRun
-from langchain.pydantic_v1 import ValidationError
 from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
@@ -12,11 +11,16 @@ from langchain_core.runnables.config import run_in_executor
 from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
 
 
+def return_validation_error(e: Exception) -> str:
+    return str(e)
+
+
 class SemantixAgentTool(BaseTool):
     name: str
     description: str
     llm: BaseLanguageModel | None = None
     args_schema: Type[SemantixAgentToolInput]
+    handle_validation_error: Callable[[Exception], str] = return_validation_error
 
     def execute(self, semantix_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
@@ -58,8 +62,6 @@ class SemantixAgentTool(BaseTool):
             return tool_input
         except json.decoder.JSONDecodeError:
             raise TypeError("Input is not Json valid")
-        except ValidationError:
-            raise TypeError("Input is not in the correct format")
 
     def _to_args_and_kwargs(self, tool_input: str | dict) -> tuple[tuple, dict]:
         if isinstance(tool_input, str):
