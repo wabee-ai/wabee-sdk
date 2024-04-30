@@ -1,3 +1,8 @@
+Version 0.2.6
+2024-04-30
+- Fix types on CLI tool template
+- Fix command to install package on README.md
+
 Version 0.2.5
 2024-04-30
 - Fix image not rendering on docs
