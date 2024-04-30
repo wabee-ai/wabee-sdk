@@ -83,7 +83,7 @@ class {tool_name_cases.pascal_case}Config(SemantixAgentToolConfig):
     repeat: int
 
     @semantix_agent_tool_field_validator("repeat")
-    def ensure_repeat_is_positive(cls, value: int) -> None:
+    def ensure_repeat_is_positive(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("repeat must be greater than zero")
         return value
@@ -95,7 +95,7 @@ class {tool_name_cases.pascal_case}Input(SemantixAgentToolInput):
     )
 
     @semantix_agent_tool_field_validator("text")
-    def ensure_text_has_length_smaller_than_100(cls, value: int) -> None:
+    def ensure_text_has_length_smaller_than_100(cls, value: str) -> str:
         if len(value) > 100:
             raise ValueError("text should have at most 100 characters")
         return value
