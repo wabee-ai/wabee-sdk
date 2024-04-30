@@ -1,3 +1,7 @@
+Version 0.2.5
+2024-04-30
+- Fix image not rendering on docs
+
 Version 0.2.4
 2024-04-30
 - Update SemantixAgentTool to forward exception coming from pydantic

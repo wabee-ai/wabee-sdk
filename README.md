@@ -7,7 +7,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/semantix-agents)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/semantix-agents)
 
-![semantix-agents](./doc/logos/semantix-agents.png)
+![semantix-agents](https://github.com/elemeno-ai/mlops-python-client/assets/128483819/34fa115a-e91c-4f26-86d1-edf33b1e3777)
 
 **semantix-agents** is a proprietary Python module for development of intelligent agents built on top of LangChain.
 
