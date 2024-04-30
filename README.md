@@ -31,7 +31,7 @@ semantix-agents requires:
 The easiest way to install the package is through `pip`:
 
 ```sh
-pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple semantix-agent-tools
+pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple semantix-agents
 ```
 
 # Command Line Interface
