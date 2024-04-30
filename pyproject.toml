@@ -2,11 +2,11 @@
 name = "semantix-agents"
 version = "0.1.0"
 description = "Semantix Agents Software Development Kit"
-authors = ["GDalforno <gabriel.dalforno@semantix.ai>"]
-maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>"]
+authors = ["GDalforno <gabriel.dalforno@semantix.ai>", "Erigar <eric.garcia@semantix.ai>"]
+maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>", "Erigar <eric.garcia@semantix.ai>"]
 license = "Proprietary"
 readme = "README.md"
-keywords = ["semantix", "generative ai"]
+keywords = ["semantix", "generative ai", "llm agents"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -26,6 +26,7 @@ restrictedpython = "^7.1"
 matplotlib = "^3.8.4"
 
 [tool.poetry.scripts]
+semantix-agents = 'semantix_agents.cli.main:main'
 power_tool_example = 'examples.tools.power_tool:main'
 division_tool_example = 'examples.tools.division_tool:main'
 food_ordering_tool_example = 'examples.tools.food_ordering_tool:main'

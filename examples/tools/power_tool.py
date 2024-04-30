@@ -10,7 +10,7 @@ from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,
-    SemantixAgentToolInputField,
+    SemantixAgentToolField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
@@ -21,7 +21,7 @@ class PowerToolConfig(SemantixAgentToolConfig):
 
 
 class PowerToolInput(SemantixAgentToolInput):
-    base: float = SemantixAgentToolInputField(
+    base: float = SemantixAgentToolField(
         name="base", description="exponent base", example=2.0
     )
 

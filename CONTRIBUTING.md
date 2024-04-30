@@ -70,6 +70,11 @@ The project folder/file structure is given down below for reference:
 ├── pyproject.toml
 ├── README.md
 ├── semantix_agents
+│   ├── cli
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   └── tools
+│   │       └── create_tool_service.py
 │   ├── __init__.py
 │   └── tools
 │       ├── handlers
@@ -79,11 +84,14 @@ The project folder/file structure is given down below for reference:
 │       │   └── python_execution_handler.py
 │       ├── __init__.py
 │       ├── semantix_agent_tool_config.py
+│       ├── semantix_agent_tool_field.py
 │       ├── semantix_agent_tool_field_validator.py
-│       ├── semantix_agent_tool_input_field.py
 │       ├── semantix_agent_tool_input.py
 │       └── semantix_agent_tool.py
 └── tests
+    ├── cli
+    │   └── tools
+    │       └── test_create_tool_service.py
     ├── __init__.py
     └── tools
         ├── handlers
@@ -91,8 +99,8 @@ The project folder/file structure is given down below for reference:
         │   ├── test_file_handler.py
         │   └── test_python_execution_handler.py
         ├── test_semantix_agent_tool_config.py
+        ├── test_semantix_agent_tool_field.py
         ├── test_semantix_agent_tool_field_validator.py
-        ├── test_semantix_agent_tool_input_field.py
         ├── test_semantix_agent_tool_input.py
         └── test_semantix_agent_tool.py
 ```
