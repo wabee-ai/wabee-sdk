@@ -1,30 +1,28 @@
+from semantix_agents.tools.semantix_agent_tool_field import SemantixAgentToolField
 from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
-from semantix_agents.tools.semantix_agent_tool_input_field import (
-    SemantixAgentToolInputField,
-)
 
 
 class TestSemantixAgentToolInput:
     def test_should_return_the_input_props(self) -> None:
         class SemantixAgentToolInputChild2(SemantixAgentToolInput):
-            x: float = SemantixAgentToolInputField(
+            x: float = SemantixAgentToolField(
                 name="x", description="x description", example=0.5
             )
 
         class SemantixAgentToolInputChild(SemantixAgentToolInput):
-            a: int = SemantixAgentToolInputField(
+            a: int = SemantixAgentToolField(
                 name="a", description="a description", example=0
             )
-            b: list[str] = SemantixAgentToolInputField(
+            b: list[str] = SemantixAgentToolField(
                 name="b", description="b description", example=["b"]
             )
-            c: list[SemantixAgentToolInputChild2] = SemantixAgentToolInputField(
+            c: list[SemantixAgentToolInputChild2] = SemantixAgentToolField(
                 name="c",
                 description="c description",
                 example=[SemantixAgentToolInputChild2.props()],
             )
             d: tuple[SemantixAgentToolInputChild2, SemantixAgentToolInputChild2] = (
-                SemantixAgentToolInputField(
+                SemantixAgentToolField(
                     name="d",
                     description="d description",
                     example=(
@@ -33,7 +31,7 @@ class TestSemantixAgentToolInput:
                     ),
                 )
             )
-            e: dict[str, SemantixAgentToolInputChild2] = SemantixAgentToolInputField(
+            e: dict[str, SemantixAgentToolInputChild2] = SemantixAgentToolField(
                 name="e",
                 description="e description",
                 example={"key": SemantixAgentToolInputChild2.props()},

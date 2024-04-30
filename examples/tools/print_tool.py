@@ -9,7 +9,7 @@ from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,
-    SemantixAgentToolInputField,
+    SemantixAgentToolField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
@@ -19,7 +19,7 @@ class PrintToolConfig(SemantixAgentToolConfig): ...
 
 
 class PrintToolInput(SemantixAgentToolInput):
-    text: str = SemantixAgentToolInputField(
+    text: str = SemantixAgentToolField(
         name="text", description="text to print", example="Hello, world!"
     )
 

@@ -10,7 +10,7 @@ from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
     SemantixAgentToolInput,
-    SemantixAgentToolInputField,
+    SemantixAgentToolField,
     semantix_agent_tool_field_validator,
 )
 
@@ -21,10 +21,10 @@ class DivisionToolConfig(SemantixAgentToolConfig): ...
 
 
 class DivisionToolInput(SemantixAgentToolInput):
-    a: float = SemantixAgentToolInputField(
+    a: float = SemantixAgentToolField(
         name="a", description="numerator", example=1.0
     )
-    b: float = SemantixAgentToolInputField(
+    b: float = SemantixAgentToolField(
         name="b", description="denominator", example=2.0
     )
 

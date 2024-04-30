@@ -1,0 +1,52 @@
+Version 0.2.4
+2024-04-30
+- Update SemantixAgentTool to forward exception coming from pydantic
+- Add function to handle SemantixAgentTool error by transforming it into a string instead of raising it
+- Add CLI to create tools based on a template
+- Rename SemantixAgentToolInputField to SemantixAgentToolField to make it more generic
+- Enable alias for SemantixAgentToolField to handle parameters starting with an underscore
+
+Version 0.2.3
+2024-04-24
+- Update langchain base tool parsing to always return instance of SemantixAgentTool
+- Update semantix_agent_tool_field_validator to accept additional parameters
+- Update SemantixAgentTool to raise ValueError if input cannot be parsed as SemantixAgentToolInput
+- Enable package to use langchain version greater or equal than 0.1.14
+- Set llm as optional field on SemantixAgentTool and SemantixAgentToolConfig
+
+Version 0.2.2
+2024-04-19
+- Update SemantixAgentConfig to accept llm parameter as _llm
+
+Version 0.2.1
+2024-04-19
+- Resolve vulnerabilities 66051 and 65703
+- Add props method to SemantixAgentToolInput
+
+Version 0.2.0
+2024-04-19
+- Add environment variable SEMANTIX_AGENT_TOOLS_ALLOWED_MODULES to set the allowed modules on the python executor handler
+- Rename files url environment variable to SEMANTIX_AGENT_TOOLS_FILES_URL
+- Change library name to semantix-agents
+- Move previous library implementation into tools module
+
+Version 0.1.7
+2024-04-19
+- Enhance error messages when input does not match the expected format
+
+Version 0.1.6
+2024-04-18
+- Initialize and configure repository
+- Add SemantixAgentTool base class
+- Add SemantixAgentToolConfig base class
+- Add SemantixAgentToolInput base class
+- Add semantix_agent_tool_field_validator
+- Add tool examples
+- Enable user to choose which execute method from SemantixAgentTool to overwrite (sync and async)
+- SemantixAgentToolConfig has a default llm parameter
+- Add file handling module
+- Add date handling module
+- Add python executor module
+- Enable tool execution with typed input model
+- Add SemantixAgentToolInputField
+- Resolve vulnerabilities 60840 and 59430

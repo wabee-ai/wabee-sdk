@@ -10,8 +10,8 @@ from uuid import UUID
 from semantix_agents.tools import (
     SemantixAgentTool,
     SemantixAgentToolConfig,
+    SemantixAgentToolField,
     SemantixAgentToolInput,
-    SemantixAgentToolInputField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
@@ -19,32 +19,37 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
 class FoodOrderingToolConfig(SemantixAgentToolConfig):
     api_url: str
-    api_token: str
+    api_token: str = SemantixAgentToolField(
+        name="api_token",
+        description="api jwt token",
+        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
+        alias="_api_token",
+    )
 
 
 class Item(SemantixAgentToolInput):
-    product_id: UUID = SemantixAgentToolInputField(
+    product_id: UUID = SemantixAgentToolField(
         name="product_id",
         description="product unique identifier",
         example="0f09c33f-51d1-46df-91dd-dd7c2ba89a20",
     )
-    quantity: int = SemantixAgentToolInputField(
+    quantity: int = SemantixAgentToolField(
         name="quantity", description="product quantity", example=4
     )
 
 
 class FoodOrderingToolInput(SemantixAgentToolInput):
-    customer_id: UUID = SemantixAgentToolInputField(
+    customer_id: UUID = SemantixAgentToolField(
         name="customer_id",
         description="customer unique identifier",
         example="47b30ed0-d4cc-436c-a21b-08a9115e9373",
     )
-    restaurant_id: UUID = SemantixAgentToolInputField(
+    restaurant_id: UUID = SemantixAgentToolField(
         name="restaurant_id",
         description="restaurant unique identifier",
         example="bdeffffd-c6e6-4ff7-acf9-5cc7b1ba8f34",
     )
-    items: list[Item] = SemantixAgentToolInputField(
+    items: list[Item] = SemantixAgentToolField(
         name="items",
         description="order items",
         example=[Item.props()],
@@ -117,7 +122,7 @@ class FoodOrderingTool(SemantixAgentTool):
 def main() -> None:
     food_ordering_tool_config = {
         "api_url": "https://any-food-ordering-app/orders",
-        "api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
+        "_api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
     }
     food_ordering_tool = _create_tool(**food_ordering_tool_config)
     logging.info(f"Creating FoodOrderingTool with config: {food_ordering_tool_config}")
