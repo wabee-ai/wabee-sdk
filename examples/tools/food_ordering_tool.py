@@ -22,7 +22,7 @@ class FoodOrderingToolConfig(WabeeAgentToolConfig):
     api_token: str = WabeeAgentToolField(
         name="api_token",
         description="api jwt token",
-        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
+        example="a valid jwt token",
         alias="_api_token",
     )
 
@@ -122,7 +122,7 @@ class FoodOrderingTool(WabeeAgentTool):
 def main() -> None:
     food_ordering_tool_config = {
         "api_url": "https://any-food-ordering-app/orders",
-        "_api_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6ImFueV9uYW1lIiwiaWF0IjoxNTE2MjM5MDIyfQ.eYA3Of5-3JqE-_kyhB74_hLt1K_htykH47dHoluJgic",
+        "_api_token": "a valid api token",
     }
     food_ordering_tool = _create_tool(**food_ordering_tool_config)
     logging.info(f"Creating FoodOrderingTool with config: {food_ordering_tool_config}")
