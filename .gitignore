@@ -6,3 +6,4 @@
 teste_tools.py
 .venv
 dist
+.aider*

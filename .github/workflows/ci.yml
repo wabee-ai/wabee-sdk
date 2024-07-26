@@ -22,8 +22,8 @@ jobs:
         pip install ruff mypy langchain==0.1.16 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
     - name: Run linters
       run: |
-        ruff check semantix_agents/
-        mypy semantix_agents/ --explicit-package-bases --install-types --non-interactive
+        ruff check wabee/
+        mypy wabee/ --explicit-package-bases --install-types --non-interactive
 
   test:
     runs-on: ubuntu-latest
