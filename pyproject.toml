@@ -2,6 +2,7 @@
 name = "wabee-ai"
 version = "0.1.0"
 description = "Wabee AI Software Development Kit"
+authors = ["Developers <developers@wabee.ai>"]
 maintainers = ["Developers <developers@wabee.ai>"]
 license = "Apache License V2"
 readme = "README.md"
