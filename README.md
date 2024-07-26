@@ -17,7 +17,7 @@ Website: https://wabee.ai/
 
 ## Dependencies
 
-semantix-agents requires:
+wabee-sdk requires:
 
 - python = ">=3.10,<3.12"
 - langchain = "^0.1.14"

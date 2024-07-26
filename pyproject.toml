@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "wabee-ai"
+name = "wabee"
 version = "0.1.0"
 description = "Wabee AI Software Development Kit"
 authors = ["Developers <developers@wabee.ai>"]

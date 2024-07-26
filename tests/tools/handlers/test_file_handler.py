@@ -41,5 +41,5 @@ class TestFileHandler:
 
         assert (
             sut.mount_file_url("run_path", "/file_path", "agent_name")
-            == "https://agent_name.ml.wabeehub.com/v1/files/file_path"
+            == "https://agent_name.wabee.ai/core/v1/files/file_path"
         )

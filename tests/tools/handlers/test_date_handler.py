@@ -1,4 +1,4 @@
-from semantix_agents.tools.handlers.date_handler import DateHandler
+from wabee.tools.handlers.date_handler import DateHandler
 
 
 class TestDateHandler:

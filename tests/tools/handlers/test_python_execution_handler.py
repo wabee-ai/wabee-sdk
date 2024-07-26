@@ -1,4 +1,4 @@
-from semantix_agents.tools.handlers.python_execution_handler import (
+from wabee.tools.handlers.python_execution_handler import (
     _ALLOWED_MODULES,
     PythonExecutionHandler,
 )
