@@ -1,0 +1,65 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [created]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install ruff mypy langchain==0.1.16 chardet==5.2.0 pandas==2.2.2 RestrictedPython==7.1 matplotlib==3.8.4
+    - name: Run linters
+      run: |
+        ruff check semantix_agents/
+        mypy semantix_agents/ --explicit-package-bases --install-types --non-interactive
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install Poetry
+      run: |
+        pip install pipx
+        pipx install poetry==1.8.0
+    - name: Install dependencies
+      run: poetry install
+    - name: Run tests
+      run: poetry run pytest -vv --cov --cov-fail-under=80
+
+  publish:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'created'
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install Poetry
+      run: |
+        pip install pipx
+        pipx install poetry==1.8.0
+        pipx inject poetry "poetry-dynamic-versioning[plugin]"
+    - name: Configure Poetry
+      run: |
+        poetry config repositories.test-pypi https://test.pypi.org/legacy/
+        poetry config pypi-token.test-pypi ${{ secrets.PYPI_TOKEN }}
+    - name: Build and publish
+      run: poetry publish --build -r test-pypi
