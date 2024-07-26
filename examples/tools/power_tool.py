@@ -6,32 +6,32 @@ from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents.tools import (
-    SemantixAgentTool,
-    SemantixAgentToolConfig,
-    SemantixAgentToolInput,
-    SemantixAgentToolField,
+from wabee.tools import (
+    WabeeAgentTool,
+    WabeeAgentToolConfig,
+    WabeeAgentToolInput,
+    WabeeAgentToolField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
 
-class PowerToolConfig(SemantixAgentToolConfig):
+class PowerToolConfig(WabeeAgentToolConfig):
     exponent: float
 
 
-class PowerToolInput(SemantixAgentToolInput):
-    base: float = SemantixAgentToolField(
+class PowerToolInput(WabeeAgentToolInput):
+    base: float = WabeeAgentToolField(
         name="base", description="exponent base", example=2.0
     )
 
 
-def _create_tool(**kwargs: Any) -> SemantixAgentTool:
+def _create_tool(**kwargs: Any) -> WabeeAgentTool:
     return PowerTool.create(PowerToolConfig(**kwargs))
 
 
-class PowerTool(SemantixAgentTool):
-    args_schema: Type[SemantixAgentToolInput] = PowerToolInput
+class PowerTool(WabeeAgentTool):
+    args_schema: Type[WabeeAgentToolInput] = PowerToolInput
     exponent: float
 
     def execute(self, power_tool_input: PowerToolInput) -> str:

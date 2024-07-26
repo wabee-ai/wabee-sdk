@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 CHECK_IMPORT_OS = re.compile(r"(?<![\d\w])os(?=\.)")
 _ALLOWED_MODULES = frozenset(
-    json.loads(os.getenv("SEMANTIX_AGENT_TOOLS_ALLOWED_MODULES", "[]"))
+    json.loads(os.getenv("WABEE_AGENT_TOOLS_ALLOWED_MODULES", "[]"))
 )
 
 

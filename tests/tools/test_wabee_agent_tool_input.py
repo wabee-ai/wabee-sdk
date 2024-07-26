@@ -1,43 +1,43 @@
-from semantix_agents.tools.semantix_agent_tool_field import SemantixAgentToolField
-from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
+from wabee.tools.wabee_agent_tool_field import WabeeAgentToolField
+from wabee.tools.wabee_agent_tool_input import WabeeAgentToolInput
 
 
-class TestSemantixAgentToolInput:
+class TestWabeeAgentToolInput:
     def test_should_return_the_input_props(self) -> None:
-        class SemantixAgentToolInputChild2(SemantixAgentToolInput):
-            x: float = SemantixAgentToolField(
+        class WabeeAgentToolInputChild2(WabeeAgentToolInput):
+            x: float = WabeeAgentToolField(
                 name="x", description="x description", example=0.5
             )
 
-        class SemantixAgentToolInputChild(SemantixAgentToolInput):
-            a: int = SemantixAgentToolField(
+        class WabeeAgentToolInputChild(WabeeAgentToolInput):
+            a: int = WabeeAgentToolField(
                 name="a", description="a description", example=0
             )
-            b: list[str] = SemantixAgentToolField(
+            b: list[str] = WabeeAgentToolField(
                 name="b", description="b description", example=["b"]
             )
-            c: list[SemantixAgentToolInputChild2] = SemantixAgentToolField(
+            c: list[WabeeAgentToolInputChild2] = WabeeAgentToolField(
                 name="c",
                 description="c description",
-                example=[SemantixAgentToolInputChild2.props()],
+                example=[WabeeAgentToolInputChild2.props()],
             )
-            d: tuple[SemantixAgentToolInputChild2, SemantixAgentToolInputChild2] = (
-                SemantixAgentToolField(
+            d: tuple[WabeeAgentToolInputChild2, WabeeAgentToolInputChild2] = (
+                WabeeAgentToolField(
                     name="d",
                     description="d description",
                     example=(
-                        SemantixAgentToolInputChild2.props(),
-                        SemantixAgentToolInputChild2.props(),
+                        WabeeAgentToolInputChild2.props(),
+                        WabeeAgentToolInputChild2.props(),
                     ),
                 )
             )
-            e: dict[str, SemantixAgentToolInputChild2] = SemantixAgentToolField(
+            e: dict[str, WabeeAgentToolInputChild2] = WabeeAgentToolField(
                 name="e",
                 description="e description",
-                example={"key": SemantixAgentToolInputChild2.props()},
+                example={"key": WabeeAgentToolInputChild2.props()},
             )
 
-        props = SemantixAgentToolInputChild.props()
+        props = WabeeAgentToolInputChild.props()
 
         assert props == {
             "a": {
@@ -67,7 +67,7 @@ class TestSemantixAgentToolInput:
                     }
                 ],
                 "type": "array",
-                "items": {"$ref": "#/definitions/SemantixAgentToolInputChild2"},
+                "items": {"$ref": "#/definitions/WabeeAgentToolInputChild2"},
             },
             "d": {
                 "title": "d",
@@ -94,8 +94,8 @@ class TestSemantixAgentToolInput:
                 "minItems": 2,
                 "maxItems": 2,
                 "items": [
-                    {"$ref": "#/definitions/SemantixAgentToolInputChild2"},
-                    {"$ref": "#/definitions/SemantixAgentToolInputChild2"},
+                    {"$ref": "#/definitions/WabeeAgentToolInputChild2"},
+                    {"$ref": "#/definitions/WabeeAgentToolInputChild2"},
                 ],
             },
             "e": {
@@ -113,7 +113,7 @@ class TestSemantixAgentToolInput:
                 },
                 "type": "object",
                 "additionalProperties": {
-                    "$ref": "#/definitions/SemantixAgentToolInputChild2"
+                    "$ref": "#/definitions/WabeeAgentToolInputChild2"
                 },
             },
         }

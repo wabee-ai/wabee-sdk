@@ -70,43 +70,43 @@ class CreateToolService:
 
 from typing import Any, Type
 
-from semantix_agents.tools import (
-    SemantixAgentTool,
-    SemantixAgentToolConfig,
-    SemantixAgentToolInput,
-    SemantixAgentToolField,
-    semantix_agent_tool_field_validator,
+from wabee.tools import (
+    WabeeAgentTool,
+    WabeeAgentToolConfig,
+    WabeeAgentToolInput,
+    WabeeAgentToolField,
+    tool_field_validator,
 )
 
 
-class {tool_name_cases.pascal_case}Config(SemantixAgentToolConfig):
+class {tool_name_cases.pascal_case}Config(WabeeAgentToolConfig):
     repeat: int
 
-    @semantix_agent_tool_field_validator("repeat")
+    @tool_field_validator("repeat")
     def ensure_repeat_is_positive(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("repeat must be greater than zero")
         return value
 
 
-class {tool_name_cases.pascal_case}Input(SemantixAgentToolInput):
-    text: str = SemantixAgentToolField(
+class {tool_name_cases.pascal_case}Input(WabeeAgentToolInput):
+    text: str = WabeeAgentToolField(
         name="text", description="text to print", example="Hello, world!"
     )
 
-    @semantix_agent_tool_field_validator("text")
+    @tool_field_validator("text")
     def ensure_text_has_length_smaller_than_100(cls, value: str) -> str:
         if len(value) > 100:
             raise ValueError("text should have at most 100 characters")
         return value
 
 
-def _create_tool(**kwargs: Any) -> SemantixAgentTool:
+def _create_tool(**kwargs: Any) -> WabeeAgentTool:
     return {tool_name_cases.pascal_case}.create({tool_name_cases.pascal_case}Config(**kwargs))
 
 
-class {tool_name_cases.pascal_case}(SemantixAgentTool):
-    args_schema: Type[SemantixAgentToolInput] = {tool_name_cases.pascal_case}Input
+class {tool_name_cases.pascal_case}(WabeeAgentTool):
+    args_schema: Type[WabeeAgentToolInput] = {tool_name_cases.pascal_case}Input
     repeat: int
 
     def execute(self, {tool_name_cases.snake_case}_input: {tool_name_cases.pascal_case}Input) -> str:

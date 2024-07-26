@@ -8,46 +8,46 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.tools import BaseTool
 from langchain_core.runnables.config import run_in_executor
 
-from semantix_agents.tools.semantix_agent_tool_input import SemantixAgentToolInput
+from wabee.tools.wabee_agent_tool_input import WabeeAgentToolInput
 
 
 def return_validation_error(e: Exception) -> str:
     return str(e)
 
 
-class SemantixAgentTool(BaseTool):
+class WabeeAgentTool(BaseTool):
     name: str
     description: str
     llm: BaseLanguageModel | None = None
-    args_schema: Type[SemantixAgentToolInput]
+    args_schema: Type[WabeeAgentToolInput]
     handle_validation_error: Callable[[Exception], str] = return_validation_error
 
-    def execute(self, semantix_agent_tool_input: Any) -> str:
+    def execute(self, wabee_agent_tool_input: Any) -> str:
         raise NotImplementedError("abstract method")
 
-    async def execute_async(self, semantix_agent_tool_input: Any) -> Awaitable[str]:
+    async def execute_async(self, wabee_agent_tool_input: Any) -> Awaitable[str]:
         raise NotImplementedError("abstract method")
 
     @classmethod
-    def create(cls, semantix_agent_tool_config: Any) -> SemantixAgentTool:
+    def create(cls, wabee_agent_tool_config: Any) -> WabeeAgentTool:
         raise NotImplementedError("abstract class method")
 
     def _run(
         self,
-        semantix_agent_tool_input: SemantixAgentToolInput,
+        wabee_agent_tool_input: WabeeAgentToolInput,
         run_manager: CallbackManagerForToolRun | None = None,
     ) -> str:
-        return self.execute(semantix_agent_tool_input)
+        return self.execute(wabee_agent_tool_input)
 
     async def _arun(
         self,
-        semantix_agent_tool_input: SemantixAgentToolInput,
+        wabee_agent_tool_input: WabeeAgentToolInput,
         run_manager: CallbackManagerForToolRun | None = None,
     ) -> Awaitable[str]:
         try:
-            return await self.execute_async(semantix_agent_tool_input)
+            return await self.execute_async(wabee_agent_tool_input)
         except NotImplementedError:
-            return await run_in_executor(None, self._run, semantix_agent_tool_input)  # type: ignore
+            return await run_in_executor(None, self._run, wabee_agent_tool_input)  # type: ignore
 
     def _parse_input(
         self,
@@ -78,7 +78,7 @@ class SemantixAgentTool(BaseTool):
             and callable(cls.create)
         ):
             raise NotImplementedError(
-                f"{cls.__name__} does not correct implement the SemantixAgentTool interface"
+                f"{cls.__name__} does not correct implement the wabeeAgentTool interface"
             )
 
     def __str__(self):

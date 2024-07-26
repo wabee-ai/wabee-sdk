@@ -5,31 +5,31 @@ from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents.tools import (
-    SemantixAgentTool,
-    SemantixAgentToolConfig,
-    SemantixAgentToolInput,
-    SemantixAgentToolField,
+from wabee.tools import (
+    WabeeAgentTool,
+    WabeeAgentToolConfig,
+    WabeeAgentToolInput,
+    WabeeAgentToolField,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
 
-class PrintToolConfig(SemantixAgentToolConfig): ...
+class PrintToolConfig(WabeeAgentToolConfig): ...
 
 
-class PrintToolInput(SemantixAgentToolInput):
-    text: str = SemantixAgentToolField(
+class PrintToolInput(WabeeAgentToolInput):
+    text: str = WabeeAgentToolField(
         name="text", description="text to print", example="Hello, world!"
     )
 
 
-def _create_tool(**kwargs: Any) -> SemantixAgentTool:
+def _create_tool(**kwargs: Any) -> WabeeAgentTool:
     return PrintTool.create(PrintToolConfig(**kwargs))
 
 
-class PrintTool(SemantixAgentTool):
-    args_schema: Type[SemantixAgentToolInput] = PrintToolInput
+class PrintTool(WabeeAgentTool):
+    args_schema: Type[WabeeAgentToolInput] = PrintToolInput
 
     def execute(self, print_tool_input: PrintToolInput) -> str:
         return print_tool_input.text

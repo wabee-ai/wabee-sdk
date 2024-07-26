@@ -6,41 +6,41 @@ from typing import Any, Type
 
 from langchain_community.llms.fake import FakeListLLM
 
-from semantix_agents.tools import (
-    SemantixAgentTool,
-    SemantixAgentToolConfig,
-    SemantixAgentToolInput,
-    SemantixAgentToolField,
-    semantix_agent_tool_field_validator,
+from wabee.tools import (
+    WabeeAgentTool,
+    WabeeAgentToolConfig,
+    WabeeAgentToolInput,
+    WabeeAgentToolField,
+    tool_field_validator,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: \t  %(message)s")
 
 
-class DivisionToolConfig(SemantixAgentToolConfig): ...
+class DivisionToolConfig(WabeeAgentToolConfig): ...
 
 
-class DivisionToolInput(SemantixAgentToolInput):
-    a: float = SemantixAgentToolField(
+class DivisionToolInput(WabeeAgentToolInput):
+    a: float = WabeeAgentToolField(
         name="a", description="numerator", example=1.0
     )
-    b: float = SemantixAgentToolField(
+    b: float = WabeeAgentToolField(
         name="b", description="denominator", example=2.0
     )
 
-    @semantix_agent_tool_field_validator("b")
+    @tool_field_validator("b")
     def check_denominator(cls, value: float) -> float:
         if value == 0:
             raise ZeroDivisionError("denominator should be different than zero!")
         return value
 
 
-def _create_tool(**kwargs: Any) -> SemantixAgentTool:
+def _create_tool(**kwargs: Any) -> WabeeAgentTool:
     return DivisionTool.create(DivisionToolConfig(**kwargs))
 
 
-class DivisionTool(SemantixAgentTool):
-    args_schema: Type[SemantixAgentToolInput] = DivisionToolInput
+class DivisionTool(WabeeAgentTool):
+    args_schema: Type[WabeeAgentToolInput] = DivisionToolInput
 
     def execute(self, division_tool_input: DivisionToolInput) -> str:
         return str(division_tool_input.a / division_tool_input.b)

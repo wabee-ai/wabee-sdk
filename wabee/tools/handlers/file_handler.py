@@ -9,8 +9,8 @@ class FileHandler:
 
     def __init__(self) -> None:
         self.__files_url = os.getenv(
-            "SEMANTIX_AGENT_TOOLS_FILES_URL",
-            "https://{agent_name}.ml.semantixhub.com/v1/files",
+            "WABEE_AGENT_API",
+            "https://{agent_name}.wabee.ai/core/v1/files",
         )
 
     def find_split_in_csv(self, file_path: str) -> str:

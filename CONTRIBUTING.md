@@ -5,7 +5,7 @@
 First of all, clone this repository from git using the following command:
 
 ```sh
-git clone git@gitlab.com:Semantix/ai/gen-ai/semantix-agents.git
+git clone git@github.com:wabee-ai/wabee-sdk.git
 ```
 
 Then, install `poetry` and `pre-commit` with the following commands:
@@ -69,7 +69,7 @@ The project folder/file structure is given down below for reference:
 ├── poetry.lock
 ├── pyproject.toml
 ├── README.md
-├── semantix_agents
+├── wabee
 │   ├── cli
 │   │   ├── __init__.py
 │   │   ├── main.py
@@ -83,11 +83,11 @@ The project folder/file structure is given down below for reference:
 │       │   ├── __init__.py
 │       │   └── python_execution_handler.py
 │       ├── __init__.py
-│       ├── semantix_agent_tool_config.py
-│       ├── semantix_agent_tool_field.py
-│       ├── semantix_agent_tool_field_validator.py
-│       ├── semantix_agent_tool_input.py
-│       └── semantix_agent_tool.py
+│       ├── wabee_agent_tool_config.py
+│       ├── wabee_agent_tool_field.py
+│       ├── wabee_agent_tool_field_validator.py
+│       ├── wabee_agent_tool_input.py
+│       └── wabee_agent_tool.py
 └── tests
     ├── cli
     │   └── tools
@@ -98,11 +98,11 @@ The project folder/file structure is given down below for reference:
         │   ├── test_date_handler.py
         │   ├── test_file_handler.py
         │   └── test_python_execution_handler.py
-        ├── test_semantix_agent_tool_config.py
-        ├── test_semantix_agent_tool_field.py
-        ├── test_semantix_agent_tool_field_validator.py
-        ├── test_semantix_agent_tool_input.py
-        └── test_semantix_agent_tool.py
+        ├── test_wabee_agent_tool_config.py
+        ├── test_wabee_agent_tool_field.py
+        ├── test_wabee_agent_tool_field_validator.py
+        ├── test_wabee_agent_tool_input.py
+        └── test_wabee_agent_tool.py
 ```
 
 ## 👩‍💻 How to Contribute
@@ -124,7 +124,7 @@ git pull
 Then, commit your changes to the feature branch using conventional commit messages, like the example below:
 
 ```sh
-git commit -m 'feat: ensure semantix agent tool does not allow its children class to not implement the create method'
+git commit -m 'feat: ensure wabee agent tool does not allow its children class to not implement the create method'
 ```
 
 We also encourage you to create short purpose commits to enhance version control management. Moreover, note that your commit might be blocked by the hooks if it does not follow the linting/security guidelines, if it happens to you, then make the necessary changes to make your changes compliant and commit again.

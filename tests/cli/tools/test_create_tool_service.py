@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from semantix_agents.cli.tools.create_tool_service import CreateToolService
+from wabee.cli.tools.create_tool_service import CreateToolService
 
 
 def clean_folder(folder_name: str) -> None:
@@ -27,9 +27,9 @@ class TestCreateToolService:
         with open("my_test_tool/my_test_tool.py", "r") as f:
             content = f.read()
 
-            assert "class MyTestToolConfig(SemantixAgentToolConfig)" in content
-            assert "class MyTestToolInput(SemantixAgentToolInput)" in content
-            assert "class MyTestTool(SemantixAgentTool)" in content
+            assert "class MyTestToolConfig(WabeeAgentToolConfig)" in content
+            assert "class MyTestToolInput(WabeeAgentToolInput)" in content
+            assert "class MyTestTool(WabeeAgentTool)" in content
             assert "def execute(self, my_test_tool_input: MyTestToolInput)"
             assert (
                 "def create(cls, my_test_tool_config: MyTestToolConfig) -> MyTestTool"

@@ -1,9 +1,9 @@
-from semantix_agents.tools.semantix_agent_tool_field import SemantixAgentToolField
+from wabee.tools.wabee_agent_tool_field import WabeeAgentToolField
 
 
-class TestSemantixAgentToolField:
+class TestWabeeAgentToolField:
     def test_should_return_a_pydantic_field(self) -> None:
-        field = SemantixAgentToolField(
+        field = WabeeAgentToolField(
             name="any_name", description="any_description", example="any_example", alias="_any_alias"
         )
 

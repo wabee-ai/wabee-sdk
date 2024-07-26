@@ -1,17 +1,17 @@
-![PyPI - Downloads](https://img.shields.io/pypi/dm/semantix-agents)
-![PyPI - Format](https://img.shields.io/pypi/format/semantix-agents)
-![PyPI - Implementation](https://img.shields.io/pypi/implementation/semantix-agents)
-![PyPI - License](https://img.shields.io/pypi/l/semantix-agents)
-![PyPI - Status](https://img.shields.io/pypi/status/semantix-agents)
-![PyPI - Version](https://img.shields.io/pypi/v/semantix-agents)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/semantix-agents)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/semantix-agents)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/wabee-sdk)
+![PyPI - Format](https://img.shields.io/pypi/format/wabee-sdk)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/wabee-sdk)
+![PyPI - License](https://img.shields.io/pypi/l/wabee-sdk)
+![PyPI - Status](https://img.shields.io/pypi/status/wabee-sdk)
+![PyPI - Version](https://img.shields.io/pypi/v/wabee-sdk)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/wabee-sdk)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wabee-sdk)
 
-![semantix-agents](https://github.com/elemeno-ai/mlops-python-client/assets/128483819/34fa115a-e91c-4f26-86d1-edf33b1e3777)
+![Wabee AI](https://wabee-public-assets.s3.amazonaws.com/images/wabee-small-box-white.png)
 
-**semantix-agents** is a proprietary Python module for development of intelligent agents built on top of LangChain.
+**wabee-sdk** is a Python module for development of modules and extensions for the Wabee agentic AI platform.
 
-Website: https://semantix.ai/
+Website: https://wabee.ai/
 
 # Installation
 
@@ -31,17 +31,17 @@ semantix-agents requires:
 The easiest way to install the package is through `pip`:
 
 ```sh
-pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple semantix-agents
+pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple wabee-sdk
 ```
 
 # Command Line Interface
 
-The semantix-agents also comes as a CLI to make the process of development semantix agents tools faster and easier!
+The wabee-sdk also comes as a CLI to make the process of development wabee agents tools faster and easier!
 
 To create a brand new tool, one just needs to run:
 
 ```sh
-semantix-agents tools create tool-name
+wb tools create tool-name
 ```
 
 And that's it, with no time wasted implementing boilerplate code, the tool is ready to be executed and updated according to the business requirements.
@@ -53,7 +53,7 @@ And that's it, with no time wasted implementing boilerplate code, the tool is re
 To create a tool manually, the first step is to define its configuration. In other words, all the necessary data to initialize the tool must be held by this object.
 
 ```python
-class APIGatewayToolConfig(SemantixAgentToolConfig):
+class APIGatewayToolConfig(WabeeAgentToolConfig):
     base_url: str
     api_key: str
 ```
@@ -63,8 +63,8 @@ class APIGatewayToolConfig(SemantixAgentToolConfig):
 Then, define the tool input, which is the data that will be processed by the tool, for instance
 
 ```python
-class APIGatewayToolConfig(SemantixAgentToolInput):
-    headers: dict[str, str] = SemantixAgentToolField(
+class APIGatewayToolConfig(WabeeAgentToolInput):
+    headers: dict[str, str] = WabeeAgentToolField(
         name="headers",
         description="http request headers",
         example={
@@ -78,7 +78,7 @@ Finally, implement the tool itself, following the example below:
 ## Tool
 
 ```python
-class APIGatewayTool(SemantixAgentTool):
+class APIGatewayTool(WabeeAgentTool):
     base_url: str
     api_key: str
 
@@ -107,7 +107,7 @@ class APIGatewayTool(SemantixAgentTool):
 The last step is to expose a factory function so other modules can easily instantiate the tool.
 
 ```python
-def _create_tool(**kwargs: Any) -> SemantixAgentTool:
+def _create_tool(**kwargs: Any) -> WabeeAgentTool:
     return APIGatewayTool.create(APIGatewayToolConfig(**kwargs))
 ```
 

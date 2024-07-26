@@ -1,6 +1,6 @@
 from tempfile import NamedTemporaryFile
 
-from semantix_agents.tools.handlers.file_handler import FileHandler
+from wabee.tools.handlers.file_handler import FileHandler
 
 
 class TestFileHandler:
@@ -41,5 +41,5 @@ class TestFileHandler:
 
         assert (
             sut.mount_file_url("run_path", "/file_path", "agent_name")
-            == "https://agent_name.ml.semantixhub.com/v1/files/file_path"
+            == "https://agent_name.ml.wabeehub.com/v1/files/file_path"
         )

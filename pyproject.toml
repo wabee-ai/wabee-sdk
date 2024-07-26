@@ -1,12 +1,11 @@
 [tool.poetry]
-name = "semantix-agents"
+name = "wabee-ai"
 version = "0.1.0"
-description = "Semantix Agents Software Development Kit"
-authors = ["GDalforno <gabriel.dalforno@semantix.ai>", "Erigar <eric.garcia@semantix.ai>"]
-maintainers = ["GDalforno <gabriel.dalforno@semantix.ai>", "Erigar <eric.garcia@semantix.ai>"]
-license = "Proprietary"
+description = "Wabee AI Software Development Kit"
+maintainers = ["Developers <developers@wabee.ai>"]
+license = "Apache License V2"
 readme = "README.md"
-keywords = ["semantix", "generative ai", "llm agents"]
+keywords = ["wabee", "wabee ai", "ai agents", "generative ai", "llm agents"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -26,12 +25,7 @@ restrictedpython = "^7.1"
 matplotlib = "^3.8.4"
 
 [tool.poetry.scripts]
-semantix-agents = 'semantix_agents.cli.main:main'
-power_tool_example = 'examples.tools.power_tool:main'
-division_tool_example = 'examples.tools.division_tool:main'
-food_ordering_tool_example = 'examples.tools.food_ordering_tool:main'
-print_tool_example = 'examples.tools.print_tool:main'
-
+wb = 'wabee.cli.main:main'
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
