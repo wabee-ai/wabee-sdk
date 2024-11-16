@@ -10,6 +10,16 @@ RUN apt-get update && \
     git && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Poetry
+ENV POETRY_VERSION=1.8.2
+ENV POETRY_HOME=/opt/poetry
+RUN python -m pip install --no-cache-dir poetry==${POETRY_VERSION} && \
+    poetry config virtualenvs.create false && \
+    poetry config installer.max-workers 10
+
+# Add poetry to PATH
+ENV PATH="${POETRY_HOME}/bin:${PATH}"
+
 # Set S2I scripts location
 LABEL io.openshift.s2i.scripts-url=image:///usr/libexec/s2i
 

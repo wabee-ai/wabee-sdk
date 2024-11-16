@@ -2,20 +2,6 @@
 
 # The assemble script builds the application
 
-# Install poetry in a more reliable way
-POETRY_HOME="/opt/poetry"
-POETRY_VERSION="1.8.2"  # Specify a fixed version for stability
-
-# Install poetry using pip (more reliable than the installer script)
-python -m pip install --no-cache-dir poetry==${POETRY_VERSION}
-
-# Add poetry to PATH
-export PATH="/opt/poetry/bin:$PATH"
-
-# Configure poetry
-poetry config virtualenvs.create false
-poetry config installer.max-workers 10
-
 # Install dependencies using poetry
 if [ -f pyproject.toml ]; then
     poetry install --no-interaction --no-ansi --no-root
