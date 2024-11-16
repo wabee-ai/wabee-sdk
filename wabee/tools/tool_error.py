@@ -7,6 +7,8 @@ class ToolErrorType(Enum):
     RETRYABLE = "retryable"
     PERMANENT = "permanent"
     INVALID_INPUT = "invalid_input"
+    INTERNAL_ERROR = "internal_error"
+    VALIDATION_ERROR = "validation_error"
 
 @dataclass
 class ToolError:
