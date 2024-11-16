@@ -4,6 +4,7 @@ import subprocess
 import sys
 import requests
 import stat
+import shutil
 import tarfile
 import tempfile
 from pathlib import Path
