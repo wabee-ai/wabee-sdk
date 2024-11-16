@@ -19,9 +19,9 @@ class PersonSchema(BaseModel):
 async def add_with_schema(input_data):
     return input_data.x + input_data.y
 
-@simple_tool(schema=AdditionSchema)  # Use the predefined schema instead
-async def add_with_fields(input_data):
-    return input_data.x + input_data.y
+@simple_tool()  # Test without predefined schema
+async def add_with_fields(x: int, y: int):
+    return x + y
 
 @simple_tool()
 async def greet(name: str):
@@ -48,7 +48,8 @@ async def test_tool_with_inline_schema():
 
 @pytest.mark.asyncio
 async def test_tool_without_schema():
-    result, error = await greet("Alice")
+    result, error = await greet(name="Alice")
+    print(f"error: {error}")
     assert result == "Hello, Alice!"
     assert error is None
 

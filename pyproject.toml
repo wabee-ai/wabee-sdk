@@ -30,6 +30,7 @@ grpcio-tools = "^1.68.0"
 
 [tool.poetry.scripts]
 wb = 'wabee.cli.main:main'
+wabee = 'wabee.cli.main:main'
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"

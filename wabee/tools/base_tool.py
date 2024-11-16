@@ -16,6 +16,7 @@ class BaseTool(ABC, Generic[I, O]):
         """
         for key, value in kwargs.items():
             setattr(self, key, value)
+            
     @abstractmethod
     async def execute(self, input_data: I) -> tuple[O | None, ToolError | None]:
         """
