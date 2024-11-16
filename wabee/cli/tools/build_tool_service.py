@@ -11,10 +11,13 @@ from typing import Optional
 
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
+    S2I_COMMIT = "d3544c7e"
     PYTHON_IMAGE = "python:3.11-slim"
     
-    def __init__(self):
+    def __init__(self, s2i_commit: str | None = None):
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
+        if s2i_commit:
+            self.S2I_COMMIT = s2i_commit
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
         
     def _get_s2i_archive_name(self) -> str:
@@ -31,7 +34,7 @@ class BuildToolService:
         else:
             raise ValueError(f"Unsupported platform: {system}-{machine}")
             
-        return f"source-to-image-{self.S2I_VERSION}-d3544c7e-{platform_name}-{arch}.tar.gz"
+        return f"source-to-image-{self.S2I_VERSION}-{self.S2I_COMMIT}-{platform_name}-{arch}.tar.gz"
             
     def _download_s2i(self) -> None:
         """Download and extract s2i binary if not present."""
