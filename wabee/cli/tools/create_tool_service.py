@@ -43,7 +43,13 @@ class CreateToolService:
     def __init__(self):
         self.templates_dir = os.path.join(os.path.dirname(__file__), "templates")
         
-    def create_tool(self, name: str, tool_type: TOOL_TYPES) -> None:
+    def create_tool(
+        self, 
+        name: str, 
+        tool_type: TOOL_TYPES,
+        description: str,
+        version: str
+    ) -> None:
         """Create a new tool project with the given name and type."""
         # Sanitize the name
         sanitized_name = sanitize_name(name)
@@ -60,6 +66,11 @@ class CreateToolService:
                 f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
             else:
                 f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
+        
+        # Create toolspec.yaml
+        toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
+        with open(toolspec_file, "w") as f:
+            f.write(self._get_toolspec_template(sanitized_name, description, version))
                 
         # Create Dockerfile and s2i files
         self._create_build_files(sanitized_name)
@@ -123,6 +134,14 @@ class {class_name}Tool(BaseTool):
     def create(cls) -> "{class_name}Tool":
         """Factory method to create an instance of this tool."""
         return cls()
+'''
+
+    def _get_toolspec_template(self, name: str, description: str, version: str) -> str:
+        return f'''tool:
+  name: {name}
+  description: {description}
+  version: {version}
+  entrypoint: {name}_tool.py
 '''
 
     def _create_build_files(self, name: str) -> None:
