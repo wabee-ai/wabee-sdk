@@ -3,8 +3,7 @@ from typing import Callable, Type, Optional, Any, Union, TypeVar
 from pydantic import BaseModel, create_model
 
 from wabee.tools.base_tool import BaseTool
-from wabee.tools.tool_error import ToolError
-from wabee.tools.tool_error_type import ToolErrorType
+from wabee.tools.tool_error import ToolError, ToolErrorType
 
 T = TypeVar('T')
 
