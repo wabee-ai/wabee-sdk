@@ -2,13 +2,14 @@
 
 # The assemble script builds the application
 
-# If there are any requirements.txt files, install them
-if [ -f requirements.txt ]; then
-    pip install -r requirements.txt
-fi
+# Install poetry if not present
+curl -sSL https://install.python-poetry.org | python3 -
 
-# Install the application
-pip install -e .
+# Install dependencies using poetry
+if [ -f pyproject.toml ]; then
+    poetry config virtualenvs.create false
+    poetry install --no-interaction --no-ansi
+fi
 
 # Create the server entry point
 cat > /opt/app-root/server.py << 'EOF'

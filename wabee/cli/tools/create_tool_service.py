@@ -71,6 +71,11 @@ class CreateToolService:
         toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
         with open(toolspec_file, "w") as f:
             f.write(self._get_toolspec_template(sanitized_name, description, version))
+
+        # Create pyproject.toml
+        pyproject_file = os.path.join(sanitized_name, "pyproject.toml")
+        with open(pyproject_file, "w") as f:
+            f.write(self._get_pyproject_template(sanitized_name, description, version))
                 
         # Create Dockerfile and s2i files
         self._create_build_files(sanitized_name)
@@ -144,9 +149,25 @@ class {class_name}Tool(BaseTool):
   entrypoint: {name}_tool.py
 '''
 
+    def _get_pyproject_template(self, name: str, description: str, version: str) -> str:
+        return f'''[tool.poetry]
+name = "{name}"
+version = "{version}"
+description = "{description}"
+authors = ["Wabee <developers@wabee.ai>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+wabee = "*"
+pydantic = ">=2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+'''
+
     def _create_build_files(self, name: str) -> None:
         """Create build configuration files."""
-
         # Create s2i files
         s2i_dir = os.path.join(name, ".s2i")
         os.makedirs(s2i_dir, exist_ok=True)
@@ -155,13 +176,5 @@ class {class_name}Tool(BaseTool):
         env_file = os.path.join(s2i_dir, "environment")
         with open(env_file, "w") as f:
             f.write('''UPGRADE_PIP_TO_LATEST=true
-ENABLE_PIPENV=true
-''')
-
-        # Create requirements.txt
-        requirements = os.path.join(name, "requirements.txt")
-        with open(requirements, "w") as f:
-            f.write('''wabee
-pydantic>=2.0.0
-python-version = "3.11"
+ENABLE_PIPENV=false
 ''')
