@@ -3,6 +3,16 @@ import re
 import shutil
 from typing import Literal
 
+def to_camel_case(name: str) -> str:
+    """
+    Convert a string to CamelCase.
+    Example: 'my_cool_tool' -> 'MyCoolTool'
+    """
+    # First sanitize the name to ensure valid Python identifier
+    sanitized = sanitize_name(name)
+    # Split by underscore and capitalize each word
+    return ''.join(word.capitalize() for word in sanitized.split('_'))
+
 def sanitize_name(name: str) -> str:
     """
     Sanitize the tool name to be a valid Python identifier.
@@ -37,6 +47,8 @@ class CreateToolService:
         """Create a new tool project with the given name and type."""
         # Sanitize the name
         sanitized_name = sanitize_name(name)
+        # Get CamelCase version for class names
+        camel_case_name = to_camel_case(name)
         
         # Create project directory
         os.makedirs(sanitized_name, exist_ok=True)
@@ -45,15 +57,14 @@ class CreateToolService:
         tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
             if tool_type == "simple":
-                f.write(self._get_simple_tool_template(name))
+                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
             else:
-                f.write(self._get_complete_tool_template(name))
+                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
                 
         # Create Dockerfile and s2i files
         self._create_docker_files(sanitized_name)
         
-    def _get_simple_tool_template(self, name: str) -> str:
-        class_name = "".join(word.capitalize() for word in name.split("_"))
+    def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional
 from pydantic import BaseModel
 from wabee.tools.simple_tool import simple_tool
@@ -76,8 +87,7 @@ async def {name.lower()}_tool(input_data: {class_name}Input) -> str:
     return f"Processed: {{input_data.message}}"
 '''
 
-    def _get_complete_tool_template(self, name: str) -> str:
-        class_name = "".join(word.capitalize() for word in name.split("_"))
+    def _get_complete_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional, Type
 from pydantic import BaseModel
 from wabee.tools.base_tool import BaseTool
