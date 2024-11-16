@@ -9,13 +9,6 @@ def main() -> None:
     parser = ArgumentParser(
         prog="Wabee AI CLI", description="Wabee AI Command Line Interface"
     )
-    subparsers = parser.add_subparsers(title="Service", dest="svc_command")
-
-    tools_parser = subparsers.add_parser("tools", help="Wabee AI Agent Tools Utilities")
-    tools_subparser = tools_parser.add_subparsers(title="Action", dest="act_command")
-
-    # Add create tool command
-    create_parser = tools_subparser.add_parser("create", help="Create a new tool")
     
     args = parser.parse_args()
 
