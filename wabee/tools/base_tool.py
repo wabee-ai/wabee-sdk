@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from wabee.tools.tool_error import ToolError, ToolErrorType
-from typing import TypeVar, Generic, Optional, Dict, Type
+from typing import TypeVar, Generic, Optional, Dict, Type, Any
 from pydantic import BaseModel, ValidationError
 
 I = TypeVar('I', Dict, BaseModel)
@@ -8,6 +8,14 @@ O = TypeVar('O', str, Dict, BaseModel)
 
 class BaseTool(ABC, Generic[I, O]):
     args_schema: Optional[Type[BaseModel]] = None
+    
+    def __init__(self, **kwargs: Any) -> None:
+        """
+        Initialize the tool with optional predefined arguments.
+        These will be set as instance attributes.
+        """
+        for key, value in kwargs.items():
+            setattr(self, key, value)
     @abstractmethod
     async def execute(self, input_data: I) -> tuple[O | None, ToolError | None]:
         """
