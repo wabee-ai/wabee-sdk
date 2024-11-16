@@ -158,7 +158,7 @@ authors = ["Wabee <developers@wabee.ai>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-wabee = "*"
+wabee = ">=0.2.0"
 pydantic = ">=2.0.0"
 
 [build-system]
