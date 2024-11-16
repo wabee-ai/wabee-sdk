@@ -10,6 +10,16 @@ def main() -> None:
         prog="Wabee AI CLI", description="Wabee AI Command Line Interface"
     )
     
+    # Add subparsers
+    subparsers = parser.add_subparsers(dest='svc_command')
+    
+    # Create the 'tools' subcommand
+    tools_parser = subparsers.add_parser('tools', help='Tools related commands')
+    tools_subparsers = tools_parser.add_subparsers(dest='act_command')
+    
+    # Create the 'create' subcommand under 'tools'
+    create_parser = tools_subparsers.add_parser('create', help='Create a new tool')
+    
     args = parser.parse_args()
 
     if args.svc_command == "tools" and args.act_command == "create":
