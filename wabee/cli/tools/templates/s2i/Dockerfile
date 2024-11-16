@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y python3-pip && \
+    apt-get install -y python3-pip curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Set S2I scripts location
