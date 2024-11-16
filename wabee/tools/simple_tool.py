@@ -1,0 +1,68 @@
+from functools import wraps
+from typing import Callable, Type, Optional, Any, Union, TypeVar
+from pydantic import BaseModel, create_model
+
+from wabee.tools.base_tool import BaseTool
+from wabee.tools.tool_error import ToolError, ToolErrorType
+
+T = TypeVar('T')
+
+def simple_tool(
+    schema: Optional[Type[BaseModel]] = None,
+    **schema_fields: Any
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    """
+    A decorator that transforms a simple async function into a BaseTool-compatible interface.
+    
+    Can be used in three ways:
+    1. With inline schema fields: @simple_tool(x=int, y=int)
+    2. With a predefined schema: @simple_tool(schema=MySchema)
+    3. Without any schema: @simple_tool()
+    
+    Args:
+        schema: Optional predefined Pydantic model for input validation
+        **schema_fields: Field definitions to create an ad-hoc Pydantic model
+        
+    Returns:
+        A decorator that wraps the function in a BaseTool-compatible interface
+        
+    Example:
+        @simple_tool(x=int, y=int)
+        async def add_numbers(input_data):
+            return input_data.x + input_data.y
+            
+        result, error = await add_numbers(x=5, y=3)
+    """
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        # Create a schema on the fly if fields are provided but no schema
+        if schema is None and schema_fields:
+            dynamic_schema = create_model(
+                f"{func.__name__.title()}Input",
+                **schema_fields
+            )
+        else:
+            dynamic_schema = schema
+
+        @wraps(func)
+        async def wrapped_tool(*args: Any, **kwargs: Any) -> tuple[Union[T, None], Optional[ToolError]]:
+            # Create an anonymous class inheriting from BaseTool
+            class FunctionalTool(BaseTool):
+                args_schema = dynamic_schema
+
+                async def execute(self, input_data: Any) -> tuple[Union[T, None], Optional[ToolError]]:
+                    try:
+                        result = await func(input_data) if dynamic_schema else await func(*args, **kwargs)
+                        return result, None
+                    except Exception as e:
+                        return None, ToolError(
+                            type=ToolErrorType.EXECUTION_ERROR,
+                            message=str(e)
+                        )
+
+            # Create and call the tool instance
+            tool = FunctionalTool()
+            return await tool(kwargs if dynamic_schema else args[0] if args else kwargs)
+
+        return wrapped_tool
+
+    return decorator
