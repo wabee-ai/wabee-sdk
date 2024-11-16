@@ -36,13 +36,23 @@ def main() -> None:
                 inquirer.Text('name', message="What is the name of your tool?"),
                 inquirer.List('type',
                             message="What type of tool do you want to create?",
-                            choices=['simple', 'complete'])
+                            choices=['simple', 'complete']),
+                inquirer.Text('description',
+                            message="Provide a description for your tool"),
+                inquirer.Text('version',
+                            message="What is the initial version?",
+                            default="0.1.0")
             ]
             answers = inquirer.prompt(questions)
             
             if answers:
                 service = CreateToolService()
-                service.create_tool(answers['name'], answers['type'])
+                service.create_tool(
+                    name=answers['name'],
+                    tool_type=answers['type'],
+                    description=answers['description'],
+                    version=answers['version']
+                )
                 print(f"Tool '{answers['name']}' created successfully!")
         elif args.act_command == "build":
             service = BuildToolService(s2i_commit=args.s2i_commit)
