@@ -3,7 +3,8 @@ from typing import Callable, Type, Optional, Any, Union, TypeVar
 from pydantic import BaseModel, create_model
 
 from wabee.tools.base_tool import BaseTool
-from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.tool_error import ToolError
+from wabee.tools.tool_error_type import ToolErrorType
 
 T = TypeVar('T')
 
@@ -58,9 +59,14 @@ def simple_tool(
                     try:
                         result = await func(input_data) if dynamic_schema else await func(*args, **kwargs)
                         return result, None
+                    except ValueError as e:
+                        return None, ToolError(
+                            type=ToolErrorType.VALIDATION_ERROR,
+                            message=str(e)
+                        )
                     except Exception as e:
                         return None, ToolError(
-                            type=ToolErrorType.EXECUTION_ERROR,
+                            type=ToolErrorType.INTERNAL_ERROR,
                             message=str(e)
                         )
 
