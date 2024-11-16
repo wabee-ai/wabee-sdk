@@ -56,19 +56,32 @@ def simple_tool(
 
                 async def execute(self, input_data: Any) -> tuple[Union[T, None], Optional[ToolError]]:
                     try:
-                        # Call the function with the validated input
+                        # Validate and convert input to Pydantic model if schema exists
                         if dynamic_schema:
-                            result = await func(input_data)
+                            if isinstance(input_data, dict):
+                                validated_input = dynamic_schema(**input_data)
+                            else:
+                                validated_input = input_data
+                            result = await func(validated_input)
                         else:
                             result = await func(*args, **kwargs)
                         return result, None
                     except ValueError as e:
+                        # Business logic errors raised by the function
                         return None, ToolError(
                             type=ToolErrorType.EXECUTION_ERROR,
                             message=str(e),
                             original_error=e
                         )
+                    except AttributeError as e:
+                        # Schema validation/access errors
+                        return None, ToolError(
+                            type=ToolErrorType.INVALID_INPUT,
+                            message=str(e),
+                            original_error=e
+                        )
                     except Exception as e:
+                        # Unexpected errors
                         return None, ToolError(
                             type=ToolErrorType.INTERNAL_ERROR,
                             message=str(e),
