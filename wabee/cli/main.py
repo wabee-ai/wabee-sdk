@@ -1,5 +1,6 @@
 import sys
 from argparse import ArgumentParser
+import inquirer
 
 from wabee.cli.tools.create_tool_service import CreateToolService
 
@@ -13,4 +14,25 @@ def main() -> None:
     tools_parser = subparsers.add_parser("tools", help="Wabee AI Agent Tools Utilities")
     tools_subparser = tools_parser.add_subparsers(title="Action", dest="act_command")
 
-    # todo
+    # Add create tool command
+    create_parser = tools_subparser.add_parser("create", help="Create a new tool")
+    
+    args = parser.parse_args()
+
+    if args.svc_command == "tools" and args.act_command == "create":
+        # Interactive prompts for tool creation
+        questions = [
+            inquirer.Text('name', message="What is the name of your tool?"),
+            inquirer.List('type',
+                         message="What type of tool do you want to create?",
+                         choices=['simple', 'complete'])
+        ]
+        answers = inquirer.prompt(questions)
+        
+        if answers:
+            service = CreateToolService()
+            service.create_tool(answers['name'], answers['type'])
+            print(f"Tool '{answers['name']}' created successfully!")
+    else:
+        parser.print_help()
+        sys.exit(1)
