@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Optional
 
 class BuildToolService:
-    S2I_VERSION = "v1.3.9"
+    S2I_VERSION = "v1.4.0"
     PYTHON_IMAGE = "python:3.11-slim"
     
     def __init__(self):
