@@ -161,7 +161,7 @@ class BuildToolService:
             
         if not image_name:
             # Use directory name as image name
-            image_name = f"{tool_dir.name}:latest"
+            image_name = f"{tool_name}:latest"
             
         # Ensure builder image exists
         try:
@@ -188,7 +188,7 @@ class BuildToolService:
                 [
                     str(self.s2i_path),
                     "build",
-                    "--env-file",
+                    "--environment-file",
                     env_file.name,
                     str(tool_dir),
                     builder_name,
