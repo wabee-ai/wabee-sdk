@@ -96,8 +96,20 @@ class BuildToolService:
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir)
             
-            # Copy S2I configuration
-            shutil.copytree(s2i_dir, tmp_path / "s2i")
+            # Create s2i directory structure
+            (tmp_path / "s2i" / "bin").mkdir(parents=True)
+            
+            # Copy S2I scripts
+            for script in ["assemble", "run", "usage"]:
+                shutil.copy(
+                    s2i_dir / "bin" / script,
+                    tmp_path / "s2i" / "bin" / script
+                )
+                # Ensure scripts are executable
+                os.chmod(
+                    tmp_path / "s2i" / "bin" / script,
+                    stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+                )
             
             # Copy Dockerfile
             shutil.copy(s2i_dir / "Dockerfile", tmp_path / "Dockerfile")
@@ -151,13 +163,15 @@ class BuildToolService:
         # Convert tool_path to Path object
         tool_dir = Path(tool_path)
         
-        # Generate protos in tool directory
-        self._generate_protos(tool_dir)
-        
-        # Validate tool path
-        tool_dir = Path(tool_path)
+        # Validate tool directory has required files
         if not tool_dir.exists():
             raise ValueError(f"Tool directory not found: {tool_path}")
+            
+        if not (tool_dir / "pyproject.toml").exists():
+            raise ValueError(f"No pyproject.toml found in {tool_path}")
+        
+        # Generate protos in tool directory
+        self._generate_protos(tool_dir)
             
         if not image_name:
             # Use directory name as image name
