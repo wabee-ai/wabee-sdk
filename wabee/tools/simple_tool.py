@@ -56,17 +56,23 @@ def simple_tool(
 
                 async def execute(self, input_data: Any) -> tuple[Union[T, None], Optional[ToolError]]:
                     try:
-                        result = await func(input_data) if dynamic_schema else await func(*args, **kwargs)
+                        # Call the function with the validated input
+                        if dynamic_schema:
+                            result = await func(input_data)
+                        else:
+                            result = await func(*args, **kwargs)
                         return result, None
                     except ValueError as e:
                         return None, ToolError(
-                            type=ToolErrorType.VALIDATION_ERROR,
-                            message=str(e)
+                            type=ToolErrorType.EXECUTION_ERROR,
+                            message=str(e),
+                            original_error=e
                         )
                     except Exception as e:
                         return None, ToolError(
                             type=ToolErrorType.INTERNAL_ERROR,
-                            message=str(e)
+                            message=str(e),
+                            original_error=e
                         )
 
             # Create and call the tool instance
