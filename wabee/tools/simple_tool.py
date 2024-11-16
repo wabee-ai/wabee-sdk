@@ -64,7 +64,30 @@ def simple_tool(
                                 validated_input = input_data
                             result = await func(validated_input)
                         else:
-                            result = await func(*args, **kwargs)
+                            # For functions without schema, validate against type hints
+                            try:
+                                # Create a dynamic model from function annotations
+                                hints = func.__annotations__
+                                if hints:
+                                    fields = {
+                                        name: (typ, ...) for name, typ in hints.items()
+                                        if name != 'return'
+                                    }
+                                    runtime_schema = create_model(
+                                        f"{func.__name__}RuntimeSchema",
+                                        **fields
+                                    )
+                                    # Validate kwargs against the runtime schema
+                                    validated_kwargs = runtime_schema(**kwargs).dict()
+                                    result = await func(**validated_kwargs)
+                                else:
+                                    result = await func(*args, **kwargs)
+                            except (ValueError, TypeError) as e:
+                                return None, ToolError(
+                                    type=ToolErrorType.INVALID_INPUT,
+                                    message=str(e),
+                                    original_error=e
+                                )
                         return result, None
                     except ValueError as e:
                         # Business logic errors raised by the function
