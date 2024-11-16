@@ -144,4 +144,5 @@ ENABLE_PIPENV=true
         with open(requirements, "w") as f:
             f.write('''wabee
 pydantic>=2.0.0
+python-version = "3.11"
 ''')

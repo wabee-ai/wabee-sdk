@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import inquirer
 
 from wabee.cli.tools.create_tool_service import CreateToolService
+from wabee.cli.tools.build_tool_service import BuildToolService
 
 
 def main() -> None:
@@ -20,9 +21,15 @@ def main() -> None:
     # Create the 'create' subcommand under 'tools'
     create_parser = tools_subparsers.add_parser('create', help='Create a new tool')
     
+    # Create the 'build' subcommand under 'tools'
+    build_parser = tools_subparsers.add_parser('build', help='Build a tool container')
+    build_parser.add_argument('path', help='Path to the tool directory')
+    build_parser.add_argument('--image', help='Name for the built image', default=None)
+    
     args = parser.parse_args()
 
-    if args.svc_command == "tools" and args.act_command == "create":
+    if args.svc_command == "tools":
+        if args.act_command == "create":
         # Interactive prompts for tool creation
         questions = [
             inquirer.Text('name', message="What is the name of your tool?"),
@@ -36,6 +43,16 @@ def main() -> None:
             service = CreateToolService()
             service.create_tool(answers['name'], answers['type'])
             print(f"Tool '{answers['name']}' created successfully!")
+        elif args.act_command == "build":
+            service = BuildToolService()
+            try:
+                service.build_tool(args.path, args.image)
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            parser.print_help()
+            sys.exit(1)
     else:
         parser.print_help()
         sys.exit(1)
