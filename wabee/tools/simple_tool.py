@@ -81,7 +81,11 @@ def simple_tool(
                                     validated_kwargs = runtime_schema(**kwargs).dict()
                                     result = await func(**validated_kwargs)
                                 else:
-                                    result = await func(*args, **kwargs)
+                                    # When no schema and no type hints, pass args/kwargs directly 
+                                    if args:
+                                        result = await func(*args)
+                                    else:
+                                        result = await func(**kwargs)
                             except (ValueError, TypeError) as e:
                                 return None, ToolError(
                                     type=ToolErrorType.INVALID_INPUT,
