@@ -25,6 +25,7 @@ pandas = "^2.2.2"
 restrictedpython = "^7.1"
 matplotlib = "^3.8.4"
 inquirer = "^3.4.0"
+grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
 
 [tool.poetry.scripts]

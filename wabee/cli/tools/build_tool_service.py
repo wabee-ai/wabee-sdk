@@ -7,6 +7,7 @@ import stat
 import shutil
 import tarfile
 import tempfile
+import pkg_resources
 from pathlib import Path
 from typing import Optional
 
@@ -107,6 +108,35 @@ class BuildToolService:
                 check=True
             )
 
+    def _generate_protos(self, tool_dir: Path) -> None:
+        """Generate gRPC code from proto definitions in the tool directory."""
+        # Create protos directory in tool dir
+        protos_dir = tool_dir / "protos"
+        protos_dir.mkdir(exist_ok=True)
+        
+        # Get the proto file from the installed package
+        proto_resource = pkg_resources.resource_filename(
+            'wabee', 'rpc/protos/tool_service.proto'
+        )
+        
+        # Copy proto file to tool directory
+        shutil.copy2(proto_resource, protos_dir / "tool_service.proto")
+        
+        # Generate the gRPC code
+        try:
+            subprocess.run([
+                "python", "-m", "grpc_tools.protoc",
+                "-I", str(tool_dir),
+                f"--python_out={tool_dir}",
+                f"--grpc_python_out={tool_dir}",
+                f"--pyi_out={tool_dir}",
+                str(protos_dir / "tool_service.proto")
+            ], check=True)
+            print("Successfully generated proto code")
+        except subprocess.CalledProcessError as e:
+            print(f"Error generating proto code: {e}", file=sys.stderr)
+            raise
+
     def build_tool(
         self,
         tool_path: str,
@@ -117,6 +147,12 @@ class BuildToolService:
     ) -> None:
         """Build a tool using s2i."""
         self._download_s2i()
+        
+        # Convert tool_path to Path object
+        tool_dir = Path(tool_path)
+        
+        # Generate protos in tool directory
+        self._generate_protos(tool_dir)
         
         # Validate tool path
         tool_dir = Path(tool_path)
