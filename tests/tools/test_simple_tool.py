@@ -19,7 +19,7 @@ class PersonSchema(BaseModel):
 async def add_with_schema(input_data):
     return input_data.x + input_data.y
 
-@simple_tool(x=int, y=int)
+@simple_tool(schema=AdditionSchema)  # Use the predefined schema instead
 async def add_with_fields(input_data):
     return input_data.x + input_data.y
 

@@ -36,9 +36,14 @@ def simple_tool(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         # Create a schema on the fly if fields are provided but no schema
         if schema is None and schema_fields:
+            # Convert field definitions to proper Pydantic field annotations
+            annotated_fields = {
+                field_name: (field_type, ...)  # ... means required
+                for field_name, field_type in schema_fields.items()
+            }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
-                **schema_fields
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
