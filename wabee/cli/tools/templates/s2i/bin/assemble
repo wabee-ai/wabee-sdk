@@ -21,6 +21,9 @@ if [ -f pyproject.toml ]; then
     poetry install --no-interaction --no-ansi --no-root
 fi
 
+# Create app root directory
+mkdir -p /opt/app-root
+
 # Create the server entry point
 cat > /opt/app-root/server.py << 'EOF'
 import asyncio
