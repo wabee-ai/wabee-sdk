@@ -4,6 +4,8 @@ import subprocess
 import sys
 import requests
 import stat
+import tarfile
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -15,41 +17,53 @@ class BuildToolService:
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
         
-    def _get_s2i_binary_name(self) -> str:
-        """Get the appropriate s2i binary name for the current platform."""
+    def _get_s2i_archive_name(self) -> str:
+        """Get the appropriate s2i archive name for the current platform."""
         system = platform.system().lower()
         machine = platform.machine().lower()
         
+        arch = "arm64" if ("arm" in machine or "aarch64" in machine) else "amd64"
+        
         if system == "darwin":
-            if "arm" in machine or "aarch64" in machine:
-                return "s2i-darwin-arm64"
-            return "s2i-darwin-amd64"
+            platform_name = "darwin"
         elif system == "linux":
-            if "arm" in machine or "aarch64" in machine:
-                return "s2i-linux-arm64"
-            return "s2i-linux-amd64"
+            platform_name = "linux"
         else:
             raise ValueError(f"Unsupported platform: {system}-{machine}")
             
+        return f"source-to-image-{self.S2I_VERSION}-d3544c7e-{platform_name}-{arch}.tar.gz"
+            
     def _download_s2i(self) -> None:
-        """Download s2i binary if not present."""
+        """Download and extract s2i binary if not present."""
         if self.s2i_path.exists():
             return
             
         self.s2i_dir.mkdir(parents=True, exist_ok=True)
-        binary_name = self._get_s2i_binary_name()
+        archive_name = self._get_s2i_archive_name()
         download_url = (
             f"https://github.com/openshift/source-to-image/releases/download/"
-            f"{self.S2I_VERSION}/{binary_name}"
+            f"{self.S2I_VERSION}/{archive_name}"
         )
         
         print("Downloading s2i...")
         response = requests.get(download_url, stream=True)
         response.raise_for_status()
         
-        with open(self.s2i_path, 'wb') as f:
+        # Create a temporary file to store the downloaded archive
+        with tempfile.NamedTemporaryFile(suffix='.tar.gz', delete=False) as tmp_file:
             for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+                tmp_file.write(chunk)
+            tmp_file.flush()
+            
+            # Extract the s2i binary from the archive
+            with tarfile.open(tmp_file.name, 'r:gz') as tar:
+                s2i_binary = tar.extractfile('s2i')
+                if s2i_binary:
+                    with open(self.s2i_path, 'wb') as f:
+                        f.write(s2i_binary.read())
+                        
+        # Clean up the temporary file
+        os.unlink(tmp_file.name)
                 
         # Make binary executable
         self.s2i_path.chmod(self.s2i_path.stat().st_mode | stat.S_IEXEC)
