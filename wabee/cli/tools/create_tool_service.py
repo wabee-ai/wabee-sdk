@@ -1,6 +1,31 @@
 import os
+import re
 import shutil
 from typing import Literal
+
+def sanitize_name(name: str) -> str:
+    """
+    Sanitize the tool name to be a valid Python identifier.
+    
+    - Converts to lowercase
+    - Replaces spaces and invalid chars with underscores
+    - Ensures it starts with a letter
+    - Removes consecutive underscores
+    """
+    # Convert to lowercase and replace spaces/invalid chars with underscore
+    name = re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
+    
+    # Ensure starts with letter
+    if not name[0].isalpha():
+        name = 'tool_' + name
+        
+    # Remove consecutive underscores
+    name = re.sub(r'_+', '_', name)
+    
+    # Remove trailing underscore
+    name = name.rstrip('_')
+    
+    return name
 
 class CreateToolService:
     TOOL_TYPES = Literal["simple", "complete"]
@@ -10,11 +35,14 @@ class CreateToolService:
         
     def create_tool(self, name: str, tool_type: TOOL_TYPES) -> None:
         """Create a new tool project with the given name and type."""
+        # Sanitize the name
+        sanitized_name = sanitize_name(name)
+        
         # Create project directory
-        os.makedirs(name, exist_ok=True)
+        os.makedirs(sanitized_name, exist_ok=True)
         
         # Create tool file
-        tool_file = os.path.join(name, f"{name.lower()}_tool.py")
+        tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
             if tool_type == "simple":
                 f.write(self._get_simple_tool_template(name))
@@ -22,7 +50,7 @@ class CreateToolService:
                 f.write(self._get_complete_tool_template(name))
                 
         # Create Dockerfile and s2i files
-        self._create_docker_files(name)
+        self._create_docker_files(sanitized_name)
         
     def _get_simple_tool_template(self, name: str) -> str:
         class_name = "".join(word.capitalize() for word in name.split("_"))
