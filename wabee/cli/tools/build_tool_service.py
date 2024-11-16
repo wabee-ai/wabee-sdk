@@ -20,6 +20,10 @@ class BuildToolService:
             self.S2I_COMMIT = s2i_commit
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
         
+    def _get_s2i_binary_name(self) -> str:
+        """Get the name of the s2i binary."""
+        return "s2i"
+        
     def _get_s2i_archive_name(self) -> str:
         """Get the appropriate s2i archive name for the current platform."""
         system = platform.system().lower()
