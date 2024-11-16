@@ -19,6 +19,7 @@ class BuildToolService:
         if s2i_commit:
             self.S2I_COMMIT = s2i_commit
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
+        self.template_dir = Path(__file__).parent / "templates"
         
     def _get_s2i_binary_name(self) -> str:
         """Get the name of the s2i binary."""
@@ -85,7 +86,34 @@ class BuildToolService:
         # Make binary executable
         self.s2i_path.chmod(self.s2i_path.stat().st_mode | stat.S_IEXEC)
         
-    def build_tool(self, tool_path: str, image_name: Optional[str] = None) -> None:
+    def _prepare_builder_image(self, builder_name: str = "wabee-tool-builder:latest") -> None:
+        """Prepare the S2I builder image."""
+        s2i_dir = self.template_dir / "s2i"
+        
+        # Create temporary build context
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_path = Path(tmp_dir)
+            
+            # Copy S2I configuration
+            shutil.copytree(s2i_dir, tmp_path / "s2i")
+            
+            # Copy Dockerfile
+            shutil.copy(s2i_dir / "Dockerfile", tmp_path / "Dockerfile")
+            
+            # Build the builder image
+            subprocess.run(
+                ["docker", "build", "-t", builder_name, str(tmp_path)],
+                check=True
+            )
+
+    def build_tool(
+        self,
+        tool_path: str,
+        tool_module: str = "tool",
+        tool_name: str = "tool",
+        image_name: Optional[str] = None,
+        builder_name: str = "wabee-tool-builder:latest"
+    ) -> None:
         """Build a tool using s2i."""
         self._download_s2i()
         
@@ -98,14 +126,35 @@ class BuildToolService:
             # Use directory name as image name
             image_name = f"{tool_dir.name}:latest"
             
-        print(f"Building tool image: {image_name}")
+        # Ensure builder image exists
         try:
+            subprocess.run(
+                ["docker", "inspect", builder_name],
+                check=True,
+                capture_output=True
+            )
+        except subprocess.CalledProcessError:
+            print(f"Building S2I builder image: {builder_name}")
+            self._prepare_builder_image(builder_name)
+            
+        print(f"Building tool image: {image_name}")
+        
+        # Create environment file
+        env_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        try:
+            env_file.write(f"WABEE_TOOL_MODULE={tool_module}\n")
+            env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
+            env_file.close()
+            
+            # Build the tool image using S2I
             subprocess.run(
                 [
                     str(self.s2i_path),
                     "build",
+                    "--env-file",
+                    env_file.name,
                     str(tool_dir),
-                    self.PYTHON_IMAGE,
+                    builder_name,
                     image_name,
                 ],
                 check=True
@@ -114,3 +163,5 @@ class BuildToolService:
         except subprocess.CalledProcessError as e:
             print(f"Error building image: {e}", file=sys.stderr)
             raise
+        finally:
+            os.unlink(env_file.name)

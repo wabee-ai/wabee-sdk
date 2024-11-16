@@ -1,0 +1,44 @@
+#!/bin/bash -e
+
+# The assemble script builds the application
+
+# If there are any requirements.txt files, install them
+if [ -f requirements.txt ]; then
+    pip install -r requirements.txt
+fi
+
+# Install the application
+pip install -e .
+
+# Create the server entry point
+cat > /opt/app-root/server.py << 'EOF'
+import asyncio
+import importlib
+import os
+from wabee.rpc.server import serve
+from typing import Dict, Any
+
+def load_tools() -> Dict[str, Any]:
+    tools = {}
+    tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
+    tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
+    
+    module = importlib.import_module(tool_module)
+    tool = getattr(module, tool_name)
+    tools[tool_name] = tool
+    
+    return tools
+
+def main():
+    port = int(os.environ.get('WABEE_GRPC_PORT', '50051'))
+    tools = load_tools()
+    
+    print(f"Starting gRPC server with tools: {list(tools.keys())}")
+    asyncio.run(serve(tools, port=port))
+
+if __name__ == '__main__':
+    main()
+EOF
+
+# Ensure the script is executable
+chmod +x /opt/app-root/server.py
