@@ -62,7 +62,7 @@ class CreateToolService:
                 f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
                 
         # Create Dockerfile and s2i files
-        self._create_docker_files(sanitized_name)
+        self._create_build_files(sanitized_name)
         
     def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional
@@ -74,7 +74,7 @@ class {class_name}Input(BaseModel):
     message: str
 
 @simple_tool(schema={class_name}Input)
-async def {name.lower()}_tool(input_data: {class_name}Input) -> str:
+async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
     """
     A simple tool that processes the input message.
     
@@ -91,7 +91,7 @@ async def {name.lower()}_tool(input_data: {class_name}Input) -> str:
         return f'''from typing import Optional, Type
 from pydantic import BaseModel
 from wabee.tools.base_tool import BaseTool
-from wabee.tools.tool_error import ToolError
+from wabee.tools.tool_error import ToolError, ToolErrorType
 
 class {class_name}Input(BaseModel):
     message: str
@@ -114,7 +114,7 @@ class {class_name}Tool(BaseTool):
             return result, None
         except Exception as e:
             return None, ToolError(
-                type="EXECUTION_ERROR",
+                type=ToolErrorType.EXECUTION_ERROR,
                 message=str(e),
                 original_error=e
             )
@@ -125,17 +125,8 @@ class {class_name}Tool(BaseTool):
         return cls()
 '''
 
-    def _create_docker_files(self, name: str) -> None:
-        """Create Dockerfile and s2i configuration files."""
-        # Create Dockerfile
-        dockerfile = os.path.join(name, "Dockerfile")
-        with open(dockerfile, "w") as f:
-            f.write('''FROM python:3.9-slim
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-CMD ["python", "main.py"]
-''')
+    def _create_build_files(self, name: str) -> None:
+        """Create build configuration files."""
 
         # Create s2i files
         s2i_dir = os.path.join(name, ".s2i")
