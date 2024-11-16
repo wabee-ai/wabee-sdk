@@ -64,7 +64,17 @@ class BuildToolService:
             
             # Extract the s2i binary from the archive
             with tarfile.open(tmp_file.name, 'r:gz') as tar:
-                s2i_binary = tar.extractfile('s2i')
+                # Find the s2i binary in the archive
+                s2i_path = None
+                for member in tar.getmembers():
+                    if member.name.endswith('/s2i') or member.name == 's2i':
+                        s2i_path = member.name
+                        break
+                
+                if not s2i_path:
+                    raise RuntimeError("Could not find s2i binary in archive")
+                
+                s2i_binary = tar.extractfile(s2i_path)
                 if s2i_binary:
                     with open(self.s2i_path, 'wb') as f:
                         f.write(s2i_binary.read())
