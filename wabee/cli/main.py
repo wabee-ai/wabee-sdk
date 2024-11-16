@@ -30,19 +30,19 @@ def main() -> None:
 
     if args.svc_command == "tools":
         if args.act_command == "create":
-        # Interactive prompts for tool creation
-        questions = [
-            inquirer.Text('name', message="What is the name of your tool?"),
-            inquirer.List('type',
-                         message="What type of tool do you want to create?",
-                         choices=['simple', 'complete'])
-        ]
-        answers = inquirer.prompt(questions)
-        
-        if answers:
-            service = CreateToolService()
-            service.create_tool(answers['name'], answers['type'])
-            print(f"Tool '{answers['name']}' created successfully!")
+            # Interactive prompts for tool creation
+            questions = [
+                inquirer.Text('name', message="What is the name of your tool?"),
+                inquirer.List('type',
+                            message="What type of tool do you want to create?",
+                            choices=['simple', 'complete'])
+            ]
+            answers = inquirer.prompt(questions)
+            
+            if answers:
+                service = CreateToolService()
+                service.create_tool(answers['name'], answers['type'])
+                print(f"Tool '{answers['name']}' created successfully!")
         elif args.act_command == "build":
             service = BuildToolService()
             try:
