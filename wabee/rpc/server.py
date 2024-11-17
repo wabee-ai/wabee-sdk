@@ -1,6 +1,7 @@
 import json
 import asyncio
 import logging
+import signal
 import grpc
 from typing import Dict, Any, Optional
 from concurrent import futures
@@ -133,7 +134,7 @@ async def serve(
         shutdown_event.set()
     
     # Setup signal handlers using asyncio
-    for sig in (asyncio.SIGTERM, asyncio.SIGINT):
+    for sig in (signal.SIGTERM, signal.SIGINT):
         loop = asyncio.get_event_loop()
         loop.add_signal_handler(
             sig,
