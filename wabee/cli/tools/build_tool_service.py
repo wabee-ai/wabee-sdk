@@ -8,6 +8,7 @@ import shutil
 import tarfile
 import tempfile
 import pkg_resources
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -119,7 +120,7 @@ class BuildToolService:
         self,
         tool_path: str,
         tool_module: Optional[str] = None,
-        tool_name: str = "tool",
+        tool_name: Optional[str] = None,
         image_name: Optional[str] = None,
         builder_name: Optional[str] = None
     ) -> None:
@@ -128,7 +129,7 @@ class BuildToolService:
         Args:
             tool_path: Path to the tool directory
             tool_module: Optional module name. If not provided, will be derived from the tool file
-            tool_name: Name of the tool class/function
+            tool_name: Optional tool name. If not provided, will be derived from the tool file
             image_name: Optional custom image name
             builder_name: Optional custom builder image name
         """
@@ -154,12 +155,30 @@ class BuildToolService:
             
             # Get the filename without .py extension
             tool_module = python_files[0].stem
+
+        # If tool_name not provided, try to find the tool class/function name
+        if tool_name is None:
+            tool_file = tool_dir / f"{tool_module}.py"
+            with open(tool_file, 'r') as f:
+                content = f.read()
+                
+            # Look for class definition first (complete tool)
+            class_match = re.search(r'class\s+(\w+)(?:\s*\([^)]*\))?\s*:', content)
+            if class_match:
+                tool_name = class_match.group(1)
+            else:
+                # Look for decorated function (simple tool)
+                func_match = re.search(r'@simple_tool[^\n]*\s*def\s+(\w+)', content)
+                if func_match:
+                    tool_name = func_match.group(1)
+                else:
+                    raise ValueError(f"Could not find tool class or function in {tool_file}")
         
         # Generate protos in tool directory
         self._generate_protos(tool_dir)
             
         if not image_name:
-            image_name = f"{tool_name}:latest"
+            image_name = f"{tool_module}:latest"  # Use module name for image
             
         if not builder_name:
             builder_name = self.PYTHON_BUILDER
