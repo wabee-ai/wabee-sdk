@@ -36,14 +36,14 @@ if [ -f pyproject.toml ]; then
     
     echo "Configuring Poetry..."
     # Install all dependencies including the project itself
-    poetry config virtualenvs.create false
-    poetry config --list
+    su poetry_user -c "poetry config virtualenvs.create false"
+    su poetry_user -c "poetry config --list"
     
     echo "Installing dependencies with Poetry..."
-    poetry install --no-interaction --no-ansi --verbose
+    su poetry_user -c "poetry install --no-interaction --no-ansi --verbose"
     
     echo "Installing project in development mode..."
-    poetry install --no-interaction --no-ansi --verbose
+    su poetry_user -c "poetry install --no-interaction --no-ansi --verbose"
 
     # Debug: Show installed packages
     echo "Installed Python packages:"
