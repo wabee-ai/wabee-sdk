@@ -230,6 +230,8 @@ class BuildToolService:
                 [
                     str(self.s2i_path),
                     "build",
+                    "--copy",
+                    "--destination", "/tmp/src",
                     "--environment-file",
                     env_file.name,
                     str(tool_dir),

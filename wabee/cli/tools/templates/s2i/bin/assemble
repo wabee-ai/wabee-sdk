@@ -4,6 +4,9 @@
 
 echo "Starting assemble script..."
 
+# Change to the source directory where S2I copies the source code
+cd /tmp/src
+
 # Set Python path to include site-packages
 export PYTHONPATH="/usr/local/lib/python3.11/site-packages:${PYTHONPATH}"
 echo "PYTHONPATH set to: ${PYTHONPATH}"
