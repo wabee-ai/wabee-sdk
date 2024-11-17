@@ -2,19 +2,17 @@
 
 # The assemble script builds the application
 
+# Set Python path to include site-packages
+export PYTHONPATH="/usr/local/lib/python3.11/site-packages:${PYTHONPATH}"
+
 # Install dependencies using poetry
 if [ -f pyproject.toml ]; then
     # Install all dependencies including the project itself
+    poetry config virtualenvs.create false
     poetry install --no-interaction --no-ansi
-    
-    # Export dependencies to requirements.txt
-    poetry export -f requirements.txt --output requirements.txt --without-hashes
-    
-    # Install using pip to ensure system-wide installation
-    pip install -r requirements.txt
-    
-    # Install the tool itself
-    pip install .
+
+    # Ensure the tool itself is installed in development mode
+    poetry install --no-interaction --no-ansi
 fi
 
 # Create app root directory
