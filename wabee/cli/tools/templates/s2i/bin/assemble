@@ -1,64 +1,38 @@
 #!/bin/bash -e
 
 # The assemble script builds the application
-
 echo "Starting assemble script..."
 
-# Ensure source directory exists and copy source there if needed
+# Ensure source directory exists
 if [ ! -d "/tmp/src" ]; then
     echo "Creating /tmp/src directory"
     mkdir -p /tmp/src
 fi
 
-# If source is in current directory, copy it to /tmp/src
+# If source is in current directory, copy it
 if [ -f "./pyproject.toml" ]; then
     echo "Found source in current directory, copying to /tmp/src"
     cp -r . /tmp/src/
 fi
 
-# Change to the source directory
 cd /tmp/src
-
-# Set Python path to include site-packages
-export PYTHONPATH="/usr/local/lib/python3.11/site-packages:${PYTHONPATH}"
-echo "PYTHONPATH set to: ${PYTHONPATH}"
-
-# Debug: Show current directory and contents
-echo "Current directory: $(pwd)"
-echo "Directory contents:"
-ls -la
 
 # Install dependencies using poetry
 if [ -f pyproject.toml ]; then
     echo "Found pyproject.toml"
-    echo "pyproject.toml contents:"
-    cat pyproject.toml
-    
-    echo "Configuring Poetry..."
-    # Install all dependencies including the project itself
-    su poetry_user -c "poetry config virtualenvs.create false"
-    su poetry_user -c "poetry config --list"
-    
     echo "Installing dependencies with Poetry..."
-    su poetry_user -c "poetry install --no-interaction --no-ansi --verbose"
-    
-    echo "Installing project in development mode..."
-    su poetry_user -c "poetry install --no-interaction --no-ansi --verbose"
-
-    # Debug: Show installed packages
-    echo "Installed Python packages:"
-    pip list
+    poetry install --no-interaction --no-ansi --verbose
 else
     echo "No pyproject.toml found!"
+    exit 1
 fi
 
-# Create app root directory
-mkdir -p /opt/app-root
-echo "Created /opt/app-root directory"
+# Create app directory and copy files
+mkdir -p /app
+cp -R . /app/
 
 # Create the server entry point
-echo "Creating server.py..."
-cat > /opt/app-root/server.py << 'EOF'
+cat > /app/server.py << 'EOF'
 import asyncio
 import importlib
 import os
@@ -69,22 +43,13 @@ def load_tools() -> Dict[str, Any]:
     tools = {}
     tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
     tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
-        
+    
     print(f"Loading tool module: {tool_module}")
     print(f"Loading tool name: {tool_name}")
-    print(f"Python path: {os.environ.get('PYTHONPATH')}")
-    print(f"Current directory: {os.getcwd()}")
-    print(f"Directory contents: {os.listdir()}")
-        
+    
     try:
-        print(f"Attempting to import module {tool_module}...")
         module = importlib.import_module(tool_module)
-        print(f"Successfully imported module {tool_module}")
-            
-        print(f"Attempting to get attribute {tool_name} from module...")
         tool = getattr(module, tool_name)
-        print(f"Successfully got tool {tool_name}")
-            
         tools[tool_name] = tool
     except Exception as e:
         print(f"Error loading tool: {str(e)}")
@@ -95,7 +60,6 @@ def load_tools() -> Dict[str, Any]:
 def main():
     port = int(os.environ.get('WABEE_GRPC_PORT', '50051'))
     tools = load_tools()
-    
     print(f"Starting gRPC server with tools: {list(tools.keys())}")
     asyncio.run(serve(tools, port=port))
 
@@ -103,5 +67,6 @@ if __name__ == '__main__':
     main()
 EOF
 
-# Ensure the script is executable
-chmod +x /opt/app-root/server.py
+# Ensure proper permissions
+chown -R wabee:wabee /app
+chmod +x /app/server.py
