@@ -1,0 +1,5 @@
+tool:
+  name: mytool
+  description: A tool for doing something
+  version: 1.0.0
+  entrypoint: mytool.py
