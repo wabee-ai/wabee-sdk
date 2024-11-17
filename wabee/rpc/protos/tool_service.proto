@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package wabee.tools;
+
+// Common types we might need
+message Int64Value {
+  int64 value = 1;
+}
+
+message StringValue {
+  string value = 1;
+}
+
+message FloatValue {
+  double value = 1;
+}
+
+service ToolService {
+  rpc Execute (ExecuteRequest) returns (ExecuteResponse);
+  rpc GetToolSchema (GetToolSchemaRequest) returns (ToolSchema);
+}
+
+message ExecuteRequest {
+  string tool_name = 1;
+  oneof input {
+    string json_data = 2;  // For backwards compatibility
+    bytes proto_data = 3;  // For dynamic proto encoding
+  }
+}
+
+message ExecuteResponse {
+  oneof result {
+    string json_result = 1;  // For backwards compatibility
+    bytes proto_result = 2;  // For dynamic proto encoding
+  }
+  ToolError error = 3;    
+}
+
+message ToolError {
+  string type = 1;
+  string message = 2;
+}
+
+message GetToolSchemaRequest {
+  string tool_name = 1;
+}
+
+message ToolSchema {
+  string tool_name = 1;
+  repeated FieldSchema fields = 2;
+}
+
+message FieldSchema {
+  string name = 1;
+  string type = 2;
+  bool required = 3;
+  string description = 4;
+}

@@ -1,114 +1,167 @@
-![PyPI - Downloads](https://img.shields.io/pypi/dm/wabee-sdk)
-![PyPI - Format](https://img.shields.io/pypi/format/wabee-sdk)
-![PyPI - Implementation](https://img.shields.io/pypi/implementation/wabee-sdk)
-![PyPI - License](https://img.shields.io/pypi/l/wabee-sdk)
-![PyPI - Status](https://img.shields.io/pypi/status/wabee-sdk)
-![PyPI - Version](https://img.shields.io/pypi/v/wabee-sdk)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/wabee-sdk)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wabee-sdk)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/wabee)
+![PyPI - Format](https://img.shields.io/pypi/format/wabee)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/wabee)
+![PyPI - License](https://img.shields.io/pypi/l/wabee)
+![PyPI - Status](https://img.shields.io/pypi/status/wabee)
+![PyPI - Version](https://img.shields.io/pypi/v/wabee)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/wabee)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wabee)
 
 ![Wabee AI](https://wabee-public-assets.s3.amazonaws.com/images/wabee-small-box-white.png)
 
+# Wabee SDK
+
 **wabee-sdk** is a Python module for development of modules and extensions for the Wabee agentic AI platform.
 
-Website: https://wabee.ai/
+## Installation
 
-# Installation
-
-## Dependencies
-
-wabee-sdk requires:
-
-- python = ">=3.10,<3.12"
-- langchain = "^0.1.14"
-- chardet = "^5.2.0"
-- pandas = "^2.2.2"
-- restrictedpython = "^7.1"
-- matplotlib = "^3.8.4"
-
-## User Installation
-
-The easiest way to install the package is through `pip`:
-
-```sh
-pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple wabee-sdk
+```bash
+pip install wabee
 ```
 
-# Command Line Interface
+## Command Line Interface (CLI)
 
-The wabee-sdk also comes as a CLI to make the process of development wabee agents tools faster and easier!
+The Wabee SDK includes a powerful CLI tool to streamline the development of Wabee agent tools.
 
-To create a brand new tool, one just needs to run:
+### Creating a New Tool
 
-```sh
-wb tools create tool-name
+Create a new tool using the interactive CLI:
+
+```bash
+wabee tools create
 ```
 
-And that's it, with no time wasted implementing boilerplate code, the tool is ready to be executed and updated according to the business requirements.
+This command will prompt you for:
+- Tool name
+- Tool type (simple or complete)
+- Tool description
+- Initial version
 
-# Example
+#### Tool Types
 
-## Tool Configuration
+1. **Simple Tool**: 
+   - Ideal for straightforward, single-function tools
+   - Uses the `@simple_tool` decorator
+   - Less boilerplate code
+   - Perfect for quick implementations
 
-To create a tool manually, the first step is to define its configuration. In other words, all the necessary data to initialize the tool must be held by this object.
+2. **Complete Tool**:
+   - Full class implementation
+   - More control over tool behavior
+   - Better for complex tools with multiple operations
+   - Includes error handling infrastructure
+
+### Building Tool Containers
+
+Build a tool into a container image:
+
+```bash
+wabee tools build <tool_directory> [options]
+```
+
+Options:
+- `--image`: Specify custom image name (default: toolname:latest)
+
+Example:
+```bash
+wabee tools build ./my-tool
+```
+
+## Tool Project Structure
+
+When you create a new tool, the following structure is generated:
+
+```
+my_tool/
+├── my_tool_tool.py      # Main tool implementation
+├── requirements.txt     # Python dependencies
+├── server.py           # gRPC server implementation
+└── toolspec.yaml       # Tool specification and metadata
+```
+
+## RPC Server
+
+Each built tool runs as a gRPC server that exposes a standardized interface for tool execution. The server:
+
+- Listens on port 50051 by default (configurable via WABEE_GRPC_PORT)
+- Automatically handles input validation using your Pydantic schemas
+- Provides standardized error handling and reporting
+- Supports streaming responses for long-running operations
+
+When you build a tool with `wabee tools build`, the resulting container image includes:
+- Your tool implementation
+- All dependencies
+- A pre-configured gRPC server
+- Generated protocol buffers for type-safe communication
+
+You can run the built container with:
+```bash
+docker run -p 50051:50051 mytool:latest
+```
+
+### toolspec.yaml
+
+The tool specification file contains metadata about your tool:
+
+```yaml
+tool:
+  name: MyTool
+  description: Your tool description
+  version: 0.1.0
+  entrypoint: my_tool_tool.py
+```
+
+### Requirements
+
+- Python >=3.11,<3.12
+- Docker (for building containers)
+- Internet connection (for downloading S2I builder)
+
+## Development Examples
+
+### Simple Tool Example
 
 ```python
-class APIGatewayToolConfig(WabeeAgentToolConfig):
-    base_url: str
-    api_key: str
+from pydantic import BaseModel
+from wabee.tools.simple_tool import simple_tool
+
+class MyToolInput(BaseModel):
+    message: str
+
+@simple_tool(schema=MyToolInput)
+async def my_tool(input_data: MyToolInput) -> str:
+    return f"Processed: {input_data.message}"
 ```
 
-## Tool Input
-
-Then, define the tool input, which is the data that will be processed by the tool, for instance
+### Complete Tool Example
 
 ```python
-class APIGatewayToolConfig(WabeeAgentToolInput):
-    headers: dict[str, str] = WabeeAgentToolField(
-        name="headers",
-        description="http request headers",
-        example={
-            "Content-Type": "application/json"
-        }
-    )
+from typing import Optional, Type
+from pydantic import BaseModel
+from wabee.tools.base_tool import BaseTool
+from wabee.tools.tool_error import ToolError
+
+class MyToolInput(BaseModel):
+    message: str
+
+class MyTool(BaseTool):
+    args_schema: Type[BaseModel] = MyToolInput
+
+    async def execute(self, input_data: MyToolInput) -> tuple[Optional[str], Optional[ToolError]]:
+        try:
+            result = f"Processed: {input_data.message}"
+            return result, None
+        except Exception as e:
+            return None, ToolError(type="EXECUTION_ERROR", message=str(e))
 ```
 
-Finally, implement the tool itself, following the example below:
+## Contributing
 
-## Tool
+Suggestions are welcome! Please feel free to submit bug reports or feedbacks as a Github issues.
 
-```python
-class APIGatewayTool(WabeeAgentTool):
-    base_url: str
-    api_key: str
+## Links
 
-    def execute(
-        self,
-        api_gateway_tool_input: APIGatewayToolInput
-    ) -> str:
-        print(f"Requesting API on {self.base_url} with headers: {api_gateway_tool_input.headers}")
-        return "200"
+- Website: https://wabee.ai/
+- Documentation: https://documentation.wabee.ai
+- GitHub: https://github.com/wabee-ai/wabee-sdk
 
-    @classmethod
-    def create(
-        cls,
-        api_gateway_tool_config: APIGatewayToolConfig
-    ) -> APIGatewayTool:
-        return cls(
-            name="api_gateway_tool",
-            description="api_gateway_tool",
-            base_url=api_gateway_tool_config.base_url,
-            api_key=api_gateway_tool_config.api_key
-        )
-```
-
-## Tool Factory
-
-The last step is to expose a factory function so other modules can easily instantiate the tool.
-
-```python
-def _create_tool(**kwargs: Any) -> WabeeAgentTool:
-    return APIGatewayTool.create(APIGatewayToolConfig(**kwargs))
-```
-
-Although, it is possible to create the tool manually, it is highly recommended to create it using the CLI. Moreover, it is mandatory to keep all the classes and functions on the same file!

@@ -1,255 +1,205 @@
 import os
 import re
-from datetime import datetime
+import shutil
+from typing import Literal
 
-from langchain.pydantic_v1 import BaseModel, ValidationError, validator
+def to_camel_case(name: str) -> str:
+    """
+    Convert a string to CamelCase.
+    Example: 'my_cool_tool' -> 'MyCoolTool'
+    """
+    # First sanitize the name to ensure valid Python identifier
+    sanitized = sanitize_name(name)
+    # Split by underscore and capitalize each word
+    return ''.join(word.capitalize() for word in sanitized.split('_'))
 
-
-class StringCases(BaseModel):
-    original: str
-    snake_case: str
-    pascal_case: str
-
-    @validator("original")
-    def ensure_valid_python_module_can_be_created_from_tool_original_name(
-        cls, value: str
-    ) -> str:
-        if not value.replace("_", "").replace("-", "").replace(" ", "").isalpha():
-            raise ValueError(
-                "Cannot create tool with this name! Try another one such as `my-tool`, `my tool` or `my_tool`"
-            )
-        return value
-
+def sanitize_name(name: str) -> str:
+    """
+    Sanitize the tool name to be a valid Python identifier.
+    
+    - Converts to lowercase
+    - Replaces spaces and invalid chars with underscores
+    - Ensures it starts with a letter
+    - Removes consecutive underscores
+    """
+    # Convert to lowercase and replace spaces/invalid chars with underscore
+    name = re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
+    
+    # Ensure starts with letter
+    if not name[0].isalpha():
+        name = 'tool_' + name
+        
+    # Remove consecutive underscores
+    name = re.sub(r'_+', '_', name)
+    
+    # Remove trailing underscore
+    name = name.rstrip('_')
+    
+    return name
 
 class CreateToolService:
-    def execute(self, tool_name: str) -> str:
+    TOOL_TYPES = Literal["simple", "complete"]
+    
+    def __init__(self):
+        self.templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+        
+    def create_tool(
+        self, 
+        name: str, 
+        tool_type: TOOL_TYPES,
+        description: str,
+        version: str
+    ) -> None:
+        """Create a new tool project with the given name and type."""
+        # Sanitize the name
+        sanitized_name = sanitize_name(name)
+        # Get CamelCase version for class names
+        camel_case_name = to_camel_case(name)
+        
+        # Create project directory
+        os.makedirs(sanitized_name, exist_ok=True)
+        
+        # Create tool file
+        tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
+        with open(tool_file, "w") as f:
+            if tool_type == "simple":
+                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
+            else:
+                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
+        
+        # Create toolspec.yaml
+        toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
+        with open(toolspec_file, "w") as f:
+            f.write(self._get_toolspec_template(camel_case_name, description, version))
+
+        # Create requirements.txt
+        requirements_file = os.path.join(sanitized_name, "requirements.txt")
+        with open(requirements_file, "w") as f:
+            f.write(self._get_requirements_template(sanitized_name, description, version))
+                
+        # Create server.py
+        self._create_server_file(sanitized_name)
+        
+    def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
+        return f'''from typing import Optional
+from pydantic import BaseModel
+from wabee.tools.simple_tool import simple_tool
+from wabee.tools.tool_error import ToolError
+
+class {class_name}Input(BaseModel):
+    message: str
+
+@simple_tool(schema={class_name}Input)
+async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
+    """
+    A simple tool that processes the input message.
+    
+    Args:
+        input_data: The input data containing the message to process
+        
+    Returns:
+        The processed message
+    """
+    return f"Processed: {{input_data.message}}"
+'''
+
+    def _get_complete_tool_template(self, snake_name: str, class_name: str) -> str:
+        return f'''from typing import Optional, Type
+from pydantic import BaseModel
+from wabee.tools.base_tool import BaseTool
+from wabee.tools.tool_error import ToolError, ToolErrorType
+
+class {class_name}Input(BaseModel):
+    message: str
+
+class {class_name}Tool(BaseTool):
+    args_schema: Type[BaseModel] = {class_name}Input
+
+    async def execute(self, input_data: {class_name}Input) -> tuple[Optional[str], Optional[ToolError]]:
+        """
+        Execute the tool's main functionality.
+        
+        Args:
+            input_data: The validated input data
+            
+        Returns:
+            A tuple of (result, error) where one will be None
+        """
         try:
-            tool_name_cases = StringCases(
-                original=tool_name,
-                snake_case=(
-                    snake_case_tool_name := self.__convert_to_snake_case(tool_name)
-                ),
-                pascal_case=self.__convert_snake_case_to_pascal_case(
-                    snake_case_tool_name
-                ),
+            result = f"Processed: {{input_data.message}}"
+            return result, None
+        except Exception as e:
+            return None, ToolError(
+                type=ToolErrorType.EXECUTION_ERROR,
+                message=str(e),
+                original_error=e
             )
-        except ValidationError as e:
-            raise ValueError(e.errors()[0]["msg"])
-
-        try:
-            os.mkdir(tool_name_cases.snake_case)
-        except FileExistsError:
-            raise ValueError(
-                f"Its seems that a tool with name {tool_name_cases.snake_case} already exists in your current working directory!"
-            )
-        self.__create_tool_file(tool_name_cases)
-        self.__create__init__file(tool_name_cases)
-        self.__create_README_file(tool_name_cases)
-        self.__create_test_tool_file(tool_name_cases)
-        self.__create_changelog_file(tool_name_cases)
-
-        return tool_name_cases.snake_case
-
-    def __convert_to_snake_case(self, value: str) -> str:
-        return "_".join(
-            re.sub(
-                "([A-Z][a-z]+)",
-                r" \1",
-                re.sub("([A-Z]+)", r" \1", value.replace("-", " ")),
-            ).split()
-        ).lower()
-
-    def __convert_snake_case_to_pascal_case(self, value: str) -> str:
-        return value.replace("_", " ").title().replace(" ", "")
-
-    def __create_tool_file(self, tool_name_cases: StringCases) -> None:
-        with open(
-            f"{tool_name_cases.snake_case}/{tool_name_cases.snake_case}.py", "w"
-        ) as f:
-            f.write(f"""from __future__ import annotations
-
-from typing import Any, Type
-
-from wabee.tools import (
-    WabeeAgentTool,
-    WabeeAgentToolConfig,
-    WabeeAgentToolInput,
-    WabeeAgentToolField,
-    tool_field_validator,
-)
-
-
-class {tool_name_cases.pascal_case}Config(WabeeAgentToolConfig):
-    repeat: int
-
-    @tool_field_validator("repeat")
-    def ensure_repeat_is_positive(cls, value: int) -> int:
-        if value <= 0:
-            raise ValueError("repeat must be greater than zero")
-        return value
-
-
-class {tool_name_cases.pascal_case}Input(WabeeAgentToolInput):
-    text: str = WabeeAgentToolField(
-        name="text", description="text to print", example="Hello, world!"
-    )
-
-    @tool_field_validator("text")
-    def ensure_text_has_length_smaller_than_100(cls, value: str) -> str:
-        if len(value) > 100:
-            raise ValueError("text should have at most 100 characters")
-        return value
-
-
-def _create_tool(**kwargs: Any) -> WabeeAgentTool:
-    return {tool_name_cases.pascal_case}.create({tool_name_cases.pascal_case}Config(**kwargs))
-
-
-class {tool_name_cases.pascal_case}(WabeeAgentTool):
-    args_schema: Type[WabeeAgentToolInput] = {tool_name_cases.pascal_case}Input
-    repeat: int
-
-    def execute(self, {tool_name_cases.snake_case}_input: {tool_name_cases.pascal_case}Input) -> str:
-        return {tool_name_cases.snake_case}_input.text * self.repeat
 
     @classmethod
-    def create(cls, {tool_name_cases.snake_case}_config: {tool_name_cases.pascal_case}Config) -> {tool_name_cases.pascal_case}:
-        return cls(
-            name="{tool_name_cases.original}",
-            description="tool description",
-            llm={tool_name_cases.snake_case}_config.llm,
-            repeat={tool_name_cases.snake_case}_config.repeat,
-        )
-""")
+    def create(cls, **kwargs) -> "{class_name}Tool":
+        """Factory method to create an instance of this tool."""
+        return cls(**kwargs)
+'''
 
-    def __create__init__file(self, tool_name_cases: StringCases) -> None:
-        with open(f"{tool_name_cases.snake_case}/__init__.py", "w") as f:
-            f.write("")
+    def _get_toolspec_template(self, name: str, description: str, version: str) -> str:
+        return f'''tool:
+  name: {name}
+  description: {description}
+  version: {version}
+  entrypoint: {name}_tool.py
+'''
 
-    def __create_README_file(self, tool_name_cases: StringCases) -> None:
-        with open(f"{tool_name_cases.snake_case}/README.md", "w") as f:
-            f.write(f"""# {tool_name_cases.original}
+    def _get_requirements_template(self, name: str, description: str, version: str) -> str:
+        return f'''wabee>=0.2.1
+pydantic>=2.0.0
+'''
 
-This is a template documentation file where you can add any revelavant information about the tool. It is highly recommended to change this file with your specifications to help others make use of your tool!
+    def _create_server_file(self, name: str) -> None:
+        """Create the server.py file in the tool directory."""
+        server_content = '''import asyncio
+import importlib
+import os
+import yaml
+from wabee.rpc.server import serve
+from typing import Dict, Any, List, Tuple
 
-## Introduction
+def load_tools() -> Dict[str, Any]:
+    tools = {}
+    tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
+    tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
 
-Use this section to answer the following questions one might have:
+    tool_args: List[Tuple[str, Any]] = []
+    toolspec_path = os.environ.get('WABEE_TOOLSPEC_PATH', 'toolspec.yaml')
 
-- What is this tool?
-- What is the tool objective?
-- What are its usecases?
+    if os.path.exists(toolspec_path):
+        with open(toolspec_path, 'r') as f:
+            toolspec = yaml.safe_load(f)
+            if isinstance(toolspec, dict) and 'tool_args' in toolspec['tool']:
+                tool_args = [(arg['name'], arg['value']) for arg in toolspec['tool']['tool_args']]
+    
+    print(f"Loading tool module: {tool_module}")
+    print(f"Loading tool name: {tool_name}")
+    
+    try:
+        module = importlib.import_module(tool_module)
+        tool = getattr(module, tool_name)
+        config = dict(tool_args)
+        tool_instance = tool.create(**config)
+        tools[tool_name] = tool_instance
+    except Exception as e:
+        print(f"Error loading tool: {str(e)}")
+        raise
+        
+    return tools
 
-## Examples
+def main():
+    port = int(os.environ.get('WABEE_GRPC_PORT', '50051'))
+    tools = load_tools()
+    print(f"Starting gRPC server with tools: {list(tools.keys())}")
+    asyncio.run(serve(tools, port=port))
 
-Give me some examples showing how to configure the tool, how to run it. For instace:
-
-```python
-from sum_tool.sum_tool import _create_tool, SumToolInput
-
-tool = _create_tool()
-
-output = tool.execute(SumTooInput(x=3, y=4))
-
-print(output)
-```
-
-## Tests
-
-Tell how to run the automatic tests for your tool, most python developers make use of pytest, therefore, it could be somehting like:
-
-```sh
-pytest -vv sum_tool/
-```
-
-Sometimes, there is necessary to build a test environment before running the test suite, this section can also be used to show to build or connect to such environment, for example, a testing database or an external api that your toool depends on.
-
-## Tool Docs
-
-This section serves to describe the tool configuration, input, output and the tool itself. You can use the format down below:
-
-### class APIGatewayToolConfigure
-
-#### Parameters
-
-#### api_url (str)
-
-base api url
-
-#### api_key (str)
-
-jwt api authorization key
-
-### class APIGatewayToolInput
-
-#### Parameters
-
-##### method ('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH')
-
-request http method
-
-##### path (str)
-
-path to the request endpoint
-
-##### body (map{{str, any}})
-
-request body
-
-##### headers (map{{str, any}})
-
-request headers
-
-##### params (map{{str, any}})
-
-request parameters
-
-### class APIGateway
-
-#### Parameters
-
-##### http_client (HTTPClient)
-
-http client interface
-
-#### Methods
-
-##### execute
-
-###### Inputs
-
-- api_gateway_input (APIGatewayInput)
-
-###### Outputs
-
-- response staus code, i.e, 'status_code=200'
-
-## References
-
-Any resource used as reference to build this tool should be mentioned here, like academic papers, blog posts, books, and so on.
-            """)
-
-    def __create_test_tool_file(self, tool_name_cases: StringCases) -> None:
-        with open(
-            f"{tool_name_cases.snake_case}/test_{tool_name_cases.snake_case}.py", "w"
-        ) as f:
-            f.write(f"""from langchain_community.llms.fake import FakeListLLM
-
-from {tool_name_cases.snake_case}.{tool_name_cases.snake_case} import _create_tool, {tool_name_cases.pascal_case}Input
-
-
-class Test{tool_name_cases.pascal_case}:
-    def test_should_return_correct_text(self) -> None:
-        sut = _create_tool(**{{"_llm": FakeListLLM(responses=[""]), "repeat": 3}})
-
-        output = sut.execute({tool_name_cases.pascal_case}Input(text="Hello, World!"))
-
-        assert output == "Hello, World!Hello, World!Hello, World!"
-        """)
-
-    def __create_changelog_file(self, tool_name_cases: StringCases) -> None:
-        with open(f"{tool_name_cases.snake_case}/CHANGES.txt", "w") as f:
-            f.write(f"""Version 0.1.0
-{datetime.now().strftime("%y-%m-%d")}
-- Start tool implementation
-            """)
+if __name__ == '__main__':
+    main()
+'''
+        with open(os.path.join(name, "server.py"), "w") as f:
+            f.write(server_content)
