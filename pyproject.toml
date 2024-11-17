@@ -21,6 +21,7 @@ classifiers = [
 python = ">=3.10,<3.12"
 chardet = "^5.2.0"
 restrictedpython = "^7.1"
+pyyaml = "^6.0.1"
 inquirer = "^3.4.0"
 grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
@@ -41,7 +42,7 @@ omit = ["tests/*"]
 enable = true
 vcs = "git"
 pattern  = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?"
-f`mat-jinja = """
+format-jinja = """
     {%- if distance == 0 -%}
         {{- base -}}
     {%- else -%}
