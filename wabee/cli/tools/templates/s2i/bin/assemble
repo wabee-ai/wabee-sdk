@@ -10,20 +10,20 @@ if [ ! -d "/tmp/src" ]; then
 fi
 
 # If source is in current directory, copy it
-if [ -f "./pyproject.toml" ]; then
+if [ -f "./requirements.txt" ]; then
     echo "Found source in current directory, copying to /tmp/src"
     cp -r . /tmp/src/
 fi
 
 cd /tmp/src
 
-# Install dependencies using poetry
-if [ -f pyproject.toml ]; then
-    echo "Found pyproject.toml"
-    echo "Installing dependencies with Poetry..."
-    poetry install --no-interaction --no-ansi --verbose
+# Install dependencies using pip
+if [ -f requirements.txt ]; then
+    echo "Found requirements.txt"
+    echo "Installing dependencies with pip..."
+    pip install -r requirements.txt
 else
-    echo "No pyproject.toml found!"
+    echo "No requirements.txt found!"
     exit 1
 fi
 

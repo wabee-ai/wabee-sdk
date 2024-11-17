@@ -72,10 +72,10 @@ class CreateToolService:
         with open(toolspec_file, "w") as f:
             f.write(self._get_toolspec_template(sanitized_name, description, version))
 
-        # Create pyproject.toml
-        pyproject_file = os.path.join(sanitized_name, "pyproject.toml")
-        with open(pyproject_file, "w") as f:
-            f.write(self._get_pyproject_template(sanitized_name, description, version))
+        # Create requirements.txt
+        requirements_file = os.path.join(sanitized_name, "requirements.txt")
+        with open(requirements_file, "w") as f:
+            f.write(self._get_requirements_template(sanitized_name, description, version))
                 
         # Create Dockerfile and s2i files
         self._create_build_files(sanitized_name)
@@ -149,21 +149,9 @@ class {class_name}Tool(BaseTool):
   entrypoint: {name}_tool.py
 '''
 
-    def _get_pyproject_template(self, name: str, description: str, version: str) -> str:
-        return f'''[tool.poetry]
-name = "{name}"
-version = "{version}"
-description = "{description}"
-authors = ["Wabee <developers@wabee.ai>"]
-
-[tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-wabee = ">=0.2.0"
-pydantic = ">=2.0.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+    def _get_requirements_template(self, name: str, description: str, version: str) -> str:
+        return f'''wabee>=0.2.0
+pydantic>=2.0.0
 '''
 
     def _create_build_files(self, name: str) -> None:
