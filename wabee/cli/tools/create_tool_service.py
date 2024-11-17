@@ -150,7 +150,7 @@ class {class_name}Tool(BaseTool):
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return f'''wabee>=0.2.0
+        return f'''wabee>=0.2.1
 pydantic>=2.0.0
 '''
 

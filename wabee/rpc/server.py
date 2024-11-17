@@ -53,7 +53,8 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         input_data: Dict[str, Any]
     ) -> tuple[Any, Optional[ToolError]]:
         try:
-            if isinstance(tool, type):  # For simple_tool decorated functions
+            # Check if tool is a function instance and not an object
+            if callable(tool) and not isinstance(tool, BaseTool):
                 return await tool(**input_data)
             else:  # For BaseTool instances
                 tool_input = tool.args_schema.model_validate(input_data)
