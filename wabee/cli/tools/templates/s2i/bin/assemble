@@ -4,7 +4,19 @@
 
 echo "Starting assemble script..."
 
-# Change to the source directory where S2I copies the source code
+# Ensure source directory exists and copy source there if needed
+if [ ! -d "/tmp/src" ]; then
+    echo "Creating /tmp/src directory"
+    mkdir -p /tmp/src
+fi
+
+# If source is in current directory, copy it to /tmp/src
+if [ -f "./pyproject.toml" ]; then
+    echo "Found source in current directory, copying to /tmp/src"
+    cp -r . /tmp/src/
+fi
+
+# Change to the source directory
 cd /tmp/src
 
 # Set Python path to include site-packages
