@@ -53,12 +53,11 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         input_data: Dict[str, Any]
     ) -> tuple[Any, Optional[ToolError]]:
         try:
-            logger.error("Starting tool execution")
             if isinstance(tool, type):  # For simple_tool decorated functions
                 return await tool(**input_data)
             else:  # For BaseTool instances
-                logger.error(f"Type of tool: {type(tool)}")
-                return await tool(input_data)
+                tool_input = tool.args_schema.model_validate(input_data)
+                return await tool(tool_input)
         except Exception as e:
             return None, ToolError(
                 type="INTERNAL_ERROR",
@@ -101,7 +100,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         response = tool_service_pb2.ExecuteResponse()
         
         if error:
-            response.error.type = error.type
+            response.error.type = str(error.type)
             response.error.message = error.message
         else:
             # Use same format as request

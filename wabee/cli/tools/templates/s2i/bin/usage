@@ -1,9 +1,0 @@
-#!/bin/bash -e
-
-cat <<EOF
-This is an S2I builder image for Wabee tools.
-To use it, install S2I and run:
-
-s2i build <source> wabee-tool-builder <application-image>
-
-EOF

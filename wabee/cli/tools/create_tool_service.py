@@ -70,7 +70,7 @@ class CreateToolService:
         # Create toolspec.yaml
         toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
         with open(toolspec_file, "w") as f:
-            f.write(self._get_toolspec_template(sanitized_name, description, version))
+            f.write(self._get_toolspec_template(camel_case_name, description, version))
 
         # Create requirements.txt
         requirements_file = os.path.join(sanitized_name, "requirements.txt")
@@ -136,9 +136,9 @@ class {class_name}Tool(BaseTool):
             )
 
     @classmethod
-    def create(cls) -> "{class_name}Tool":
+    def create(cls, **kwargs) -> "{class_name}Tool":
         """Factory method to create an instance of this tool."""
-        return cls()
+        return cls(**kwargs)
 '''
 
     def _get_toolspec_template(self, name: str, description: str, version: str) -> str:
@@ -159,13 +159,23 @@ pydantic>=2.0.0
         server_content = '''import asyncio
 import importlib
 import os
+import yaml
 from wabee.rpc.server import serve
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 def load_tools() -> Dict[str, Any]:
     tools = {}
     tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
     tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
+
+    tool_args: List[Tuple[str, Any]] = []
+    toolspec_path = os.environ.get('WABEE_TOOLSPEC_PATH', 'toolspec.yaml')
+
+    if os.path.exists(toolspec_path):
+        with open(toolspec_path, 'r') as f:
+            toolspec = yaml.safe_load(f)
+            if isinstance(toolspec, dict) and 'tool_args' in toolspec['tool']:
+                tool_args = [(arg['name'], arg['value']) for arg in toolspec['tool']['tool_args']]
     
     print(f"Loading tool module: {tool_module}")
     print(f"Loading tool name: {tool_name}")
@@ -173,7 +183,9 @@ def load_tools() -> Dict[str, Any]:
     try:
         module = importlib.import_module(tool_module)
         tool = getattr(module, tool_name)
-        tools[tool_name] = tool
+        config = dict(tool_args)
+        tool_instance = tool.create(**config)
+        tools[tool_name] = tool_instance
     except Exception as e:
         print(f"Error loading tool: {str(e)}")
         raise
