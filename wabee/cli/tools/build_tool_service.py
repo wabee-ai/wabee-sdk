@@ -225,18 +225,32 @@ class BuildToolService:
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
             env_file.close()
             
-            # Build the tool image using S2I
+            # Generate Dockerfile using S2I
+            dockerfile_path = os.path.join(tempfile.gettempdir(), "Dockerfile")
             subprocess.run(
                 [
                     str(self.s2i_path),
                     "build",
-                    "--copy",
-                    "--destination", "/tmp/src",
+                    "--as-dockerfile", dockerfile_path,
                     "--environment-file",
                     env_file.name,
                     str(tool_dir),
                     builder_name,
                     image_name,
+                ],
+                check=True
+            )
+            
+            # Build with Docker directly
+            subprocess.run(
+                [
+                    "docker",
+                    "build",
+                    "-t",
+                    image_name,
+                    "-f",
+                    dockerfile_path,
+                    str(tool_dir)
                 ],
                 check=True
             )
