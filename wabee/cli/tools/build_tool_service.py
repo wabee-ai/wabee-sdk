@@ -150,6 +150,7 @@ class BuildToolService:
         try:
             env_file.write(f"WABEE_TOOL_MODULE={tool_module}\n")
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
+            env_file.write("APP_FILE=server.py\n")
             env_file.close()
             
             # Run s2i build directly
