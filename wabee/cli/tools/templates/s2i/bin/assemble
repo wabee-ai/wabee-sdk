@@ -34,11 +34,6 @@ if [ -f pyproject.toml ]; then
     echo "pyproject.toml contents:"
     cat pyproject.toml
     
-    # Ensure Poetry config directory exists and has correct permissions
-    echo "Setting up Poetry configuration directory..."
-    mkdir -p /.config
-    chmod 777 /.config
-    
     echo "Configuring Poetry..."
     # Install all dependencies including the project itself
     poetry config virtualenvs.create false
