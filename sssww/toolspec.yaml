@@ -6,3 +6,8 @@ tool:
   tool_args:
     - name: something
       value: haha
+tool_args:
+  - name: url
+    value: "http://example.com"
+  - name: port
+    value: 8080

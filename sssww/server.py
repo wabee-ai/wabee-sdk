@@ -1,8 +1,9 @@
 import asyncio
 import importlib
 import os
+import yaml
 from wabee.rpc.server import serve
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 def load_tools() -> Dict[str, Any]:
     tools = {}
@@ -12,17 +13,27 @@ def load_tools() -> Dict[str, Any]:
     print(f"Loading tool module: {tool_module}")
     print(f"Loading tool name: {tool_name}")
 
-    # Load tool_args from toolspec.yaml, this is a list of name, value items
-    # todo: load tool_args from toolspec.yaml
+    # Load tool_args from toolspec.yaml
+    tool_args: List[Tuple[str, Any]] = []
+    toolspec_path = os.environ.get('WABEE_TOOLSPEC_PATH', 'toolspec.yaml')
+    
+    if os.path.exists(toolspec_path):
+        with open(toolspec_path, 'r') as f:
+            toolspec = yaml.safe_load(f)
+            if isinstance(toolspec, dict) and 'tool_args' in toolspec:
+                tool_args = [(arg['name'], arg['value']) for arg in toolspec['tool_args']]
     
     try:
         module = importlib.import_module(tool_module)
         tool = getattr(module, tool_name)
         
-        # create an instance of the tool and pass the tool_args using the static create method that all tools have
-        # todo: pass tool_args to the tool instance
-
-        tools[tool_name] = tool
+        # Create tool config from args
+        config_class = getattr(module, f"{tool_name}Config")
+        config = config_class(**dict(tool_args))
+        
+        # Create tool instance using the config
+        tool_instance = tool.create(config)
+        tools[tool_name] = tool_instance
     except Exception as e:
         print(f"Error loading tool: {str(e)}")
         raise
