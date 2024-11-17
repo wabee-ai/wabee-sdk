@@ -61,11 +61,10 @@ wabee tools build <tool_directory> [options]
 
 Options:
 - `--image`: Specify custom image name (default: toolname:latest)
-- `--s2i-commit`: Specify S2I commit hash to use
 
 Example:
 ```bash
-wabee tools build ./my-tool --image my-tool:1.0.0
+wabee tools build ./my-tool
 ```
 
 ## Tool Project Structure
