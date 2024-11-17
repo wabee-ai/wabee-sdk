@@ -10,10 +10,14 @@ RUN apt-get update && \
     git && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
+# Install Poetry and configure permissions
 ENV POETRY_VERSION=1.8.2
 ENV POETRY_HOME=/opt/poetry
-RUN python -m pip install --no-cache-dir poetry==${POETRY_VERSION} && \
+ENV POETRY_CONFIG_DIR=/.config
+
+RUN mkdir -p ${POETRY_CONFIG_DIR} && \
+    chmod 777 ${POETRY_CONFIG_DIR} && \
+    python -m pip install --no-cache-dir poetry==${POETRY_VERSION} && \
     poetry config virtualenvs.create false && \
     poetry config installer.max-workers 10
 
