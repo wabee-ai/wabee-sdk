@@ -12,6 +12,15 @@ RUN apt-get update && \
 # Create non-root user for runtime
 RUN useradd -r -s /bin/bash -m -d /app wabee
 
+# Create directory for pip installations and set ownership
+RUN mkdir -p /app/.local && \
+    chown -R wabee:wabee /app/.local
+
+# Set environment variable for pip to install packages in user directory
+ENV PATH=/app/.local/bin:$PATH \
+    PYTHONPATH=/app/.local/lib/python3.11/site-packages:$PYTHONPATH \
+    HOME=/app
+
 # Set S2I scripts location
 LABEL io.openshift.s2i.scripts-url=image:///usr/libexec/s2i
 
