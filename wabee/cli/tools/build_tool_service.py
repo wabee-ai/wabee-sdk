@@ -13,7 +13,7 @@ from typing import Optional
 
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
-    PYTHON_BUILDER = "registry.access.redhat.com/ubi8/python-39:latest"
+    PYTHON_BUILDER = "registry.access.redhat.com/ubi8/python-311:latest"
     
     def __init__(self, s2i_commit: Optional[str] = None):
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
@@ -157,7 +157,7 @@ class BuildToolService:
                 [
                     str(self.s2i_path),
                     "build",
-                    "--env-file", env_file.name,
+                    "--environment-file", env_file.name,
                     str(tool_dir),
                     builder_name,
                     image_name,
