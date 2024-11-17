@@ -15,9 +15,10 @@ class BuildToolService:
     S2I_VERSION = "v1.4.0"
     PYTHON_BUILDER = "registry.access.redhat.com/ubi8/python-39:latest"
     
-    def __init__(self):
+    def __init__(self, s2i_commit: Optional[str] = None):
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
+        self.S2I_COMMIT = s2i_commit or "27f0729"  # Default commit if none provided
         
     def _get_s2i_binary_name(self) -> str:
         """Get the name of the s2i binary."""
