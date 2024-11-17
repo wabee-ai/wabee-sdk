@@ -3,6 +3,13 @@
 # The assemble script builds the application
 echo "Starting assemble script..."
 
+# Create and set permissions for pip installation directory
+echo "Setting up pip installation directories..."
+mkdir -p /app/.local/lib/python3.11/site-packages
+mkdir -p /app/.local/bin
+chown -R wabee:wabee /app/.local
+chmod -R 775 /app/.local
+
 # Ensure source directory exists
 if [ ! -d "/tmp/src" ]; then
     echo "Creating /tmp/src directory"
