@@ -79,6 +79,26 @@ my_tool/
 └── toolspec.yaml       # Tool specification and metadata
 ```
 
+## RPC Server
+
+Each built tool runs as a gRPC server that exposes a standardized interface for tool execution. The server:
+
+- Listens on port 50051 by default (configurable via WABEE_GRPC_PORT)
+- Automatically handles input validation using your Pydantic schemas
+- Provides standardized error handling and reporting
+- Supports streaming responses for long-running operations
+
+When you build a tool with `wabee tools build`, the resulting container image includes:
+- Your tool implementation
+- All dependencies
+- A pre-configured gRPC server
+- Generated protocol buffers for type-safe communication
+
+You can run the built container with:
+```bash
+docker run -p 50051:50051 mytool:latest
+```
+
 ### toolspec.yaml
 
 The tool specification file contains metadata about your tool:
