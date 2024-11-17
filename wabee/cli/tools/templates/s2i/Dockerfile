@@ -10,11 +10,15 @@ RUN apt-get update && \
     git && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
+# Install Poetry with explicit virtualenv configuration
 ENV POETRY_VERSION=1.8.2
 ENV POETRY_HOME=/opt/poetry
+ENV POETRY_VIRTUALENVS_CREATE=false
+ENV POETRY_CACHE_DIR=/tmp/poetry_cache
+
 RUN python -m pip install --no-cache-dir poetry==${POETRY_VERSION} && \
-    poetry config virtualenvs.create false
+    poetry config virtualenvs.create false --local && \
+    poetry config cache-dir ${POETRY_CACHE_DIR}
 
 # Create non-root user for runtime
 RUN useradd -r -s /bin/bash -m -d /app wabee
