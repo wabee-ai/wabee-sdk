@@ -77,8 +77,8 @@ class CreateToolService:
         with open(requirements_file, "w") as f:
             f.write(self._get_requirements_template(sanitized_name, description, version))
                 
-        # Create Dockerfile and s2i files
-        self._create_build_files(sanitized_name)
+        # Create server.py
+        self._create_server_file(sanitized_name)
         
     def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional
@@ -154,15 +154,40 @@ class {class_name}Tool(BaseTool):
 pydantic>=2.0.0
 '''
 
-    def _create_build_files(self, name: str) -> None:
-        """Create build configuration files."""
-        # Create s2i files
-        s2i_dir = os.path.join(name, ".s2i")
-        os.makedirs(s2i_dir, exist_ok=True)
+    def _create_server_file(self, name: str) -> None:
+        """Create the server.py file in the tool directory."""
+        server_content = '''import asyncio
+import importlib
+import os
+from wabee.rpc.server import serve
+from typing import Dict, Any
+
+def load_tools() -> Dict[str, Any]:
+    tools = {}
+    tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
+    tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
+    
+    print(f"Loading tool module: {tool_module}")
+    print(f"Loading tool name: {tool_name}")
+    
+    try:
+        module = importlib.import_module(tool_module)
+        tool = getattr(module, tool_name)
+        tools[tool_name] = tool
+    except Exception as e:
+        print(f"Error loading tool: {str(e)}")
+        raise
         
-        # Create environment file
-        env_file = os.path.join(s2i_dir, "environment")
-        with open(env_file, "w") as f:
-            f.write('''UPGRADE_PIP_TO_LATEST=true
-ENABLE_PIPENV=false
-''')
+    return tools
+
+def main():
+    port = int(os.environ.get('WABEE_GRPC_PORT', '50051'))
+    tools = load_tools()
+    print(f"Starting gRPC server with tools: {list(tools.keys())}")
+    asyncio.run(serve(tools, port=port))
+
+if __name__ == '__main__':
+    main()
+'''
+        with open(os.path.join(name, "server.py"), "w") as f:
+            f.write(server_content)

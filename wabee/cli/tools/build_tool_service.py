@@ -13,15 +13,11 @@ from typing import Optional
 
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
-    S2I_COMMIT = "d3544c7e"
-    PYTHON_IMAGE = "python:3.11-slim"
+    PYTHON_BUILDER = "registry.access.redhat.com/ubi8/python-39:latest"
     
-    def __init__(self, s2i_commit: str | None = None):
+    def __init__(self):
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
-        if s2i_commit:
-            self.S2I_COMMIT = s2i_commit
         self.s2i_path = self.s2i_dir / self._get_s2i_binary_name()
-        self.template_dir = Path(__file__).parent / "templates"
         
     def _get_s2i_binary_name(self) -> str:
         """Get the name of the s2i binary."""
@@ -88,53 +84,6 @@ class BuildToolService:
         # Make binary executable
         self.s2i_path.chmod(self.s2i_path.stat().st_mode | stat.S_IEXEC)
         
-    def _prepare_builder_image(self, builder_name: str = "wabee-tool-builder:latest") -> None:
-        """Prepare the S2I builder image."""
-        print(f"Preparing builder image {builder_name}")
-        s2i_dir = self.template_dir / "s2i"
-        print(f"Using S2I directory: {s2i_dir}")
-        
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            tmp_path = Path(tmp_dir)
-            print(f"Created temp directory: {tmp_path}")
-            
-            # Create s2i directory structure
-            (tmp_path / "s2i" / "bin").mkdir(parents=True)
-            print(f"Created S2I bin directory: {tmp_path / 's2i' / 'bin'}")
-            
-            # Copy S2I scripts
-            for script in ["assemble", "run", "usage"]:
-                src = s2i_dir / "bin" / script
-                dst = tmp_path / "s2i" / "bin" / script
-                print(f"Copying {src} to {dst}")
-                shutil.copy(src, dst)
-                
-                # Ensure scripts are executable
-                os.chmod(
-                    dst,
-                    stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-                )
-                print(f"Made {script} executable")
-            
-            # Copy Dockerfile
-            dockerfile_src = s2i_dir / "Dockerfile"
-            dockerfile_dst = tmp_path / "Dockerfile"
-            print(f"Copying Dockerfile from {dockerfile_src} to {dockerfile_dst}")
-            shutil.copy(dockerfile_src, dockerfile_dst)
-            
-            # Build the builder image
-            print(f"Building Docker image {builder_name}")
-            try:
-                subprocess.run(
-                    ["docker", "build", "-t", builder_name, str(tmp_path)],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-                print("Successfully built builder image")
-            except subprocess.CalledProcessError as e:
-                print(f"Error building image: {e.stdout}\n{e.stderr}")
-                raise
 
     def _generate_protos(self, tool_dir: Path) -> None:
         """Generate gRPC code from proto definitions in the tool directory."""
@@ -171,25 +120,13 @@ class BuildToolService:
         tool_module: str = "tool",
         tool_name: str = "tool",
         image_name: Optional[str] = None,
-        builder_name: str = "wabee-tool-builder:latest"
+        builder_name: Optional[str] = None
     ) -> None:
         """Build a tool using s2i."""
         print(f"Starting build process...")
-        print(f"Template directory: {self.template_dir}")
-        print(f"S2I directory: {self.template_dir / 's2i'}")
         
         self._download_s2i()
         tool_dir = Path(tool_path)
-        
-        # Add verification of s2i scripts
-        s2i_scripts_dir = self.template_dir / "s2i" / "bin"
-        print(f"Checking S2I scripts in {s2i_scripts_dir}")
-        for script in ["assemble", "run", "usage"]:
-            script_path = s2i_scripts_dir / script
-            if script_path.exists():
-                print(f"Found script: {script}")
-            else:
-                print(f"Missing script: {script}")
         
         # Validate tool directory has required files
         if not tool_dir.exists():
@@ -202,73 +139,31 @@ class BuildToolService:
         self._generate_protos(tool_dir)
             
         if not image_name:
-            # Use directory name as image name
             image_name = f"{tool_name}:latest"
             
-        # Ensure builder image exists
-        try:
-            subprocess.run(
-                ["docker", "inspect", builder_name],
-                check=True,
-                capture_output=True
-            )
-        except subprocess.CalledProcessError:
-            print(f"Building S2I builder image: {builder_name}")
-            self._prepare_builder_image(builder_name)
+        if not builder_name:
+            builder_name = self.PYTHON_BUILDER
             
-        print(f"Building tool image: {image_name}")
-        
-        # Create environment file
+        # Create environment file with tool configuration
         env_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
         try:
             env_file.write(f"WABEE_TOOL_MODULE={tool_module}\n")
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
             env_file.close()
             
-            # Create temporary directory for the build
-            with tempfile.TemporaryDirectory() as tmp_dir:
-                # Generate Dockerfile using S2I
-                dockerfile_path = os.path.join(tmp_dir, "Dockerfile")
-                subprocess.run(
-                    [
-                        str(self.s2i_path),
-                        "build",
-                        "--as-dockerfile", dockerfile_path,
-                        "--environment-file",
-                        env_file.name,
-                        str(tool_dir),
-                        builder_name,
-                        image_name,
-                    ],
-                    check=True
-                )
-                
-                # Modify the Dockerfile to use COPY . instead of COPY upload/src
-                with open(dockerfile_path, 'r') as f:
-                    dockerfile_content = f.read()
-                
-                modified_content = dockerfile_content.replace(
-                    'COPY upload/src /tmp/src',
-                    'COPY . /tmp/src'
-                )
-                
-                with open(dockerfile_path, 'w') as f:
-                    f.write(modified_content)
-                
-                # Copy the Dockerfile to the tool directory
-                shutil.copy2(dockerfile_path, os.path.join(tool_dir, "Dockerfile"))
-                
-                # Build with Docker directly from the tool directory
-                subprocess.run(
-                    [
-                        "docker",
-                        "build",
-                        "-t",
-                        image_name,
-                        str(tool_dir)
-                    ],
-                    check=True
-                )
+            # Run s2i build directly
+            subprocess.run(
+                [
+                    str(self.s2i_path),
+                    "build",
+                    "--env-file", env_file.name,
+                    str(tool_dir),
+                    builder_name,
+                    image_name,
+                ],
+                check=True
+            )
+            
             print(f"Successfully built image: {image_name}")
         except subprocess.CalledProcessError as e:
             print(f"Error building image: {e}", file=sys.stderr)
