@@ -1,7 +1,6 @@
 import json
 import asyncio
 import logging
-import signal
 import grpc
 from typing import Dict, Any, Optional
 from concurrent import futures
@@ -125,30 +124,26 @@ async def serve(
     )
     server.add_insecure_port(f'[::]:{port}')
     
-    # Setup shutdown handler
     shutdown_event = asyncio.Event()
     
-    def handle_shutdown(signum, frame):
-        logging.info(f"Received signal {signum}. Starting graceful shutdown...")
-        asyncio.create_task(shutdown_server())
-    
-    async def shutdown_server():
+    async def handle_shutdown(sig: str):
+        logging.info(f"Received {sig}. Starting graceful shutdown...")
         logging.info("Initiating server shutdown...")
-        # Stop accepting new requests
         await server.stop(grace=True)
         shutdown_event.set()
-        
-    # Register signal handlers
-    signal.signal(signal.SIGINT, handle_shutdown)
-    signal.signal(signal.SIGTERM, handle_shutdown)
+    
+    # Setup signal handlers using asyncio
+    for sig in (asyncio.SIGTERM, asyncio.SIGINT):
+        loop = asyncio.get_event_loop()
+        loop.add_signal_handler(
+            sig,
+            lambda s=sig: asyncio.create_task(handle_shutdown(s.name))
+        )
     
     try:
         logging.info(f"Starting gRPC server on port {port}")
         await server.start()
-        
-        # Wait until shutdown is triggered
         await shutdown_event.wait()
-        
         logging.info("Server shutdown complete")
     except Exception as e:
         logging.error(f"Server error: {e}")
