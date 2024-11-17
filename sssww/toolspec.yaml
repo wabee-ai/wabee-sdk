@@ -1,0 +1,8 @@
+tool:
+  name: sssww
+  description: asd asdas
+  version: 0.1.0
+  entrypoint: sssww_tool.py
+  tool_args:
+    - name: something
+      value: haha
