@@ -168,7 +168,7 @@ class BuildToolService:
                 tool_name = class_match.group(1)
             else:
                 # Look for decorated function (simple tool)
-                func_match = re.search(r'@simple_tool[^\n]*\s*def\s+(\w+)', content)
+                func_match = re.search(r'@simple_tool[^\n]*\s*async\s+def\s+(\w+)', content)
                 if func_match:
                     tool_name = func_match.group(1)
                 else:
