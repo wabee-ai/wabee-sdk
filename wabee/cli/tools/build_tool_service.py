@@ -118,12 +118,20 @@ class BuildToolService:
     def build_tool(
         self,
         tool_path: str,
-        tool_module: str = "tool",
+        tool_module: Optional[str] = None,
         tool_name: str = "tool",
         image_name: Optional[str] = None,
         builder_name: Optional[str] = None
     ) -> None:
-        """Build a tool using s2i."""
+        """Build a tool using s2i.
+        
+        Args:
+            tool_path: Path to the tool directory
+            tool_module: Optional module name. If not provided, will be derived from the tool file
+            tool_name: Name of the tool class/function
+            image_name: Optional custom image name
+            builder_name: Optional custom builder image name
+        """
         print(f"Starting build process...")
         
         self._download_s2i()
@@ -135,6 +143,17 @@ class BuildToolService:
             
         if not (tool_dir / "requirements.txt").exists():
             raise ValueError(f"No requirements.txt found in {tool_path}")
+
+        # Find the tool module file if not explicitly provided
+        if tool_module is None:
+            python_files = list(tool_dir.glob("*_tool.py"))
+            if not python_files:
+                raise ValueError(f"No *_tool.py file found in {tool_path}")
+            if len(python_files) > 1:
+                raise ValueError(f"Multiple tool files found in {tool_path}. Please specify tool_module.")
+            
+            # Get the filename without .py extension
+            tool_module = python_files[0].stem
         
         # Generate protos in tool directory
         self._generate_protos(tool_dir)
@@ -152,6 +171,10 @@ class BuildToolService:
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
             env_file.write("APP_FILE=server.py\n")
             env_file.close()
+            
+            print(f"Building with environment:")
+            print(f"  WABEE_TOOL_MODULE={tool_module}")
+            print(f"  WABEE_TOOL_NAME={tool_name}")
             
             # Run s2i build directly
             subprocess.run(
