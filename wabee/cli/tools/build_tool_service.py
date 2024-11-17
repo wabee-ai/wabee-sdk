@@ -195,8 +195,8 @@ class BuildToolService:
         if not tool_dir.exists():
             raise ValueError(f"Tool directory not found: {tool_path}")
             
-        if not (tool_dir / "pyproject.toml").exists():
-            raise ValueError(f"No pyproject.toml found in {tool_path}")
+        if not (tool_dir / "requirements.txt").exists():
+            raise ValueError(f"No requirements.txt found in {tool_path}")
         
         # Generate protos in tool directory
         self._generate_protos(tool_dir)
