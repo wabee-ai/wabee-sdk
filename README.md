@@ -157,11 +157,11 @@ class MyTool(BaseTool):
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Suggestions are welcome! Please feel free to submit bug reports or feedbacks as a Github issues.
 
 ## Links
 
 - Website: https://wabee.ai/
-- Documentation: https://docs.wabee.ai
+- Documentation: https://documentation.wabee.ai
 - GitHub: https://github.com/wabee-ai/wabee-sdk
 
