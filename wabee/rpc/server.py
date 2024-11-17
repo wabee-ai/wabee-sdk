@@ -1,5 +1,6 @@
 import json
 import asyncio
+import logging
 import grpc
 from typing import Dict, Any, Optional
 from concurrent import futures
@@ -10,6 +11,8 @@ from wabee.rpc.schema import ProtoSchemaGenerator
 
 from wabee.rpc.protos import tool_service_pb2
 from wabee.rpc.protos import tool_service_pb2_grpc
+
+logger = logging.getLogger(__name__)
 
 class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
     def __init__(self, tools: Dict[str, BaseTool | Any]):
@@ -49,9 +52,11 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         input_data: Dict[str, Any]
     ) -> tuple[Any, Optional[ToolError]]:
         try:
+            logger.error("Starting tool execution")
             if isinstance(tool, type):  # For simple_tool decorated functions
                 return await tool(**input_data)
             else:  # For BaseTool instances
+                logger.error(f"Type of tool: {type(tool)}")
                 return await tool(input_data)
         except Exception as e:
             return None, ToolError(
