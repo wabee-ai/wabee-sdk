@@ -225,35 +225,50 @@ class BuildToolService:
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
             env_file.close()
             
-            # Generate Dockerfile using S2I
-            dockerfile_path = os.path.join(tempfile.gettempdir(), "Dockerfile")
-            subprocess.run(
-                [
-                    str(self.s2i_path),
-                    "build",
-                    "--as-dockerfile", dockerfile_path,
-                    "--environment-file",
-                    env_file.name,
-                    str(tool_dir),
-                    builder_name,
-                    image_name,
-                ],
-                check=True
-            )
-            
-            # Build with Docker directly
-            subprocess.run(
-                [
-                    "docker",
-                    "build",
-                    "-t",
-                    image_name,
-                    "-f",
-                    dockerfile_path,
-                    str(tool_dir)
-                ],
-                check=True
-            )
+            # Create temporary directory for the build
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                # Generate Dockerfile using S2I
+                dockerfile_path = os.path.join(tmp_dir, "Dockerfile")
+                subprocess.run(
+                    [
+                        str(self.s2i_path),
+                        "build",
+                        "--as-dockerfile", dockerfile_path,
+                        "--environment-file",
+                        env_file.name,
+                        str(tool_dir),
+                        builder_name,
+                        image_name,
+                    ],
+                    check=True
+                )
+                
+                # Modify the Dockerfile to use COPY . instead of COPY upload/src
+                with open(dockerfile_path, 'r') as f:
+                    dockerfile_content = f.read()
+                
+                modified_content = dockerfile_content.replace(
+                    'COPY upload/src /tmp/src',
+                    'COPY . /tmp/src'
+                )
+                
+                with open(dockerfile_path, 'w') as f:
+                    f.write(modified_content)
+                
+                # Copy the Dockerfile to the tool directory
+                shutil.copy2(dockerfile_path, os.path.join(tool_dir, "Dockerfile"))
+                
+                # Build with Docker directly from the tool directory
+                subprocess.run(
+                    [
+                        "docker",
+                        "build",
+                        "-t",
+                        image_name,
+                        str(tool_dir)
+                    ],
+                    check=True
+                )
             print(f"Successfully built image: {image_name}")
         except subprocess.CalledProcessError as e:
             print(f"Error building image: {e}", file=sys.stderr)
