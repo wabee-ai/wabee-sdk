@@ -22,6 +22,7 @@ ENV POETRY_CONFIG_DIR=/home/poetry_user/.config
 
 # Install and configure Poetry as poetry_user
 RUN python -m pip install --no-cache-dir poetry==${POETRY_VERSION} && \
+    mkdir -p ${POETRY_HOME} && \
     chown -R poetry_user:poetry_user ${POETRY_HOME} && \
     su poetry_user -c "poetry config virtualenvs.create false" && \
     su poetry_user -c "poetry config installer.max-workers 10"
