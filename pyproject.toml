@@ -19,11 +19,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
-langchain = "^0.1.14"
 chardet = "^5.2.0"
-pandas = "^2.2.2"
 restrictedpython = "^7.1"
-matplotlib = "^3.8.4"
 inquirer = "^3.4.0"
 grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
@@ -44,7 +41,7 @@ omit = ["tests/*"]
 enable = true
 vcs = "git"
 pattern  = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?"
-format-jinja = """
+f`mat-jinja = """
     {%- if distance == 0 -%}
         {{- base -}}
     {%- else -%}
