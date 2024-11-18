@@ -46,16 +46,15 @@ def simple_tool(
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
                 model_name,
-                __base__=BaseModel,
-                __module__=func.__module__,
+                **annotated_fields,
                 __config__=ConfigDict(arbitrary_types_allowed=True),
-                **annotated_fields
+                __module__=func.__module__
             )
         else:
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: Any, **kwargs: Any) -> tuple[Union[T, None], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[T, None], Optional[ToolError]]:
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
                 args_schema = dynamic_schema
@@ -70,7 +69,7 @@ def simple_tool(
                                 validated_input = input_data
                             else:
                                 raise ValueError(f"Input must be dict or {dynamic_schema.__name__}")
-                            result = await func(input_data=validated_input)
+                            result = await func(validated_input)
                         else:
                             # For functions without schema, validate against type hints
                             try:
@@ -84,20 +83,19 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
-                                        __base__=BaseModel,
-                                        __module__=func.__module__,
+                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
-                                        **fields
+                                        __module__=func.__module__
                                     )
                                     # Validate kwargs against the runtime schema
                                     validated_kwargs = runtime_schema(**kwargs).dict()
-                                    result = await func(input_data=validated_kwargs)
+                                    result = await func(**validated_kwargs)
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 
                                     if args:
-                                        result = await func(input_data=args[0])
+                                        result = await func(*args)
                                     else:
-                                        result = await func(input_data=kwargs)
+                                        result = await func(**kwargs)
                             except (ValueError, TypeError) as e:
                                 return None, ToolError(
                                     type=ToolErrorType.INVALID_INPUT,
