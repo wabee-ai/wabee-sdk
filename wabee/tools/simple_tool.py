@@ -46,9 +46,9 @@ def simple_tool(
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
                 model_name,
-                **annotated_fields,
                 __config__=ConfigDict(arbitrary_types_allowed=True),
-                __module__=func.__module__
+                __module__=func.__module__,
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
@@ -83,9 +83,9 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
-                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
-                                        __module__=func.__module__
+                                        __module__=func.__module__,
+                                        **fields
                                     )
                                     # Validate kwargs against the runtime schema
                                     validated_kwargs = runtime_schema(**kwargs).dict()
