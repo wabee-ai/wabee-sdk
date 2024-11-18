@@ -3,10 +3,10 @@ from wabee.tools.tool_error import ToolError, ToolErrorType
 from typing import TypeVar, Generic, Optional, Dict, Type, Any
 from pydantic import BaseModel, ValidationError
 
-ToolInput = TypeVar('I', Dict, BaseModel)
-ToolOutput = TypeVar('O', str, Dict, BaseModel)
+InputType = TypeVar('InputType', Dict, BaseModel)
+OutputType = TypeVar('OutputType', str, Dict, BaseModel)
 
-class BaseTool(ABC, Generic[ToolInput, ToolOutput]):
+class BaseTool(ABC, Generic[InputType, OutputType]):
     args_schema: Optional[Type[BaseModel]] = None
     
     def __init__(self, **kwargs: Any) -> None:
@@ -18,14 +18,14 @@ class BaseTool(ABC, Generic[ToolInput, ToolOutput]):
             setattr(self, key, value)
             
     @abstractmethod
-    async def execute(self, input_data: ToolInput) -> tuple[ToolOutput | None, ToolError | None]:
+    async def execute(self, input_data: InputType) -> tuple[Optional[OutputType], Optional[ToolError]]:
         """
         Main execution method for the tool.
         Returns either (result, None) or (None, error)
         """
         pass
 
-    async def validate_input(self, input_data: ToolInput) -> tuple[bool, Optional[str]]:
+    async def validate_input(self, input_data: InputType) -> tuple[bool, Optional[str]]:
         """
         Validate input before execution.
         Override this method to add custom validation logic.
@@ -46,7 +46,7 @@ class BaseTool(ABC, Generic[ToolInput, ToolOutput]):
         
         return True, None
 
-    async def __call__(self, input_data: ToolInput) -> tuple[ToolOutput | None, ToolError | None]:
+    async def __call__(self, input_data: InputType) -> tuple[Optional[OutputType], Optional[ToolError]]:
         is_valid, error_msg = await self.validate_input(input_data)
         if not is_valid:
             return None, ToolError(
