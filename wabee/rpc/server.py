@@ -137,7 +137,9 @@ async def serve(
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop = asyncio.get_event_loop()
         def create_handler(s: signal.Signals) -> Callable[[], None]:
-            return lambda: asyncio.create_task(handle_shutdown(s.name))
+            def handler() -> None:
+                asyncio.create_task(handle_shutdown(s.name))
+            return handler
         loop.add_signal_handler(sig, create_handler(sig))
     
     try:

@@ -12,7 +12,7 @@ P = ParamSpec('P')
 def simple_tool(
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -35,7 +35,7 @@ def simple_tool(
             
         result, error = await add_numbers(x=5, y=3)
     """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]:
         # Create a schema on the fly if fields are provided but no schema
         if schema is None and schema_fields:
             # Convert field definitions to proper Pydantic field annotations
@@ -45,7 +45,7 @@ def simple_tool(
             }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
-                __base__=None,
+                __base__=(BaseModel,),
                 **annotated_fields
             )
         else:
@@ -78,7 +78,7 @@ def simple_tool(
                                     }
                                     runtime_schema = create_model(
                                         f"{func.__name__}RuntimeSchema",
-                                        __base__=(BaseModel,),
+                                        __base__=BaseModel,
                                         **fields
                                     )
                                     # Validate kwargs against the runtime schema
