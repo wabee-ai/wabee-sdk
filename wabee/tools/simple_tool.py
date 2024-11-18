@@ -1,7 +1,7 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast, Coroutine
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast, Coroutine, Dict
 from typing_extensions import ParamSpec
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, create_model, ConfigDict
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
@@ -12,7 +12,7 @@ P = ParamSpec('P')
 def simple_tool(
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[..., Coroutine[Any, Any, T]]], Callable[..., Coroutine[Any, Any, tuple[Optional[T], Optional[ToolError]]]]]:
+) -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -45,6 +45,7 @@ def simple_tool(
             }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
+                __base__=None,
                 **annotated_fields
             )
         else:
@@ -64,7 +65,7 @@ def simple_tool(
                                 validated_input = dynamic_schema(**input_data)
                             else:
                                 validated_input = input_data
-                            result = await cast(Awaitable[T], func(validated_input))
+                            result = await func(validated_input)
                         else:
                             # For functions without schema, validate against type hints
                             try:
@@ -77,7 +78,7 @@ def simple_tool(
                                     }
                                     runtime_schema = create_model(
                                         f"{func.__name__}RuntimeSchema",
-                                        __base__=BaseModel,
+                                        __base__=(BaseModel,),
                                         **fields
                                     )
                                     # Validate kwargs against the runtime schema

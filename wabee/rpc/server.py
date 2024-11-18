@@ -136,10 +136,9 @@ async def serve(
     # Setup signal handlers using asyncio
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop = asyncio.get_event_loop()
-        loop.add_signal_handler(
-            sig,
-            lambda s=sig: asyncio.create_task(handle_shutdown(s.name))
-        )
+        def create_handler(s: signal.Signals) -> Callable[[], None]:
+            return lambda: asyncio.create_task(handle_shutdown(s.name))
+        loop.add_signal_handler(sig, create_handler(sig))
     
     try:
         logging.info(f"Starting gRPC server on port {port}")
