@@ -19,10 +19,11 @@ def clean_folder(folder_name: str) -> None:
         folder.rmdir()
 
 @pytest.fixture
-async def tool_servicer(tmp_path: Path) -> ToolServicer:
+async def tool_servicer(tmp_path: Path) -> AsyncGenerator[ToolServicer, None]:
     """Fixture to create a ToolServicer with dynamically loaded tools."""
     tools: Dict[str, Any] = {}
-    return ToolServicer(tools)
+    servicer = ToolServicer(tools)
+    yield servicer
 
 class TestCreateToolService:
     def test_should_create_simple_tool(self, tmp_path: Path) -> None:
@@ -114,11 +115,12 @@ class TestCreateToolService:
             spec.loader.exec_module(module)
             
             # Add tool to servicer
-            tool_servicer.tools["simple_exec_tool"] = module.simple_exec_tool_tool
+            servicer = await tool_servicer
+            servicer.tools["simple_exec_tool"] = module.simple_exec_tool_tool
 
             # Execute tool
-            result, error = await tool_servicer._execute_tool(
-                tool_servicer.tools["simple_exec_tool"],
+            result, error = await servicer._execute_tool(
+                servicer.tools["simple_exec_tool"],
                 {"message": "test"}
             )
             
@@ -156,11 +158,12 @@ class TestCreateToolService:
             
             # Create tool instance and add to servicer
             tool_instance = module.CompleteExecToolTool.create()
-            tool_servicer.tools["complete_exec_tool"] = tool_instance
+            servicer = await tool_servicer
+            servicer.tools["complete_exec_tool"] = tool_instance
 
             # Execute tool
-            result, error = await tool_servicer._execute_tool(
-                tool_servicer.tools["complete_exec_tool"],
+            result, error = await servicer._execute_tool(
+                servicer.tools["complete_exec_tool"],
                 {"message": "test"}
             )
             
