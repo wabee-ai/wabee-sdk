@@ -61,7 +61,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
                 return await tool(tool_input)
         except Exception as e:
             return None, ToolError(
-                type="INTERNAL_ERROR",
+                type=ToolErrorType.INTERNAL_ERROR,
                 message=f"Execution failed: {str(e)}"
             )
 

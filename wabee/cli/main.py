@@ -55,9 +55,9 @@ def main() -> None:
                 )
                 print(f"Tool '{answers['name']}' created successfully!")
         elif args.act_command == "build":
-            service = BuildToolService(s2i_commit=args.s2i_commit)
+            build_service = BuildToolService(s2i_commit=args.s2i_commit)
             try:
-                service.build_tool(args.path, args.image)
+                build_service.build_tool(args.path, image_name=args.image)
             except Exception as e:
                 print(f"Error: {e}", file=sys.stderr)
                 sys.exit(1)

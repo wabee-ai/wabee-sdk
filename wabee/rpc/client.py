@@ -12,6 +12,12 @@ class ToolServiceClient:
         port: int = 50051,
         use_json: bool = True
     ):
+        
+    async def __aenter__(self):
+        return self
+        
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
         self.channel = grpc.aio.insecure_channel(f"{host}:{port}")
         self.stub = tool_service_pb2_grpc.ToolServiceStub(self.channel)
         self.use_json = use_json

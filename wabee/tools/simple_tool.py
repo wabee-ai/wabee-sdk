@@ -1,11 +1,13 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast
+from typing_extensions import ParamSpec
 from pydantic import BaseModel, create_model
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
 
 T = TypeVar('T')
+P = ParamSpec('P')
 
 def simple_tool(
     schema: Optional[Type[BaseModel]] = None,
@@ -43,7 +45,8 @@ def simple_tool(
             }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
-                **annotated_fields
+                __base__=None,
+                **{k: (v[0], v[1]) for k, v in annotated_fields.items()}
             )
         else:
             dynamic_schema = schema
@@ -62,7 +65,7 @@ def simple_tool(
                                 validated_input = dynamic_schema(**input_data)
                             else:
                                 validated_input = input_data
-                            result = await func(validated_input)
+                            result = await cast(Awaitable[T], func(validated_input))
                         else:
                             # For functions without schema, validate against type hints
                             try:
