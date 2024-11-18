@@ -27,6 +27,8 @@ grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
 pydantic = "2.9.2"
 typing-extensions = "^4.12.2"
+types-grpcio = "^1.59.9.3"
+types-inquirer = "^3.1.4.0"
 
 [tool.poetry.scripts]
 wb = 'wabee.cli.main:main'

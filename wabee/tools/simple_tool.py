@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast, Coroutine
 from typing_extensions import ParamSpec
 from pydantic import BaseModel, create_model
 
@@ -12,7 +12,7 @@ P = ParamSpec('P')
 def simple_tool(
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+) -> Callable[[Callable[..., Coroutine[Any, Any, T]]], Callable[..., Coroutine[Any, Any, tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -45,8 +45,7 @@ def simple_tool(
             }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
-                __base__=None,
-                **{k: (v[0], v[1]) for k, v in annotated_fields.items()}
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
@@ -78,6 +77,7 @@ def simple_tool(
                                     }
                                     runtime_schema = create_model(
                                         f"{func.__name__}RuntimeSchema",
+                                        __base__=BaseModel,
                                         **fields
                                     )
                                     # Validate kwargs against the runtime schema
