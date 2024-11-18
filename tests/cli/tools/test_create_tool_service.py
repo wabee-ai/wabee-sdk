@@ -14,11 +14,17 @@ def clean_folder(folder_name: str) -> None:
     """Remove all files in the given folder and the folder itself."""
     folder = Path(folder_name)
     if folder.exists():
+        # First remove all files recursively
         for path in folder.rglob('*'):
             if path.is_file():
                 path.unlink()
-            elif path.is_dir():
+        
+        # Then remove all directories from deepest to root
+        for path in sorted(folder.rglob('*'), key=lambda x: len(str(x)), reverse=True):
+            if path.is_dir():
                 path.rmdir()
+        
+        # Finally remove the root folder
         folder.rmdir()
 
 @pytest.fixture
