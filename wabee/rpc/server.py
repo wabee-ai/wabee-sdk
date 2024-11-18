@@ -3,7 +3,7 @@ import asyncio
 import logging
 import signal
 import grpc
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
