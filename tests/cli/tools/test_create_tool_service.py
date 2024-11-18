@@ -19,10 +19,10 @@ def clean_folder(folder_name: str) -> None:
         folder.rmdir()
 
 @pytest.fixture
-async def tool_servicer(tmp_path: Path) -> AsyncGenerator[ToolServicer, None]:
+async def tool_servicer(tmp_path: Path) -> ToolServicer:
     """Fixture to create a ToolServicer with dynamically loaded tools."""
     tools: Dict[str, Any] = {}
-    yield ToolServicer(tools)
+    return ToolServicer(tools)
 
 class TestCreateToolService:
     def test_should_create_simple_tool(self, tmp_path: Path) -> None:
