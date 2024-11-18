@@ -1,6 +1,5 @@
 import json
 import grpc
-import asyncio
 from typing import Any, Optional, Dict, Union
 
 from wabee.rpc.protos import tool_service_pb2

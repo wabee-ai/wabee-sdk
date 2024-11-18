@@ -1,4 +1,4 @@
-from typing import Type, get_type_hints, Any, Dict, List, Optional
+from typing import Type, get_type_hints, Any, Dict, List
 from pydantic import BaseModel
 import inspect
 from dataclasses import dataclass
