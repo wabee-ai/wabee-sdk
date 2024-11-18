@@ -115,7 +115,7 @@ class TestCreateToolService:
             spec.loader.exec_module(module)
             
             # Add tool to servicer
-            servicer = await tool_servicer
+            servicer = await anext(tool_servicer)
             servicer.tools["simple_exec_tool"] = module.simple_exec_tool_tool
 
             # Execute tool
@@ -158,7 +158,7 @@ class TestCreateToolService:
             
             # Create tool instance and add to servicer
             tool_instance = module.CompleteExecToolTool.create()
-            servicer = await tool_servicer
+            servicer = await anext(tool_servicer)
             servicer.tools["complete_exec_tool"] = tool_instance
 
             # Execute tool
