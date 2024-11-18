@@ -14,8 +14,11 @@ def clean_folder(folder_name: str) -> None:
     """Remove all files in the given folder and the folder itself."""
     folder = Path(folder_name)
     if folder.exists():
-        for file in folder.iterdir():
-            file.unlink()
+        for path in folder.rglob('*'):
+            if path.is_file():
+                path.unlink()
+            elif path.is_dir():
+                path.rmdir()
         folder.rmdir()
 
 @pytest.fixture
