@@ -7,7 +7,7 @@ from typing import Dict, Any, Optional
 from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
-from wabee.tools.tool_error import ToolError
+from wabee.tools.tool_error import ToolError, ToolErrorType
 from wabee.rpc.schema import ProtoSchemaGenerator
 
 from wabee.rpc.protos import tool_service_pb2
