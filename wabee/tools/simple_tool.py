@@ -45,7 +45,8 @@ def simple_tool(
             }
             dynamic_schema = create_model(
                 f"{func.__name__.title()}Input",
-                __base__=(BaseModel,),
+                __base__=BaseModel,
+                __module__=func.__module__,
                 **annotated_fields
             )
         else:
@@ -63,9 +64,11 @@ def simple_tool(
                         if dynamic_schema:
                             if isinstance(input_data, dict):
                                 validated_input = dynamic_schema(**input_data)
-                            else:
+                            elif isinstance(input_data, dynamic_schema):
                                 validated_input = input_data
-                            result = await func(validated_input)
+                            else:
+                                raise ValueError(f"Input must be dict or {dynamic_schema.__name__}")
+                            result = await func(validated_input)  # type: ignore
                         else:
                             # For functions without schema, validate against type hints
                             try:
@@ -79,6 +82,7 @@ def simple_tool(
                                     runtime_schema = create_model(
                                         f"{func.__name__}RuntimeSchema",
                                         __base__=BaseModel,
+                                        __module__=func.__module__,
                                         **fields
                                     )
                                     # Validate kwargs against the runtime schema
