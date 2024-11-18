@@ -43,12 +43,13 @@ def simple_tool(
                 field_name: (field_type, ...)  # ... means required
                 for field_name, field_type in schema_fields.items()
             }
+            model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
-                f"{func.__name__.title()}Input",
-                **annotated_fields,
+                model_name,
                 __base__=BaseModel,
                 __module__=func.__module__,
-                __config__=ConfigDict(arbitrary_types_allowed=True)
+                __config__=ConfigDict(arbitrary_types_allowed=True),
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
@@ -69,7 +70,7 @@ def simple_tool(
                                 validated_input = input_data
                             else:
                                 raise ValueError(f"Input must be dict or {dynamic_schema.__name__}")
-                            result = await func(validated_input)
+                            result = await func(input_data=validated_input)
                         else:
                             # For functions without schema, validate against type hints
                             try:
@@ -80,22 +81,23 @@ def simple_tool(
                                         name: (typ, ...) for name, typ in hints.items()
                                         if name != 'return'
                                     }
+                                    model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
-                                        f"{func.__name__}RuntimeSchema",
-                                        **fields,
+                                        model_name,
                                         __base__=BaseModel,
                                         __module__=func.__module__,
-                                        __config__=ConfigDict(arbitrary_types_allowed=True)
+                                        __config__=ConfigDict(arbitrary_types_allowed=True),
+                                        **fields
                                     )
                                     # Validate kwargs against the runtime schema
                                     validated_kwargs = runtime_schema(**kwargs).dict()
-                                    result = await func(**validated_kwargs)
+                                    result = await func(input_data=validated_kwargs)
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 
                                     if args:
-                                        result = await func(*args)
+                                        result = await func(input_data=args[0])
                                     else:
-                                        result = await func(**kwargs)
+                                        result = await func(input_data=kwargs)
                             except (ValueError, TypeError) as e:
                                 return None, ToolError(
                                     type=ToolErrorType.INVALID_INPUT,
