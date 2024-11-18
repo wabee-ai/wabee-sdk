@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 from typing import Literal
 
 def to_camel_case(name: str) -> str:
@@ -150,7 +149,7 @@ class {class_name}Tool(BaseTool):
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return f'''wabee>=0.2.1
+        return '''wabee>=0.2.1
 pydantic>=2.0.0
 '''
 

@@ -19,7 +19,7 @@ def main() -> None:
     tools_subparsers = tools_parser.add_subparsers(dest='act_command')
     
     # Create the 'create' subcommand under 'tools'
-    create_parser = tools_subparsers.add_parser('create', help='Create a new tool')
+    tools_subparsers.add_parser('create', help='Create a new tool')
     
     # Create the 'build' subcommand under 'tools'
     build_parser = tools_subparsers.add_parser('build', help='Build a tool container')

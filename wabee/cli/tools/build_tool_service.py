@@ -133,7 +133,7 @@ class BuildToolService:
             image_name: Optional custom image name
             builder_name: Optional custom builder image name
         """
-        print(f"Starting build process...")
+        print("Starting build process...")
         
         self._download_s2i()
         tool_dir = Path(tool_path)
@@ -191,7 +191,7 @@ class BuildToolService:
             env_file.write("APP_FILE=server.py\n")
             env_file.close()
             
-            print(f"Building with environment:")
+            print("Building with environment:")
             print(f"  WABEE_TOOL_MODULE={tool_module}")
             print(f"  WABEE_TOOL_NAME={tool_name}")
             
