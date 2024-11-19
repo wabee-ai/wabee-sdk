@@ -3,11 +3,11 @@ import asyncio
 import logging
 import signal
 import grpc
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Callable
 from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
-from wabee.tools.tool_error import ToolError
+from wabee.tools.tool_error import ToolError, ToolErrorType
 from wabee.rpc.schema import ProtoSchemaGenerator
 
 from wabee.rpc.protos import tool_service_pb2
@@ -61,7 +61,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
                 return await tool(tool_input)
         except Exception as e:
             return None, ToolError(
-                type="INTERNAL_ERROR",
+                type=ToolErrorType.INTERNAL_ERROR,
                 message=f"Execution failed: {str(e)}"
             )
 
@@ -136,10 +136,11 @@ async def serve(
     # Setup signal handlers using asyncio
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop = asyncio.get_event_loop()
-        loop.add_signal_handler(
-            sig,
-            lambda s=sig: asyncio.create_task(handle_shutdown(s.name))
-        )
+        def create_handler(s: signal.Signals) -> Callable[[], None]:
+            def handler() -> None:
+                asyncio.create_task(handle_shutdown(s.name))
+            return handler
+        loop.add_signal_handler(sig, create_handler(sig))
     
     try:
         logging.info(f"Starting gRPC server on port {port}")
