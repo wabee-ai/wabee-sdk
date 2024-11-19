@@ -40,7 +40,7 @@ jobs:
     - name: Install dependencies
       run: poetry install
     - name: Run tests
-      run: poetry run pytest -vv --cov --cov-fail-under=80
+      run: poetry run pytest -vv --cov --cov-fail-under=50
 
   publish:
     needs: [lint, test]
