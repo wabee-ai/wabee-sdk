@@ -35,7 +35,7 @@ class ProtoSchemaGenerator:
     ) -> ProtoMessage:
         fields = []
         for i, (name, field) in enumerate(model.model_fields.items(), start=1):
-            proto_type = cls.TYPE_MAPPING.get(field.annotation, "bytes")
+            proto_type = cls.TYPE_MAPPING.get(field.annotation.__class__, "bytes")
             fields.append(ProtoField(
                 name=name,
                 type=proto_type,

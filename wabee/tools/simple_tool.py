@@ -1,16 +1,18 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar
-from pydantic import BaseModel, create_model
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast, Coroutine, Dict
+from typing_extensions import ParamSpec
+from pydantic import BaseModel, create_model, ConfigDict
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
 
 T = TypeVar('T')
+P = ParamSpec('P')
 
 def simple_tool(
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -33,7 +35,7 @@ def simple_tool(
             
         result, error = await add_numbers(x=5, y=3)
     """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]:
         # Create a schema on the fly if fields are provided but no schema
         if schema is None and schema_fields:
             # Convert field definitions to proper Pydantic field annotations
@@ -41,15 +43,19 @@ def simple_tool(
                 field_name: (field_type, ...)  # ... means required
                 for field_name, field_type in schema_fields.items()
             }
+            model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
-                f"{func.__name__.title()}Input",
+                model_name,
+                __config__=ConfigDict(arbitrary_types_allowed=True),
+                __module__=func.__module__,
+                __base__=None,
                 **annotated_fields
             )
         else:
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: Any, **kwargs: Any) -> tuple[Union[T, None], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[T, None], Optional[ToolError]]:
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
                 args_schema = dynamic_schema
@@ -60,8 +66,10 @@ def simple_tool(
                         if dynamic_schema:
                             if isinstance(input_data, dict):
                                 validated_input = dynamic_schema(**input_data)
-                            else:
+                            elif isinstance(input_data, dynamic_schema):
                                 validated_input = input_data
+                            else:
+                                raise ValueError(f"Input must be dict or {dynamic_schema.__name__}")
                             result = await func(validated_input)
                         else:
                             # For functions without schema, validate against type hints
@@ -73,8 +81,12 @@ def simple_tool(
                                         name: (typ, ...) for name, typ in hints.items()
                                         if name != 'return'
                                     }
+                                    model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
-                                        f"{func.__name__}RuntimeSchema",
+                                        model_name,
+                                        __config__=ConfigDict(arbitrary_types_allowed=True),
+                                        __module__=func.__module__,
+                                        __base__=None,
                                         **fields
                                     )
                                     # Validate kwargs against the runtime schema
