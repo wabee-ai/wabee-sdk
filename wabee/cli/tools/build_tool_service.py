@@ -163,7 +163,7 @@ class BuildToolService:
                 content = f.read()
                 
             # Look for class definition first (complete tool)
-            class_match = re.search(r'class\s+(\w+)(?<!Input)(?:\s*\([^)]*\))?\s*:', content)
+            class_match = re.search(r'class\s+(\w+)\s*\(\s*BaseTool\s*\)\s*:', content)
             if class_match:
                 tool_name = class_match.group(1)
             else:
