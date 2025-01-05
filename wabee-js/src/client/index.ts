@@ -57,6 +57,10 @@ export class WabeeClient {
         });
     }
 
+    async close(): Promise<void> {
+        this.client.close();
+    }
+
     async getToolSchema(toolName: string): Promise<any> {
         const request: GetToolSchemaRequest = { toolName };
         
