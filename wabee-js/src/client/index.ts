@@ -1,6 +1,6 @@
 import * as grpc from '@grpc/grpc-js';
-import { ToolServiceClient } from './protos/tool_service_grpc_pb';
-import { ExecuteRequest, ExecuteResponse, GetToolSchemaRequest, ToolSchema } from './protos/tool_service_pb.js';
+import { ToolServiceClient } from './protos/tool_service';
+import { ExecuteRequest, ExecuteResponse, GetToolSchemaRequest, ToolSchema } from './protos/tool_service';
 import { ToolErrorResponse } from '../tools/toolError';
 
 export class WabeeClient {
@@ -18,71 +18,53 @@ export class WabeeClient {
     }
 
     async execute(toolName: string, inputData: any): Promise<[any, ToolErrorResponse | null]> {
-        return new Promise((resolve, reject) => {
-            const request = new ExecuteRequest();
-            request.setToolName(toolName);
+        const request: ExecuteRequest = {
+            toolName,
+            jsonData: this.useJson ? JSON.stringify(inputData) : undefined,
+            protoData: !this.useJson ? Buffer.from(JSON.stringify(inputData)) : undefined
+        };
 
-            if (this.useJson) {
-                request.setJsonData(JSON.stringify(inputData));
-            } else {
-                request.setProtoData(Buffer.from(JSON.stringify(inputData)));
+        try {
+            const response = await this.client.execute(request);
+            
+            if (response.error) {
+                return [null, {
+                    type: response.error.type,
+                    message: response.error.message
+                }];
             }
 
-            this.client.execute(request, (error, response) => {
-                if (error) {
-                    resolve([null, {
-                        type: 'RPC_ERROR',
-                        message: error.message
-                    }]);
-                    return;
-                }
-
-                if (response.hasError()) {
-                    resolve([null, {
-                        type: response.getError()?.getType() || 'UNKNOWN_ERROR',
-                        message: response.getError()?.getMessage() || 'Unknown error occurred'
-                    }]);
-                    return;
-                }
-
-                try {
-                    const result = this.useJson
-                        ? JSON.parse(response.getJsonResult())
-                        : JSON.parse(response.getProtoResult_asU8().toString());
-                    resolve([result, null]);
-                } catch (e) {
-                    resolve([null, {
-                        type: 'PARSE_ERROR',
-                        message: e instanceof Error ? e.message : 'Failed to parse response'
-                    }]);
-                }
-            });
-        });
+            try {
+                const result = this.useJson
+                    ? JSON.parse(response.jsonResult ?? '')
+                    : JSON.parse(Buffer.from(response.protoResult ?? '').toString());
+                return [result, null];
+            } catch (e) {
+                return [null, {
+                    type: 'PARSE_ERROR',
+                    message: e instanceof Error ? e.message : 'Failed to parse response'
+                }];
+            }
+        } catch (error) {
+            return [null, {
+                type: 'RPC_ERROR',
+                message: error instanceof Error ? error.message : 'Unknown error occurred'
+            }];
+        }
     }
 
     async getToolSchema(toolName: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const request = new GetToolSchemaRequest();
-            request.setToolName(toolName);
-
-            this.client.getToolSchema(request, (error, response: ToolSchema) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-
-                const schema = {
-                    toolName: response.getToolName(),
-                    fields: response.getFieldsList().map(field => ({
-                        name: field.getName(),
-                        type: field.getType(),
-                        required: field.getRequired(),
-                        description: field.getDescription()
-                    }))
-                };
-
-                resolve(schema);
-            });
-        });
+        const request: GetToolSchemaRequest = { toolName };
+        const response = await this.client.getToolSchema(request);
+        
+        return {
+            toolName: response.toolName,
+            fields: response.fields.map(field => ({
+                name: field.name,
+                type: field.type,
+                required: field.required,
+                description: field.description
+            }))
+        };
     }
 }
