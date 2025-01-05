@@ -9,6 +9,7 @@ import tarfile
 import tempfile
 import pkg_resources
 import re
+import json
 from pathlib import Path
 from typing import Optional
 
