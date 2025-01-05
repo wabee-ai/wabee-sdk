@@ -1,12 +1,13 @@
 import * as grpc from '@grpc/grpc-js';
 import { ToolServiceClient } from './protos/tool_service_grpc_pb';
-import { 
-    ExecuteRequest, 
-    ExecuteResponse, 
-    GetToolSchemaRequest,
-    ToolSchema 
-} from './protos/tool_service_pb';
+import { wabee } from './protos/tool_service';
 import { ToolErrorResponse } from '../tools/toolError';
+
+// Type aliases for convenience
+type ExecuteRequest = wabee.tools.ExecuteRequest;
+type ExecuteResponse = wabee.tools.ExecuteResponse;
+type GetToolSchemaRequest = wabee.tools.GetToolSchemaRequest;
+type ToolSchema = wabee.tools.ToolSchema;
 
 export class WabeeClient {
     private client: ToolServiceClient;
