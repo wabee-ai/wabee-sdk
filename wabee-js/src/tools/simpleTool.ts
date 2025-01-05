@@ -19,7 +19,7 @@ export function simpleTool(
         options.useJson
     );
 
-    return async function(input: any): Promise<[any, ToolError | null]> {
+    const toolFunction = async function(input: any): Promise<[any, ToolError | null]> {
         // Validate input if schema is provided
         if (schema) {
             try {
@@ -42,4 +42,9 @@ export function simpleTool(
         }
         return [result, null];
     };
+
+    // Attach schema to the function
+    toolFunction.schema = schema;
+
+    return toolFunction;
 }
