@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from typing import Literal, Optional, Type
 
 def to_camel_case(name: str) -> str:
