@@ -24,47 +24,59 @@ export class WabeeClient {
             protoData: !this.useJson ? Buffer.from(JSON.stringify(inputData)) : undefined
         };
 
-        try {
-            const response = await this.client.execute(request);
-            
-            if (response.error) {
-                return [null, {
-                    type: response.error.type,
-                    message: response.error.message
-                }];
-            }
+        return new Promise((resolve) => {
+            this.client.execute(request, (error, response) => {
+                if (error) {
+                    resolve([null, {
+                        type: 'RPC_ERROR',
+                        message: error.message
+                    }]);
+                    return;
+                }
 
-            try {
-                const result = this.useJson
-                    ? JSON.parse(response.jsonResult ?? '')
-                    : JSON.parse(Buffer.from(response.protoResult ?? '').toString());
-                return [result, null];
-            } catch (e) {
-                return [null, {
-                    type: 'PARSE_ERROR',
-                    message: e instanceof Error ? e.message : 'Failed to parse response'
-                }];
-            }
-        } catch (error) {
-            return [null, {
-                type: 'RPC_ERROR',
-                message: error instanceof Error ? error.message : 'Unknown error occurred'
-            }];
-        }
+                if (response.error) {
+                    resolve([null, {
+                        type: response.error.type,
+                        message: response.error.message
+                    }]);
+                    return;
+                }
+
+                try {
+                    const result = this.useJson
+                        ? JSON.parse(response.jsonResult ?? '')
+                        : JSON.parse(Buffer.from(response.protoResult ?? '').toString());
+                    resolve([result, null]);
+                } catch (e) {
+                    resolve([null, {
+                        type: 'PARSE_ERROR',
+                        message: e instanceof Error ? e.message : 'Failed to parse response'
+                    }]);
+                }
+            });
+        });
     }
 
     async getToolSchema(toolName: string): Promise<any> {
         const request: GetToolSchemaRequest = { toolName };
-        const response = await this.client.getToolSchema(request);
         
-        return {
-            toolName: response.toolName,
-            fields: response.fields.map(field => ({
-                name: field.name,
-                type: field.type,
-                required: field.required,
-                description: field.description
-            }))
-        };
+        return new Promise((resolve, reject) => {
+            this.client.getToolSchema(request, (error, response) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                
+                resolve({
+                    toolName: response.toolName,
+                    fields: response.fields.map(field => ({
+                        name: field.name,
+                        type: field.type,
+                        required: field.required,
+                        description: field.description
+                    }))
+                });
+            });
+        });
     }
 }
