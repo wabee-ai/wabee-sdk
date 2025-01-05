@@ -178,6 +178,19 @@ class BuildToolService:
             print(f"Error preparing JavaScript build: {e}", file=sys.stderr)
             raise
 
+    def _detect_js_tool_name(self, tool_dir: Path) -> Optional[str]:
+        """Try to detect JavaScript tool name from source files."""
+        # Look for tool creator function in index.ts
+        index_file = tool_dir / "src" / "index.ts"
+        if index_file.exists():
+            with open(index_file, 'r') as f:
+                content = f.read()
+                # Look for export function create{ToolName}Tool
+                creator_match = re.search(r'export\s+function\s+create(\w+)Tool', content)
+                if creator_match:
+                    return creator_match.group(1)
+        return None
+
     def _build_javascript_tool(
         self,
         tool_dir: Path,
@@ -195,7 +208,14 @@ class BuildToolService:
         self._generate_protos(tool_dir)
             
         if not tool_name:
-            tool_name = package_json.get("name", tool_dir.name)
+            # Try to find tool name in this order:
+            # 1. Detected from source code
+            # 2. Package.json name
+            # 3. Directory name
+            tool_name = (
+                self._detect_js_tool_name(tool_dir) or 
+                package_json.get("name", tool_dir.name)
+            )
             
         if not image_name:
             image_name = f"{tool_name}:latest"
