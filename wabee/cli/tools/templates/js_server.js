@@ -5,7 +5,21 @@ const { z } = require('zod');
 
 // Load the tool
 const toolName = process.env.WABEE_TOOL_NAME;
-const tool = require('./dist').default;
+// Import the specific tool creation function
+const toolModule = require('./dist');
+const toolCreator = toolModule[`create${toolName}Tool`];
+if (!toolCreator) {
+    throw new Error(`Could not find tool creator function for ${toolName}`);
+}
+
+// Create tool instance
+const tool = toolCreator();
+
+// Get schema from the exported schema constant
+const schema = toolModule[`${toolName}Schema`];
+if (!schema) {
+    throw new Error(`Could not find schema for ${toolName}`);
+}
 
 // Convert Zod schema to tool schema format
 function zodToToolSchema(schema) {
@@ -79,21 +93,21 @@ server.addService(toolService.service, {
         }
 
         try {
-            const [result, error] = await tool(parsedInput);
-            if (error) {
+            const result = await tool.execute(parsedInput);
+            if (result.error) {
                 callback(null, { 
                     error: {
-                        type: error.type,
-                        message: error.message
+                        type: result.error.type,
+                        message: result.error.message
                     }
                 });
             } else {
                 // Support both JSON and protobuf responses
                 const response = {};
                 if (call.request.json_data) {
-                    response.json_result = JSON.stringify(result);
+                    response.json_result = JSON.stringify(result.result);
                 } else {
-                    response.proto_result = Buffer.from(JSON.stringify(result));
+                    response.proto_result = Buffer.from(JSON.stringify(result.result));
                 }
                 callback(null, response);
             }
@@ -107,8 +121,7 @@ server.addService(toolService.service, {
     
     getToolSchema(call, callback) {
         try {
-            // Get schema from the tool
-            const schema = tool.schema;
+            // Get schema directly from the imported schema constant
             const fields = zodToToolSchema(schema);
             
             callback(null, {
