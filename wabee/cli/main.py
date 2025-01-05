@@ -41,7 +41,10 @@ def main() -> None:
                             message="Provide a description for your tool"),
                 inquirer.Text('version',
                             message="What is the initial version?",
-                            default="0.1.0")
+                            default="0.1.0"),
+                inquirer.Confirm('generate_js',
+                               message="Generate JavaScript/TypeScript client?",
+                               default=True)
             ]
             answers = inquirer.prompt(questions)
             
@@ -51,7 +54,8 @@ def main() -> None:
                     name=answers['name'],
                     tool_type=answers['type'],
                     description=answers['description'],
-                    version=answers['version']
+                    version=answers['version'],
+                    generate_js=answers['generate_js']
                 )
                 print(f"Tool '{answers['name']}' created successfully!")
         elif args.act_command == "build":

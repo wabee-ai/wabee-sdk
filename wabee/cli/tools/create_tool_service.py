@@ -47,7 +47,8 @@ class CreateToolService:
         name: str, 
         tool_type: TOOL_TYPES,
         description: str,
-        version: str
+        version: str,
+        generate_js: bool = True
     ) -> None:
         """Create a new tool project with the given name and type."""
         # Sanitize the name
@@ -78,6 +79,28 @@ class CreateToolService:
                 
         # Create server.py
         self._create_server_file(sanitized_name)
+        
+        if generate_js:
+            # Create JavaScript/TypeScript client
+            js_dir = os.path.join(sanitized_name, "js")
+            os.makedirs(js_dir, exist_ok=True)
+            
+            # Create package.json
+            package_file = os.path.join(js_dir, "package.json")
+            with open(package_file, "w") as f:
+                f.write(self._get_js_package_template(sanitized_name, description, version))
+            
+            # Create TypeScript client
+            src_dir = os.path.join(js_dir, "src")
+            os.makedirs(src_dir, exist_ok=True)
+            client_file = os.path.join(src_dir, "index.ts")
+            with open(client_file, "w") as f:
+                f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
+            
+            # Create tsconfig.json
+            tsconfig_file = os.path.join(js_dir, "tsconfig.json")
+            with open(tsconfig_file, "w") as f:
+                f.write(self._get_tsconfig_template())
         
     def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional
@@ -152,6 +175,65 @@ class {class_name}Tool(BaseTool):
         return '''wabee>=0.2.1
 pydantic>=2.0.0
 '''
+
+    def _get_js_package_template(self, name: str, description: str, version: str) -> str:
+        return f'''{{
+  "name": "{name}",
+  "version": "{version}",
+  "description": "{description}",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {{
+    "build": "tsc",
+    "test": "jest"
+  }},
+  "dependencies": {{
+    "wabee-js": "^0.1.0",
+    "zod": "^3.21.0"
+  }},
+  "devDependencies": {{
+    "@types/node": "^18.0.0",
+    "typescript": "^4.9.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  }}
+}}'''
+
+    def _get_ts_client_template(self, name: str, class_name: str) -> str:
+        return f'''import {{ z }} from 'zod';
+import {{ simpleTool, ToolOptions }} from 'wabee-js';
+
+export const {class_name}Schema = z.object({{
+    message: z.string()
+}});
+
+export type {class_name}Input = z.infer<typeof {class_name}Schema>;
+
+export function create{class_name}Tool(options?: ToolOptions) {{
+    return simpleTool(
+        '{name}',
+        {class_name}Schema,
+        options
+    );
+}}
+'''
+
+    def _get_tsconfig_template(self) -> str:
+        return '''{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}'''
 
     def _create_server_file(self, name: str) -> None:
         """Create the server.py file in the tool directory."""
