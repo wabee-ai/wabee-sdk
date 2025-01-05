@@ -212,7 +212,7 @@ pydantic>=2.0.0
     "test": "jest"
   }},
   "dependencies": {{
-    "wabee-js": "^0.1.0",
+    "@wabee_ai/sdk": "^0.1.0",
     "zod": "^3.21.0"
   }},
   "devDependencies": {{
