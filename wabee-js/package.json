@@ -1,14 +1,38 @@
 {
-  "name": "wabee-js",
+  "name": "@wabee_ai/sdk",
   "version": "0.1.0",
-  "description": "JavaScript SDK for Wabee Tools",
+  "description": "JavaScript SDK for Wabee Tools - Build and integrate AI tools with ease",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "generate-protos": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./src/client/protos --grpc_out=grpc_js:./src/client/protos --ts_out=./src/client/protos -I ../../wabee/rpc/protos tool_service.proto"
+    "generate-protos": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./src/client/protos --grpc_out=grpc_js:./src/client/protos --ts_out=./src/client/protos -I ../../wabee/rpc/protos tool_service.proto",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "wabee",
+    "ai",
+    "tools",
+    "sdk",
+    "grpc",
+    "typescript"
+  ],
+  "author": "Wabee AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wabee-ai/wabee-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wabee-ai/wabee-sdk/issues"
+  },
+  "homepage": "https://wabee.ai",
   "dependencies": {
     "@grpc/grpc-js": "^1.8.0",
     "google-protobuf": "^3.21.0",
