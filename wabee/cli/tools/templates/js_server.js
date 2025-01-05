@@ -11,10 +11,6 @@ const toolCreator = toolModule[`create${toolName}Tool`];
 if (!toolCreator) {
     throw new Error(`Could not find tool creator function for ${toolName}`);
 }
-
-// Load tool configuration
-const toolName = process.env.WABEE_TOOL_NAME;
-const toolModule = require('./dist');
 const schema = toolModule[`${toolName}Schema`];
 if (!schema) {
     throw new Error(`Could not find schema for ${toolName}`);

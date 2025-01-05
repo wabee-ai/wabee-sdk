@@ -218,7 +218,7 @@ pydantic>=2.0.0
     "test": "jest"
   }},
   "dependencies": {{
-    "@wabee_ai/sdk": "^0.1.0",
+    "@wabee_ai/sdk": "^0.1.3",
     "@grpc/grpc-js": "^1.8.0",
     "@grpc/proto-loader": "^0.7.0",
     "zod": "^3.21.0"
@@ -237,7 +237,7 @@ pydantic>=2.0.0
 import {{ simpleTool, ToolOptions }} from '@wabee_ai/sdk';
 
 export const {class_name}Schema = z.object({{
-    message: z.string()
+    message: z.string().describe("Message to be displayed")
 }});
 
 export type {class_name}Input = z.infer<typeof {class_name}Schema>;

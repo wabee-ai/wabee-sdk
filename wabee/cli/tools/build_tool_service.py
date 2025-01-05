@@ -218,7 +218,7 @@ class BuildToolService:
             )
             
         if not image_name:
-            image_name = f"{tool_name}:latest"
+            image_name = f"{tool_name.lower()}:latest"
             
         if not builder_name:
             builder_name = self.NODE_BUILDER
