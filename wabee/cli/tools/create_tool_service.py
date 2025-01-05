@@ -109,23 +109,20 @@ class CreateToolService:
         version: str
     ) -> None:
         """Create JavaScript/TypeScript files for the tool."""
-        js_dir = os.path.join(sanitized_name, "js")
-        os.makedirs(js_dir, exist_ok=True)
-        
         # Create package.json
-        package_file = os.path.join(js_dir, "package.json")
+        package_file = os.path.join(sanitized_name, "package.json")
         with open(package_file, "w") as f:
             f.write(self._get_js_package_template(sanitized_name, description, version))
         
         # Create TypeScript client
-        src_dir = os.path.join(js_dir, "src")
+        src_dir = os.path.join(sanitized_name, "src")
         os.makedirs(src_dir, exist_ok=True)
         client_file = os.path.join(src_dir, "index.ts")
         with open(client_file, "w") as f:
             f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
         
         # Create tsconfig.json
-        tsconfig_file = os.path.join(js_dir, "tsconfig.json")
+        tsconfig_file = os.path.join(sanitized_name, "tsconfig.json")
         with open(tsconfig_file, "w") as f:
             f.write(self._get_tsconfig_template())
         
