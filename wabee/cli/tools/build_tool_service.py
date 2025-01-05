@@ -360,6 +360,7 @@ class BuildToolService:
                 image_name,
                 builder_name
             )
+            return  # Exit after building JavaScript tool
         else:
             self._build_python_tool(
                 tool_dir,
