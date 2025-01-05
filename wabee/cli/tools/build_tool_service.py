@@ -158,6 +158,10 @@ class BuildToolService:
             if (tool_dir / "dist").exists():
                 shutil.copytree(tool_dir / "dist", build_dir / "dist", dirs_exist_ok=True)
                 
+            # Copy protos directory if it exists
+            if (tool_dir / "protos").exists():
+                shutil.copytree(tool_dir / "protos", build_dir / "protos", dirs_exist_ok=True)
+                
             # Create a production package.json that doesn't include dev dependencies
             with open(build_dir / "package.json", "r+") as f:
                 package_json = json.load(f)
@@ -186,6 +190,9 @@ class BuildToolService:
         # Read package.json to get tool information
         with open(tool_dir / "package.json") as f:
             package_json = json.load(f)
+            
+        # Generate protos in tool directory
+        self._generate_protos(tool_dir)
             
         if not tool_name:
             tool_name = package_json.get("name", tool_dir.name)
