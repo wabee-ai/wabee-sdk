@@ -17,7 +17,7 @@ const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
 });
 
 const protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
-const toolService = protoDescriptor.wabee.ToolService;
+const toolService = protoDescriptor.wabee.tools.ToolService;
 
 // Implement the service
 const server = new grpc.Server();
