@@ -130,7 +130,14 @@ class BuildToolService:
     def _prepare_javascript_build(self, tool_dir: Path) -> None:
         """Prepare JavaScript tool by installing dependencies and building."""
         try:
-            # Install dependencies
+            # First ensure typescript is installed globally
+            subprocess.run(
+                ["npm", "install", "-g", "typescript"],
+                cwd=str(tool_dir),
+                check=True
+            )
+            
+            # Install project dependencies
             subprocess.run(
                 ["npm", "install"],
                 cwd=str(tool_dir),
@@ -139,7 +146,7 @@ class BuildToolService:
             
             # Build TypeScript
             subprocess.run(
-                ["npm", "run", "build"],
+                ["npx", "tsc"],  # Use npx to ensure we use the local typescript
                 cwd=str(tool_dir),
                 check=True
             )

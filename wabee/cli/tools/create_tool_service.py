@@ -213,7 +213,7 @@ pydantic>=2.0.0
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {{
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "node server.js",
     "test": "jest"
   }},
