@@ -121,6 +121,10 @@ class CreateToolService:
         with open(client_file, "w") as f:
             f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
         
+        # Copy the server.js template
+        server_template_path = os.path.join(os.path.dirname(__file__), "templates", "js_server.js")
+        shutil.copy2(server_template_path, os.path.join(sanitized_name, "server.js"))
+        
         # Create tsconfig.json
         tsconfig_file = os.path.join(sanitized_name, "tsconfig.json")
         with open(tsconfig_file, "w") as f:
@@ -209,10 +213,13 @@ pydantic>=2.0.0
   "types": "dist/index.d.ts",
   "scripts": {{
     "build": "tsc",
+    "start": "node server.js",
     "test": "jest"
   }},
   "dependencies": {{
     "@wabee_ai/sdk": "^0.1.0",
+    "@grpc/grpc-js": "^1.8.0",
+    "@grpc/proto-loader": "^0.7.0",
     "zod": "^3.21.0"
   }},
   "devDependencies": {{
