@@ -4,7 +4,7 @@ const path = require('path');
 
 // Load the tool
 const toolName = process.env.WABEE_TOOL_NAME;
-const tool = require('./src').default;
+const tool = require('./dist').default;
 
 // Load proto definition
 const PROTO_PATH = path.resolve(__dirname, 'protos/tool_service.proto');

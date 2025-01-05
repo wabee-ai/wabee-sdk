@@ -127,6 +127,26 @@ class BuildToolService:
         else:
             raise ValueError("Unable to determine tool type. Missing package.json or *_tool.py")
 
+    def _prepare_javascript_build(self, tool_dir: Path) -> None:
+        """Prepare JavaScript tool by installing dependencies and building."""
+        try:
+            # Install dependencies
+            subprocess.run(
+                ["npm", "install"],
+                cwd=str(tool_dir),
+                check=True
+            )
+            
+            # Build TypeScript
+            subprocess.run(
+                ["npm", "run", "build"],
+                cwd=str(tool_dir),
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error preparing JavaScript build: {e}", file=sys.stderr)
+            raise
+
     def _build_javascript_tool(
         self,
         tool_dir: Path,
@@ -148,6 +168,9 @@ class BuildToolService:
             
         if not builder_name:
             builder_name = self.NODE_BUILDER
+            
+        # Prepare the JavaScript build
+        self._prepare_javascript_build(tool_dir)
             
         # Create environment file with tool configuration
         env_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
