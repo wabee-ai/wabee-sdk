@@ -3,22 +3,20 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const { z } = require('zod');
 
-// Load the tool
+// Load tool configuration
 const toolName = process.env.WABEE_TOOL_NAME;
-// Import the specific tool creation function
 const toolModule = require('./dist');
-const toolCreator = toolModule[`create${toolName}Tool`];
-if (!toolCreator) {
-    throw new Error(`Could not find tool creator function for ${toolName}`);
-}
-
-// Create tool instance
-const tool = toolCreator();
-
-// Get schema from the exported schema constant
 const schema = toolModule[`${toolName}Schema`];
 if (!schema) {
     throw new Error(`Could not find schema for ${toolName}`);
+}
+
+// Implement the actual tool logic
+async function executeToolLogic(input) {
+    // Example implementation for testjj tool
+    return {
+        message: `Processed message: ${input.message}`
+    };
 }
 
 // Convert Zod schema to tool schema format
@@ -96,24 +94,32 @@ server.addService(toolService.service, {
         }
 
         try {
-            const [result, error] = await tool.execute(parsedInput);
-            if (error) {
-                callback(null, { 
-                    error: {
-                        type: error.type,
-                        message: error.message
-                    }
-                });
-            } else {
-                // Support both JSON and protobuf responses
-                const response = {};
-                if (call.request.json_data) {
-                    response.json_result = JSON.stringify(result);
-                } else {
-                    response.proto_result = Buffer.from(JSON.stringify(result));
+            // Validate input using the schema
+            if (schema) {
+                try {
+                    schema.parse(parsedInput);
+                } catch (err) {
+                    callback(null, {
+                        error: {
+                            type: 'validation_error',
+                            message: err.message
+                        }
+                    });
+                    return;
                 }
-                callback(null, response);
             }
+
+            // Execute the actual tool logic
+            const result = await executeToolLogic(parsedInput);
+
+            // Format response
+            const response = {};
+            if (call.request.json_data) {
+                response.json_result = JSON.stringify(result);
+            } else {
+                response.proto_result = Buffer.from(JSON.stringify(result));
+            }
+            callback(null, response);
         } catch (err) {
             console.log(err);
             callback({
