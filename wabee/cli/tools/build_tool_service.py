@@ -130,23 +130,42 @@ class BuildToolService:
     def _prepare_javascript_build(self, tool_dir: Path) -> None:
         """Prepare JavaScript tool by installing dependencies and building."""
         try:
-            # First ensure typescript is installed globally
-            subprocess.run(
-                ["npm", "install", "-g", "typescript"],
-                cwd=str(tool_dir),
-                check=True
-            )
-            
-            # Install project dependencies
+            # Install project dependencies first
             subprocess.run(
                 ["npm", "install"],
                 cwd=str(tool_dir),
                 check=True
             )
             
-            # Build TypeScript
+            # Ensure TypeScript is installed locally in the project
             subprocess.run(
-                ["npx", "tsc"],  # Use npx to ensure we use the local typescript
+                ["npm", "install", "--save-dev", "typescript@4.9.5"],
+                cwd=str(tool_dir),
+                check=True
+            )
+            
+            # Verify tsconfig.json exists, if not create it
+            tsconfig_path = tool_dir / "tsconfig.json"
+            if not tsconfig_path.exists():
+                with open(tsconfig_path, 'w') as f:
+                    f.write('''{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}''')
+            
+            # Build TypeScript using local installation
+            subprocess.run(
+                ["npx", "--no-install", "tsc", "--project", "tsconfig.json"],
                 cwd=str(tool_dir),
                 check=True
             )
