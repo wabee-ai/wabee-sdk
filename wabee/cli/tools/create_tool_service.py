@@ -226,7 +226,7 @@ pydantic>=2.0.0
 
     def _get_ts_client_template(self, name: str, class_name: str) -> str:
         return f'''import {{ z }} from 'zod';
-import {{ simpleTool, ToolOptions }} from 'wabee-js';
+import {{ simpleTool, ToolOptions }} from '@wabee_ai/sdk';
 
 export const {class_name}Schema = z.object({{
     message: z.string()
