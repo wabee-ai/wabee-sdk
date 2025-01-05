@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Literal
+from typing import Literal, Optional, Type
 
 def to_camel_case(name: str) -> str:
     """
@@ -48,6 +48,7 @@ class CreateToolService:
         tool_type: TOOL_TYPES,
         description: str,
         version: str,
+        tool_language: Literal["python", "javascript"] = "python",
         generate_js: bool = True
     ) -> None:
         """Create a new tool project with the given name and type."""
@@ -59,6 +60,26 @@ class CreateToolService:
         # Create project directory
         os.makedirs(sanitized_name, exist_ok=True)
         
+        if tool_language == "python":
+            # Create Python files
+            self._create_python_files(sanitized_name, camel_case_name, tool_type, description, version)
+            
+            if generate_js:
+                # Create JavaScript client
+                self._create_js_files(sanitized_name, camel_case_name, description, version)
+        else:  # javascript
+            # Create only JavaScript files
+            self._create_js_files(sanitized_name, camel_case_name, description, version)
+
+    def _create_python_files(
+        self,
+        sanitized_name: str,
+        camel_case_name: str,
+        tool_type: TOOL_TYPES,
+        description: str,
+        version: str
+    ) -> None:
+        """Create Python-specific files for the tool."""
         # Create tool file
         tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
@@ -79,28 +100,34 @@ class CreateToolService:
                 
         # Create server.py
         self._create_server_file(sanitized_name)
+
+    def _create_js_files(
+        self,
+        sanitized_name: str,
+        camel_case_name: str,
+        description: str,
+        version: str
+    ) -> None:
+        """Create JavaScript/TypeScript files for the tool."""
+        js_dir = os.path.join(sanitized_name, "js")
+        os.makedirs(js_dir, exist_ok=True)
         
-        if generate_js:
-            # Create JavaScript/TypeScript client
-            js_dir = os.path.join(sanitized_name, "js")
-            os.makedirs(js_dir, exist_ok=True)
-            
-            # Create package.json
-            package_file = os.path.join(js_dir, "package.json")
-            with open(package_file, "w") as f:
-                f.write(self._get_js_package_template(sanitized_name, description, version))
-            
-            # Create TypeScript client
-            src_dir = os.path.join(js_dir, "src")
-            os.makedirs(src_dir, exist_ok=True)
-            client_file = os.path.join(src_dir, "index.ts")
-            with open(client_file, "w") as f:
-                f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
-            
-            # Create tsconfig.json
-            tsconfig_file = os.path.join(js_dir, "tsconfig.json")
-            with open(tsconfig_file, "w") as f:
-                f.write(self._get_tsconfig_template())
+        # Create package.json
+        package_file = os.path.join(js_dir, "package.json")
+        with open(package_file, "w") as f:
+            f.write(self._get_js_package_template(sanitized_name, description, version))
+        
+        # Create TypeScript client
+        src_dir = os.path.join(js_dir, "src")
+        os.makedirs(src_dir, exist_ok=True)
+        client_file = os.path.join(src_dir, "index.ts")
+        with open(client_file, "w") as f:
+            f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
+        
+        # Create tsconfig.json
+        tsconfig_file = os.path.join(js_dir, "tsconfig.json")
+        with open(tsconfig_file, "w") as f:
+            f.write(self._get_tsconfig_template())
         
     def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
         return f'''from typing import Optional
