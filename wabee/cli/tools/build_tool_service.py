@@ -11,7 +11,7 @@ import pkg_resources
 import re
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
@@ -130,45 +130,46 @@ class BuildToolService:
     def _prepare_javascript_build(self, tool_dir: Path) -> None:
         """Prepare JavaScript tool by installing dependencies and building."""
         try:
-            # Install project dependencies first
+            print("Installing dependencies and building TypeScript locally...")
+            
+            # Install dependencies locally first
             subprocess.run(
                 ["npm", "install"],
                 cwd=str(tool_dir),
                 check=True
             )
             
-            # Ensure TypeScript is installed locally in the project
+            # Build TypeScript locally
             subprocess.run(
-                ["npm", "install", "--save-dev", "typescript@4.9.5"],
+                ["npx", "tsc"],
                 cwd=str(tool_dir),
                 check=True
             )
             
-            # Verify tsconfig.json exists, if not create it
-            tsconfig_path = tool_dir / "tsconfig.json"
-            if not tsconfig_path.exists():
-                with open(tsconfig_path, 'w') as f:
-                    f.write('''{
-  "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
-}''')
+            # Create a temporary directory for the build
+            build_dir = tool_dir / "build"
+            build_dir.mkdir(exist_ok=True)
             
-            # Build TypeScript using local installation
-            subprocess.run(
-                ["npx", "--no-install", "tsc", "--project", "tsconfig.json"],
-                cwd=str(tool_dir),
-                check=True
-            )
+            # Copy necessary files to build directory
+            shutil.copy2(tool_dir / "package.json", build_dir / "package.json")
+            shutil.copy2(tool_dir / "server.js", build_dir / "server.js")
+            
+            # Copy the compiled JavaScript files
+            if (tool_dir / "dist").exists():
+                shutil.copytree(tool_dir / "dist", build_dir / "dist", dirs_exist_ok=True)
+                
+            # Create a production package.json that doesn't include dev dependencies
+            with open(build_dir / "package.json", "r+") as f:
+                package_json = json.load(f)
+                # Remove devDependencies and build scripts
+                package_json.pop("devDependencies", None)
+                if "scripts" in package_json:
+                    package_json["scripts"] = {
+                        "start": package_json["scripts"].get("start", "node server.js")
+                    }
+                f.seek(0)
+                json.dump(package_json, f, indent=2)
+                f.truncate()
         except subprocess.CalledProcessError as e:
             print(f"Error preparing JavaScript build: {e}", file=sys.stderr)
             raise
@@ -196,6 +197,7 @@ class BuildToolService:
             builder_name = self.NODE_BUILDER
             
         # Prepare the JavaScript build
+        build_dir = tool_dir / "build"
         self._prepare_javascript_build(tool_dir)
             
         # Create environment file with tool configuration
@@ -203,19 +205,19 @@ class BuildToolService:
         try:
             env_file.write("NODE_ENV=production\n")
             env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
-            env_file.write("NPM_RUN=start\n")  # Assuming start script is defined
+            env_file.write("NPM_RUN=start\n")
             env_file.close()
             
             print("Building with environment:")
             print(f"  WABEE_TOOL_NAME={tool_name}")
             
-            # Run s2i build
+            # Run s2i build using the build directory
             subprocess.run(
                 [
                     str(self.s2i_path),
                     "build",
                     "--environment-file", env_file.name,
-                    str(tool_dir),
+                    str(build_dir),  # Use build directory instead of tool_dir
                     builder_name,
                     image_name,
                 ],
@@ -228,6 +230,8 @@ class BuildToolService:
             raise
         finally:
             os.unlink(env_file.name)
+            # Clean up build directory
+            shutil.rmtree(build_dir, ignore_errors=True)
 
     def _build_python_tool(
         self,
