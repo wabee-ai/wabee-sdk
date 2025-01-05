@@ -8,14 +8,14 @@ const additionSchema = z.object({
 });
 
 // Create tool client
-const add = simpleTool('addition', additionSchema, {
+const addTool = simpleTool('addition', additionSchema, {
     host: 'localhost',
     port: 50051
 });
 
 // Use the tool
 async function main() {
-    const [result, error] = await add({ x: 5, y: 3 });
+    const [result, error] = await addTool.execute({ x: 5, y: 3 });
     if (error) {
         console.error('Error:', error);
     } else {

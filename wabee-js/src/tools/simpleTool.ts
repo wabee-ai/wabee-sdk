@@ -19,32 +19,30 @@ export function simpleTool(
         options.useJson
     );
 
-    const toolFunction = async function(input: any): Promise<[any, ToolError | null]> {
-        // Validate input if schema is provided
-        if (schema) {
-            try {
-                schema.parse(input);
-            } catch (error) {
+    return {
+        schema,
+        async execute(input: any): Promise<[any, ToolError | null]> {
+            // Validate input if schema is provided
+            if (schema) {
+                try {
+                    schema.parse(input);
+                } catch (error) {
+                    return [null, new ToolError(
+                        ToolErrorType.VALIDATION_ERROR,
+                        error instanceof Error ? error.message : 'Invalid input',
+                        error instanceof Error ? error : undefined
+                    )];
+                }
+            }
+
+            const [result, error] = await client.execute(toolName, input);
+            if (error) {
                 return [null, new ToolError(
-                    ToolErrorType.VALIDATION_ERROR,
-                    error instanceof Error ? error.message : 'Invalid input',
-                    error instanceof Error ? error : undefined
+                    error.type as ToolErrorType,
+                    error.message
                 )];
             }
+            return [result, null];
         }
-
-        const [result, error] = await client.execute(toolName, input);
-        if (error) {
-            return [null, new ToolError(
-                error.type as ToolErrorType,
-                error.message
-            )];
-        }
-        return [result, null];
     };
-
-    // Attach schema to the function
-    toolFunction.schema = schema;
-
-    return toolFunction;
 }
