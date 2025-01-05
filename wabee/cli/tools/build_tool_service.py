@@ -15,6 +15,7 @@ from typing import Optional
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
     PYTHON_BUILDER = "registry.access.redhat.com/ubi8/python-311:latest"
+    NODE_BUILDER = "registry.access.redhat.com/ubi8/nodejs-18:latest"
     
     def __init__(self, s2i_commit: Optional[str] = None):
         self.s2i_dir = Path.home() / ".wabee" / "s2i"
@@ -116,6 +117,151 @@ class BuildToolService:
             print(f"Error generating proto code: {e}", file=sys.stderr)
             raise
 
+    def _detect_tool_type(self, tool_dir: Path) -> str:
+        """Detect if the tool is Python or JavaScript based."""
+        if (tool_dir / "package.json").exists():
+            return "javascript"
+        elif list(tool_dir.glob("*_tool.py")) or (tool_dir / "requirements.txt").exists():
+            return "python"
+        else:
+            raise ValueError("Unable to determine tool type. Missing package.json or *_tool.py")
+
+    def _build_javascript_tool(
+        self,
+        tool_dir: Path,
+        tool_module: Optional[str],
+        tool_name: Optional[str],
+        image_name: Optional[str],
+        builder_name: Optional[str]
+    ) -> None:
+        """Build a JavaScript tool."""
+        # Read package.json to get tool information
+        with open(tool_dir / "package.json") as f:
+            package_json = json.load(f)
+            
+        if not tool_name:
+            tool_name = package_json.get("name", tool_dir.name)
+            
+        if not image_name:
+            image_name = f"{tool_name}:latest"
+            
+        if not builder_name:
+            builder_name = self.NODE_BUILDER
+            
+        # Create environment file with tool configuration
+        env_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        try:
+            env_file.write("NODE_ENV=production\n")
+            env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
+            env_file.write("NPM_RUN=start\n")  # Assuming start script is defined
+            env_file.close()
+            
+            print("Building with environment:")
+            print(f"  WABEE_TOOL_NAME={tool_name}")
+            
+            # Run s2i build
+            subprocess.run(
+                [
+                    str(self.s2i_path),
+                    "build",
+                    "--environment-file", env_file.name,
+                    str(tool_dir),
+                    builder_name,
+                    image_name,
+                ],
+                check=True
+            )
+            
+            print(f"Successfully built image: {image_name}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error building image: {e}", file=sys.stderr)
+            raise
+        finally:
+            os.unlink(env_file.name)
+
+    def _build_python_tool(
+        self,
+        tool_dir: Path,
+        tool_module: Optional[str],
+        tool_name: Optional[str],
+        image_name: Optional[str],
+        builder_name: Optional[str]
+    ) -> None:
+        """Build a Python tool."""
+        # Validate tool directory has required files
+        if not (tool_dir / "requirements.txt").exists():
+            raise ValueError(f"No requirements.txt found in {tool_dir}")
+
+        # Find the tool module file if not explicitly provided
+        if tool_module is None:
+            python_files = list(tool_dir.glob("*_tool.py"))
+            if not python_files:
+                raise ValueError(f"No *_tool.py file found in {tool_dir}")
+            if len(python_files) > 1:
+                raise ValueError(f"Multiple tool files found in {tool_dir}. Please specify tool_module.")
+            
+            # Get the filename without .py extension
+            tool_module = python_files[0].stem
+
+        # If tool_name not provided, try to find the tool class/function name
+        if tool_name is None:
+            tool_file = tool_dir / f"{tool_module}.py"
+            with open(tool_file, 'r') as f:
+                content = f.read()
+                
+            # Look for class definition first (complete tool)
+            class_match = re.search(r'class\s+(\w+)\s*\(\s*BaseTool\s*\)\s*:', content)
+            if class_match:
+                tool_name = class_match.group(1)
+            else:
+                # Look for decorated function (simple tool)
+                func_match = re.search(r'@simple_tool[^\n]*\s*async\s+def\s+(\w+)', content)
+                if func_match:
+                    tool_name = func_match.group(1)
+                else:
+                    raise ValueError(f"Could not find tool class or function in {tool_file}")
+        
+        if not image_name:
+            image_name = f"{tool_module}:latest"
+            
+        if not builder_name:
+            builder_name = self.PYTHON_BUILDER
+
+        # Generate protos in tool directory
+        self._generate_protos(tool_dir)
+            
+        # Create environment file with tool configuration
+        env_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+        try:
+            env_file.write(f"WABEE_TOOL_MODULE={tool_module}\n")
+            env_file.write(f"WABEE_TOOL_NAME={tool_name}\n")
+            env_file.write("APP_FILE=server.py\n")
+            env_file.close()
+            
+            print("Building with environment:")
+            print(f"  WABEE_TOOL_MODULE={tool_module}")
+            print(f"  WABEE_TOOL_NAME={tool_name}")
+            
+            # Run s2i build
+            subprocess.run(
+                [
+                    str(self.s2i_path),
+                    "build",
+                    "--environment-file", env_file.name,
+                    str(tool_dir),
+                    builder_name,
+                    image_name,
+                ],
+                check=True
+            )
+            
+            print(f"Successfully built image: {image_name}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error building image: {e}", file=sys.stderr)
+            raise
+        finally:
+            os.unlink(env_file.name)
+
     def build_tool(
         self,
         tool_path: str,
@@ -138,12 +284,29 @@ class BuildToolService:
         self._download_s2i()
         tool_dir = Path(tool_path)
         
-        # Validate tool directory has required files
+        # Validate tool directory exists
         if not tool_dir.exists():
             raise ValueError(f"Tool directory not found: {tool_path}")
-            
-        if not (tool_dir / "requirements.txt").exists():
-            raise ValueError(f"No requirements.txt found in {tool_path}")
+
+        # Detect tool type and use appropriate builder
+        tool_type = self._detect_tool_type(tool_dir)
+        
+        if tool_type == "javascript":
+            self._build_javascript_tool(
+                tool_dir,
+                tool_module,
+                tool_name,
+                image_name,
+                builder_name
+            )
+        else:
+            self._build_python_tool(
+                tool_dir,
+                tool_module,
+                tool_name,
+                image_name,
+                builder_name
+            )
 
         # Find the tool module file if not explicitly provided
         if tool_module is None:
