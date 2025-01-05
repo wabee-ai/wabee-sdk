@@ -12,13 +12,18 @@ if (!toolCreator) {
     throw new Error(`Could not find tool creator function for ${toolName}`);
 }
 
-// Create tool instance
-const tool = toolCreator();
-
-// Get schema from the exported schema constant
+// Load tool configuration
+const toolName = process.env.WABEE_TOOL_NAME;
+const toolModule = require('./dist');
 const schema = toolModule[`${toolName}Schema`];
 if (!schema) {
     throw new Error(`Could not find schema for ${toolName}`);
+}
+
+// Implement the actual tool logic
+async function executeToolLogic(input) {
+    // This should be implemented by the specific tool
+    throw new Error('Tool logic not implemented');
 }
 
 // Convert Zod schema to tool schema format
@@ -93,24 +98,32 @@ server.addService(toolService.service, {
         }
 
         try {
-            const result = await tool.execute(parsedInput);
-            if (result.error) {
-                callback(null, { 
-                    error: {
-                        type: result.error.type,
-                        message: result.error.message
-                    }
-                });
-            } else {
-                // Support both JSON and protobuf responses
-                const response = {};
-                if (call.request.json_data) {
-                    response.json_result = JSON.stringify(result.result);
-                } else {
-                    response.proto_result = Buffer.from(JSON.stringify(result.result));
+            // Validate input using the schema
+            if (schema) {
+                try {
+                    schema.parse(parsedInput);
+                } catch (err) {
+                    callback(null, {
+                        error: {
+                            type: 'validation_error',
+                            message: err.message
+                        }
+                    });
+                    return;
                 }
-                callback(null, response);
             }
+
+            // Execute the actual tool logic
+            const result = await executeToolLogic(parsedInput);
+
+            // Format response
+            const response = {};
+            if (call.request.json_data) {
+                response.json_result = JSON.stringify(result);
+            } else {
+                response.proto_result = Buffer.from(JSON.stringify(result));
+            }
+            callback(null, response);
         } catch (err) {
             callback({
                 code: grpc.status.INTERNAL,
