@@ -67,7 +67,11 @@ def main() -> None:
         elif args.act_command == "build":
             build_service = BuildToolService(s2i_commit=args.s2i_commit)
             try:
-                build_service.build_tool(args.path, image_name=args.image)
+                build_service.build_tool(
+                    args.path,
+                    image_name=args.image,
+                    builder_name=args.builder
+                )
             except Exception as e:
                 print(f"Error: {e}", file=sys.stderr)
                 sys.exit(1)
