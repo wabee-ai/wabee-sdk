@@ -26,6 +26,7 @@ def main() -> None:
     build_parser.add_argument('path', help='Path to the tool directory')
     build_parser.add_argument('--image', help='Name for the built image', default=None)
     build_parser.add_argument('--s2i-commit', help='S2I commit hash to use', default=None)
+    build_parser.add_argument('--builder', help='S2I builder image to use', default=None)
     
     args = parser.parse_args()
 
