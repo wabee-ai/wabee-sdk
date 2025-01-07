@@ -15,6 +15,12 @@ from wabee.rpc.protos import tool_service_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
+# Configure default logging format
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
     def __init__(self, tools: Dict[str, BaseTool | Any]):
         self.tools = tools
@@ -117,6 +123,25 @@ async def serve(
     port: int = 50051,
     max_workers: int = 10
 ) -> None:
+    """Start a gRPC server for the given tools.
+
+    This is the core server implementation used by both the SDK and tool templates.
+    Tool templates should use ToolLoader to prepare tools before calling this function.
+
+    Args:
+        tools: Dictionary mapping tool names to tool instances
+        port: Port number to listen on
+        max_workers: Maximum number of worker threads
+
+    Example:
+        # In a tool's server.py:
+        from wabee.rpc import serve
+        from wabee.rpc.loader import ToolLoader
+
+        loader = ToolLoader()
+        tool = loader.load_from_env()
+        asyncio.run(serve({tool.name: tool}))
+    """
     server = grpc.aio.server(
         futures.ThreadPoolExecutor(max_workers=max_workers)
     )
