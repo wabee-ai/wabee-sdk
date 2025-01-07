@@ -10,18 +10,23 @@ T = TypeVar('T')
 P = ParamSpec('P')
 
 def simple_tool(
+    name: Optional[str] = None,
+    description: Optional[str] = None,
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
 ) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
-    Can be used in three ways:
-    1. With inline schema fields: @simple_tool(x=int, y=int)
-    2. With a predefined schema: @simple_tool(schema=MySchema)
-    3. Without any schema: @simple_tool()
+    Can be used in these ways:
+    1. With inline schema fields: @simple_tool(name="Add", description="Adds numbers", x=int, y=int)
+    2. With a predefined schema: @simple_tool(name="Add", description="Adds numbers", schema=MySchema)
+    3. Without any schema: @simple_tool(name="Add", description="Adds numbers")
+    4. With automatic name/description: @simple_tool()
     
     Args:
+        name: Optional name for the tool (defaults to function name)
+        description: Optional description (defaults to function docstring)
         schema: Optional predefined Pydantic model for input validation
         **schema_fields: Field definitions to create an ad-hoc Pydantic model
         
@@ -56,9 +61,16 @@ def simple_tool(
 
         @wraps(func)
         async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[T, None], Optional[ToolError]]:
+            # Get tool name and description
+            tool_name = name or func.__name__
+            tool_description = description or func.__doc__ or ""
+            
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
                 args_schema = dynamic_schema
+
+                def __init__(self):
+                    super().__init__(name=tool_name, description=tool_description)
 
                 async def execute(self, input_data: Any) -> tuple[Union[T, None], Optional[ToolError]]:
                     try:
