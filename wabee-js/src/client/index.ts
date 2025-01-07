@@ -73,6 +73,7 @@ export class WabeeClient {
                 
                 resolve({
                     toolName: response.toolName,
+                    description: response.description,
                     fields: response.fields.map(field => ({
                         name: field.name,
                         type: field.type,
