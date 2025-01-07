@@ -1,6 +1,6 @@
 {
   "name": "@wabee_ai/sdk",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "JavaScript SDK for Wabee Tools - Build and integrate AI tools with ease",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

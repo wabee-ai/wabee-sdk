@@ -58,12 +58,14 @@ class GetToolSchemaRequest(_message.Message):
     def __init__(self, tool_name: _Optional[str] = ...) -> None: ...
 
 class ToolSchema(_message.Message):
-    __slots__ = ("tool_name", "fields")
+    __slots__ = ("tool_name", "description", "fields")
     TOOL_NAME_FIELD_NUMBER: _ClassVar[int]
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
     FIELDS_FIELD_NUMBER: _ClassVar[int]
     tool_name: str
+    description: str
     fields: _containers.RepeatedCompositeFieldContainer[FieldSchema]
-    def __init__(self, tool_name: _Optional[str] = ..., fields: _Optional[_Iterable[_Union[FieldSchema, _Mapping]]] = ...) -> None: ...
+    def __init__(self, tool_name: _Optional[str] = ..., description: _Optional[str] = ..., fields: _Optional[_Iterable[_Union[FieldSchema, _Mapping]]] = ...) -> None: ...
 
 class FieldSchema(_message.Message):
     __slots__ = ("name", "type", "required", "description")

@@ -47,10 +47,6 @@ def main() -> None:
                 inquirer.Text('version',
                             message="What is the initial version?",
                             default="0.1.0"),
-                inquirer.Confirm('generate_js',
-                               message="Generate JavaScript/TypeScript client?",
-                               default=True,
-                               ignore=lambda answers: answers['language'] == 'javascript')
             ]
             answers = inquirer.prompt(questions)
             

@@ -66,6 +66,7 @@ export interface GetToolSchemaRequest {
 
 export interface ToolSchema {
   toolName: string;
+  description: string;
   fields: FieldSchema[];
 }
 
@@ -559,7 +560,7 @@ export const GetToolSchemaRequest = {
 };
 
 function createBaseToolSchema(): ToolSchema {
-  return { toolName: "", fields: [] };
+  return { toolName: "", description: "", fields: [] };
 }
 
 export const ToolSchema = {
@@ -567,8 +568,11 @@ export const ToolSchema = {
     if (message.toolName !== "") {
       writer.uint32(10).string(message.toolName);
     }
+    if (message.description !== "") {
+      writer.uint32(18).string(message.description);
+    }
     for (const v of message.fields) {
-      FieldSchema.encode(v!, writer.uint32(18).fork()).ldelim();
+      FieldSchema.encode(v!, writer.uint32(26).fork()).ldelim();
     }
     return writer;
   },
@@ -592,6 +596,13 @@ export const ToolSchema = {
             break;
           }
 
+          message.description = reader.string();
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
           message.fields.push(FieldSchema.decode(reader, reader.uint32()));
           continue;
       }
@@ -606,6 +617,7 @@ export const ToolSchema = {
   fromJSON(object: any): ToolSchema {
     return {
       toolName: isSet(object.toolName) ? globalThis.String(object.toolName) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
       fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => FieldSchema.fromJSON(e)) : [],
     };
   },
@@ -614,6 +626,9 @@ export const ToolSchema = {
     const obj: any = {};
     if (message.toolName !== "") {
       obj.toolName = message.toolName;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
     }
     if (message.fields?.length) {
       obj.fields = message.fields.map((e) => FieldSchema.toJSON(e));
@@ -627,6 +642,7 @@ export const ToolSchema = {
   fromPartial<I extends Exact<DeepPartial<ToolSchema>, I>>(object: I): ToolSchema {
     const message = createBaseToolSchema();
     message.toolName = object.toolName ?? "";
+    message.description = object.description ?? "";
     message.fields = object.fields?.map((e) => FieldSchema.fromPartial(e)) || [];
     return message;
   },

@@ -64,7 +64,7 @@ class ToolLoader:
         tool_spec = spec['tool']
         config = ToolConfig(
             module_name=tool_spec.get('module', tool_spec.get('entrypoint', '').replace('.py', '')),
-            tool_name=tool_spec.get('name'),
+            tool_name=f"{tool_spec.get('name')}Tool",
             args=ToolLoader._parse_tool_args(tool_spec.get('tool_args', []))
         )
 
