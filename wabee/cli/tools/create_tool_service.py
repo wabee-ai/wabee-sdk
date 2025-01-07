@@ -84,6 +84,11 @@ class CreateToolService:
         # Create tool file
         tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
+            template_args = {
+                "name": sanitized_name,
+                "class_name": camel_case_name,
+                "description": description
+            }
             if tool_type == "simple":
                 f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
             else:
@@ -140,7 +145,11 @@ from wabee.tools.tool_error import ToolError
 class {class_name}Input(BaseModel):
     message: str
 
-@simple_tool(schema={class_name}Input)
+@simple_tool(
+    name="{class_name}",
+    description="A simple tool that processes the input message",
+    schema={class_name}Input
+)
 async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
     """
     A simple tool that processes the input message.
@@ -165,6 +174,14 @@ class {class_name}Input(BaseModel):
 
 class {class_name}Tool(BaseTool):
     args_schema: Type[BaseModel] = {class_name}Input
+
+    def __init__(self, **kwargs):
+        """Initialize the tool with configuration."""
+        super().__init__(
+            name="{class_name}",
+            description="A tool that processes the input message",
+            **kwargs
+        )
 
     async def execute(self, input_data: {class_name}Input) -> tuple[Optional[str], Optional[ToolError]]:
         """
