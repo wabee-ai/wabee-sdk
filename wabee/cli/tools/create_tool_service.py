@@ -84,15 +84,10 @@ class CreateToolService:
         # Create tool file
         tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
-            template_args = {
-                "name": sanitized_name,
-                "class_name": camel_case_name,
-                "description": description
-            }
             if tool_type == "simple":
-                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
+                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name, description))
             else:
-                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
+                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name, description))
         
         # Create toolspec.yaml
         toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
@@ -125,7 +120,7 @@ class CreateToolService:
         os.makedirs(src_dir, exist_ok=True)
         client_file = os.path.join(src_dir, "index.ts")
         with open(client_file, "w") as f:
-            f.write(self._get_ts_client_template(sanitized_name, camel_case_name))
+            f.write(self._get_ts_client_template(sanitized_name, camel_case_name, description))
         
         # Copy the server.js template
         server_template_path = os.path.join(os.path.dirname(__file__), "templates", "js_server.js")
@@ -136,7 +131,7 @@ class CreateToolService:
         with open(tsconfig_file, "w") as f:
             f.write(self._get_tsconfig_template())
         
-    def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
+    def _get_simple_tool_template(self, snake_name: str, class_name: str, description: str) -> str:
         return f'''from typing import Optional
 from pydantic import BaseModel
 from wabee.tools.simple_tool import simple_tool
@@ -147,12 +142,12 @@ class {class_name}Input(BaseModel):
 
 @simple_tool(
     name="{class_name}",
-    description="A simple tool that processes the input message",
+    description="{description}",
     schema={class_name}Input
 )
 async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
     """
-    A simple tool that processes the input message.
+    {description}
     
     Args:
         input_data: The input data containing the message to process
@@ -163,7 +158,7 @@ async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
     return f"Processed: {{input_data.message}}"
 '''
 
-    def _get_complete_tool_template(self, snake_name: str, class_name: str) -> str:
+    def _get_complete_tool_template(self, snake_name: str, class_name: str, description: str) -> str:
         return f'''from typing import Optional, Type
 from pydantic import BaseModel
 from wabee.tools.base_tool import BaseTool
@@ -179,13 +174,13 @@ class {class_name}Tool(BaseTool):
         """Initialize the tool with configuration."""
         super().__init__(
             name="{class_name}",
-            description="A tool that processes the input message",
+            description="{description}",
             **kwargs
         )
 
     async def execute(self, input_data: {class_name}Input) -> tuple[Optional[str], Optional[ToolError]]:
         """
-        Execute the tool's main functionality.
+        {description}
         
         Args:
             input_data: The validated input data
@@ -249,13 +244,13 @@ pydantic>=2.0.0
   }}
 }}'''
 
-    def _get_ts_client_template(self, name: str, class_name: str) -> str:
+    def _get_ts_client_template(self, name: str, class_name: str, description: str) -> str:
         return f'''import {{ z }} from 'zod';
 import {{ simpleTool, ToolOptions }} from '@wabee_ai/sdk';
 
 export const {class_name}Schema = z.object({{
     message: z.string().describe("Message to be displayed")
-}}).describe("A tool that processes the input message");
+}}).describe("{description}");
 
 export type {class_name}Input = z.infer<typeof {class_name}Schema>;
 
