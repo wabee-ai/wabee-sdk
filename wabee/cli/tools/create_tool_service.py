@@ -214,11 +214,11 @@ class {class_name}Tool(BaseTool):
   name: {name}
   description: {description}
   version: {version}
-  entrypoint: {name}_tool.py
+  entrypoint: {name.lower()}_tool.py
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return '''wabee>=0.2.4
+        return '''wabee>=0.2.6
 pydantic>=2.0.0
 '''
 
@@ -235,7 +235,7 @@ pydantic>=2.0.0
     "test": "jest"
   }},
   "dependencies": {{
-    "@wabee_ai/sdk": "^0.1.3",
+    "@wabee_ai/sdk": "^0.1.4",
     "@grpc/grpc-js": "^1.8.0",
     "@grpc/proto-loader": "^0.7.0",
     "zod": "^3.21.0"
