@@ -133,8 +133,12 @@ server.addService(toolService.service, {
             // Get schema directly from the imported schema constant
             const fields = zodToToolSchema(schema);
             
+            // Get description from the schema if available
+            const description = schema.description || '';
+            
             callback(null, {
                 tool_name: toolName,
+                description: description,
                 fields: fields
             });
         } catch (err) {

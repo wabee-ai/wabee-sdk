@@ -255,7 +255,7 @@ import {{ simpleTool, ToolOptions }} from '@wabee_ai/sdk';
 
 export const {class_name}Schema = z.object({{
     message: z.string().describe("Message to be displayed")
-}});
+}}).describe("A tool that processes the input message");
 
 export type {class_name}Input = z.infer<typeof {class_name}Schema>;
 
