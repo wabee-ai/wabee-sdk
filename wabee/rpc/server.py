@@ -41,7 +41,8 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         schema = self.schema_generator.get_tool_schema(tool)
         
         response = tool_service_pb2.ToolSchema(
-            tool_name=tool_name
+            tool_name=tool_name,
+            description=tool.description if hasattr(tool, 'description') else ""
         )
         
         for name, details in schema.get("properties", {}).items():

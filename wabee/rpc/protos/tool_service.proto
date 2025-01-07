@@ -47,7 +47,8 @@ message GetToolSchemaRequest {
 
 message ToolSchema {
   string tool_name = 1;
-  repeated FieldSchema fields = 2;
+  string description = 2;
+  repeated FieldSchema fields = 3;
 }
 
 message FieldSchema {
