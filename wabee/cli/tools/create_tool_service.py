@@ -126,6 +126,15 @@ class CreateToolService:
         server_template_path = os.path.join(os.path.dirname(__file__), "templates", "js_server.js")
         shutil.copy2(server_template_path, os.path.join(sanitized_name, "server.js"))
         
+        # Create protos directory and copy proto file
+        protos_dir = os.path.join(sanitized_name, "protos")
+        os.makedirs(protos_dir, exist_ok=True)
+        
+        # Copy the proto file from the wabee package
+        proto_source = os.path.join(os.path.dirname(__file__), "..", "..", "rpc", "protos", "tool_service.proto")
+        proto_dest = os.path.join(protos_dir, "tool_service.proto")
+        shutil.copy2(proto_source, proto_dest)
+        
         # Create tsconfig.json
         tsconfig_file = os.path.join(sanitized_name, "tsconfig.json")
         with open(tsconfig_file, "w") as f:
@@ -235,9 +244,10 @@ pydantic>=2.0.0
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {{
-    "build": "npx tsc",
+    "build": "npm run generate-protos && npx tsc",
     "start": "node server.js",
-    "test": "jest"
+    "test": "jest",
+    "generate-protos": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/protos --ts_proto_opt=outputServices=grpc-js,esModuleInterop=true -I ./protos tool_service.proto"
   }},
   "dependencies": {{
     "@wabee_ai/sdk": "^0.1.4",
@@ -250,7 +260,8 @@ pydantic>=2.0.0
     "typescript": "^4.9.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
-    "@types/jest": "^29.0.0"
+    "@types/jest": "^29.0.0",
+    "ts-proto": "^1.181.2"
   }}
 }}'''
 
