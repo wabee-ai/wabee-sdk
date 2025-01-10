@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wabee"
-version = "0.2.8"
+version = "0.2.9"
 description = "Wabee AI Software Development Kit"
 authors = ["Developers <developers@wabee.ai>"]
 maintainers = ["Developers <developers@wabee.ai>"]
@@ -25,7 +25,7 @@ pyyaml = "^6.0.1"
 inquirer = "^3.4.0"
 grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
-pydantic = "2.9.2"
+pydantic = "^2.7.4"
 typing-extensions = "^4.12.2"
 requests = "^2.32.3"
 
