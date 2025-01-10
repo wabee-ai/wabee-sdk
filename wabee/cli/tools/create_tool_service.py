@@ -232,7 +232,7 @@ class {class_name}Tool(BaseTool):
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return '''wabee>=0.2.7
+        return '''wabee>=0.2.8
 pydantic>=2.0.0
 '''
 
