@@ -136,6 +136,7 @@ class CreateToolService:
 from pydantic import BaseModel
 from wabee.tools.simple_tool import simple_tool
 from wabee.tools.tool_error import ToolError
+from wabee.tools.base_model import StructuredToolResponse
 
 class {class_name}Input(BaseModel):
     message: str
@@ -145,7 +146,7 @@ class {class_name}Input(BaseModel):
     description="{description}",
     schema={class_name}Input
 )
-async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
+async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> StructuredToolResponse:
     """
     {description}
     
@@ -153,15 +154,20 @@ async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
         input_data: The input data containing the message to process
         
     Returns:
-        The processed message
+        A structured response containing the processed message
     """
-    return f"Processed: {{input_data.message}}"
+    return StructuredToolResponse(
+        variable_name="result",
+        content=f"Processed: {{input_data.message}}",
+        memory_push=False
+    )
 '''
 
     def _get_complete_tool_template(self, snake_name: str, class_name: str, description: str) -> str:
         return f'''from typing import Optional, Type
 from pydantic import BaseModel
 from wabee.tools.base_tool import BaseTool
+from wabee.tools.base_model import StructuredToolResponse
 from wabee.tools.tool_error import ToolError, ToolErrorType
 
 class {class_name}Input(BaseModel):
@@ -178,7 +184,7 @@ class {class_name}Tool(BaseTool):
             **kwargs
         )
 
-    async def execute(self, input_data: {class_name}Input) -> tuple[Optional[str], Optional[ToolError]]:
+    async def execute(self, input_data: {class_name}Input) -> tuple[Optional[StructuredToolResponse], Optional[ToolError]]:
         """
         {description}
         
@@ -189,7 +195,11 @@ class {class_name}Tool(BaseTool):
             A tuple of (result, error) where one will be None
         """
         try:
-            result = f"Processed: {{input_data.message}}"
+            result = StructuredToolResponse(
+                variable_name="result",
+                content=f"Processed: {{input_data.message}}",
+                memory_push=False
+            )
             return result, None
         except Exception as e:
             return None, ToolError(
