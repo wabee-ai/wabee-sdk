@@ -112,13 +112,18 @@ server.addService(toolService.service, {
             // Execute the actual tool logic
             const result = await executeToolLogic(parsedInput);
 
-            // Format response
-            const response = {};
-            if (call.request.json_data) {
-                response.json_result = JSON.stringify(result);
-            } else {
-                response.proto_result = Buffer.from(JSON.stringify(result));
-            }
+            // Format response with structured result
+            const response = {
+                structured_result: {
+                    variable_name: result.variable_name,
+                    content: result.content,
+                    memory_push: result.memory_push,
+                    local_file_path: result.local_file_path,
+                    metadata: result.metadata,
+                    images: result.images,
+                    error: result.error
+                }
+            };
             callback(null, response);
         } catch (err) {
             callback({

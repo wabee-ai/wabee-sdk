@@ -256,7 +256,7 @@ pydantic>=2.0.0
 
     def _get_ts_client_template(self, name: str, class_name: str, description: str) -> str:
         return f'''import {{ z }} from 'zod';
-import {{ simpleTool, ToolOptions }} from '@wabee_ai/sdk';
+import {{ simpleTool, ToolOptions, StructuredToolResponse }} from '@wabee_ai/sdk';
 
 export const {class_name}Schema = z.object({{
     message: z.string().describe("Message to be displayed")
@@ -265,9 +265,16 @@ export const {class_name}Schema = z.object({{
 export type {class_name}Input = z.infer<typeof {class_name}Schema>;
 
 export function create{class_name}Tool(options?: ToolOptions) {{
-    return simpleTool(
+    return simpleTool<{class_name}Input, StructuredToolResponse>(
         '{name}',
         {class_name}Schema,
+        async (input: {class_name}Input): Promise<StructuredToolResponse> => {{
+            return {{
+                variable_name: "result",
+                content: `Processed: ${{input.message}}`,
+                memory_push: false
+            }};
+        }},
         options
     );
 }}
