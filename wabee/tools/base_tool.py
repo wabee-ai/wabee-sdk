@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.base_model import StructuredToolResponse
 from typing import TypeVar, Generic, Optional, Dict, Type, Any
 from pydantic import BaseModel, ValidationError
 
 InputType = TypeVar('InputType', Dict, BaseModel)
-OutputType = TypeVar('OutputType', str, Dict, BaseModel)
+OutputType = TypeVar('OutputType', bound=StructuredToolResponse)
 
 class BaseTool(ABC, Generic[InputType, OutputType]):
     args_schema: Optional[Type[BaseModel]] = None

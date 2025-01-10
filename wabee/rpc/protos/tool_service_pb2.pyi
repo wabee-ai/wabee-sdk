@@ -33,15 +33,50 @@ class ExecuteRequest(_message.Message):
     proto_data: bytes
     def __init__(self, tool_name: _Optional[str] = ..., json_data: _Optional[str] = ..., proto_data: _Optional[bytes] = ...) -> None: ...
 
+class ImageToolResponse(_message.Message):
+    __slots__ = ("mime_type", "data")
+    MIME_TYPE_FIELD_NUMBER: _ClassVar[int]
+    DATA_FIELD_NUMBER: _ClassVar[int]
+    mime_type: str
+    data: str
+    def __init__(self, mime_type: _Optional[str] = ..., data: _Optional[str] = ...) -> None: ...
+
+class StructuredToolResponse(_message.Message):
+    __slots__ = ("variable_name", "content", "local_file_path", "metadata", "memory_push", "images", "error")
+    class MetadataEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    VARIABLE_NAME_FIELD_NUMBER: _ClassVar[int]
+    CONTENT_FIELD_NUMBER: _ClassVar[int]
+    LOCAL_FILE_PATH_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    MEMORY_PUSH_FIELD_NUMBER: _ClassVar[int]
+    IMAGES_FIELD_NUMBER: _ClassVar[int]
+    ERROR_FIELD_NUMBER: _ClassVar[int]
+    variable_name: str
+    content: str
+    local_file_path: str
+    metadata: _containers.ScalarMap[str, str]
+    memory_push: bool
+    images: _containers.RepeatedCompositeFieldContainer[ImageToolResponse]
+    error: str
+    def __init__(self, variable_name: _Optional[str] = ..., content: _Optional[str] = ..., local_file_path: _Optional[str] = ..., metadata: _Optional[_Mapping[str, str]] = ..., memory_push: bool = ..., images: _Optional[_Iterable[_Union[ImageToolResponse, _Mapping]]] = ..., error: _Optional[str] = ...) -> None: ...
+
 class ExecuteResponse(_message.Message):
-    __slots__ = ("json_result", "proto_result", "error")
+    __slots__ = ("json_result", "proto_result", "structured_result", "error")
     JSON_RESULT_FIELD_NUMBER: _ClassVar[int]
     PROTO_RESULT_FIELD_NUMBER: _ClassVar[int]
+    STRUCTURED_RESULT_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     json_result: str
     proto_result: bytes
+    structured_result: StructuredToolResponse
     error: ToolError
-    def __init__(self, json_result: _Optional[str] = ..., proto_result: _Optional[bytes] = ..., error: _Optional[_Union[ToolError, _Mapping]] = ...) -> None: ...
+    def __init__(self, json_result: _Optional[str] = ..., proto_result: _Optional[bytes] = ..., structured_result: _Optional[_Union[StructuredToolResponse, _Mapping]] = ..., error: _Optional[_Union[ToolError, _Mapping]] = ...) -> None: ...
 
 class ToolError(_message.Message):
     __slots__ = ("type", "message")

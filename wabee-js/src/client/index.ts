@@ -3,6 +3,21 @@ import { ToolServiceClient } from './protos/tool_service';
 import { ExecuteRequest, ExecuteResponse, GetToolSchemaRequest, ToolSchema } from './protos/tool_service';
 import { ToolErrorResponse } from '../tools/toolError';
 
+export interface ImageToolResponse {                                                                                                                                                                                                                     
+  mime_type: string;                                                                                                                                                                                                                            
+  data: string;                                                                                                                                                                                                                                 
+}                                                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                                
+export interface StructuredToolResponse {                                                                                                                                                                                                                
+  variable_name: string;                                                                                                                                                                                                                        
+  content: string;                                                                                                                                                                                                                              
+  local_file_path?: string;                                                                                                                                                                                                                     
+  metadata?: Record<string, any>;                                                                                                                                                                                                               
+  memory_push: boolean;                                                                                                                                                                                                                         
+  images?: ImageToolResponse[];                                                                                                                                                                                                                 
+  error?: string;                                                                                                                                                                                                                               
+}
+
 export class WabeeClient {
     private client: ToolServiceClient;
 
@@ -17,7 +32,7 @@ export class WabeeClient {
         );
     }
 
-    async execute(toolName: string, inputData: any): Promise<[any, ToolErrorResponse | null]> {
+    async execute(toolName: string, inputData: any): Promise<[StructuredToolResponse | null, ToolErrorResponse | null]> {
         const request: ExecuteRequest = {
             toolName,
             jsonData: this.useJson ? JSON.stringify(inputData) : undefined,
@@ -46,7 +61,7 @@ export class WabeeClient {
                     const result = this.useJson
                         ? JSON.parse(response.jsonResult ?? '')
                         : JSON.parse(Buffer.from(response.protoResult ?? '').toString());
-                    resolve([result, null]);
+                    resolve([result as StructuredToolResponse, null]);
                 } catch (e) {
                     resolve([null, {
                         type: 'PARSE_ERROR',

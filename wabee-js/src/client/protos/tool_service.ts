@@ -45,13 +45,40 @@ export interface ExecuteRequest {
   protoData?: Uint8Array | undefined;
 }
 
+export interface ImageToolResponse {
+  mimeType: string;
+  data: string;
+}
+
+export interface StructuredToolResponse {
+  variableName: string;
+  content: string;
+  localFilePath?:
+    | string
+    | undefined;
+  /** Using string for values for simplicity */
+  metadata: { [key: string]: string };
+  memoryPush: boolean;
+  images: ImageToolResponse[];
+  error?: string | undefined;
+}
+
+export interface StructuredToolResponse_MetadataEntry {
+  key: string;
+  value: string;
+}
+
 export interface ExecuteResponse {
   /** For backwards compatibility */
   jsonResult?:
     | string
     | undefined;
   /** For dynamic proto encoding */
-  protoResult?: Uint8Array | undefined;
+  protoResult?:
+    | Uint8Array
+    | undefined;
+  /** New preferred format */
+  structuredResult?: StructuredToolResponse | undefined;
   error: ToolError | undefined;
 }
 
@@ -337,8 +364,338 @@ export const ExecuteRequest = {
   },
 };
 
+function createBaseImageToolResponse(): ImageToolResponse {
+  return { mimeType: "", data: "" };
+}
+
+export const ImageToolResponse = {
+  encode(message: ImageToolResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.mimeType !== "") {
+      writer.uint32(10).string(message.mimeType);
+    }
+    if (message.data !== "") {
+      writer.uint32(18).string(message.data);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): ImageToolResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImageToolResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.mimeType = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.data = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImageToolResponse {
+    return {
+      mimeType: isSet(object.mimeType) ? globalThis.String(object.mimeType) : "",
+      data: isSet(object.data) ? globalThis.String(object.data) : "",
+    };
+  },
+
+  toJSON(message: ImageToolResponse): unknown {
+    const obj: any = {};
+    if (message.mimeType !== "") {
+      obj.mimeType = message.mimeType;
+    }
+    if (message.data !== "") {
+      obj.data = message.data;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImageToolResponse>, I>>(base?: I): ImageToolResponse {
+    return ImageToolResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImageToolResponse>, I>>(object: I): ImageToolResponse {
+    const message = createBaseImageToolResponse();
+    message.mimeType = object.mimeType ?? "";
+    message.data = object.data ?? "";
+    return message;
+  },
+};
+
+function createBaseStructuredToolResponse(): StructuredToolResponse {
+  return {
+    variableName: "",
+    content: "",
+    localFilePath: undefined,
+    metadata: {},
+    memoryPush: false,
+    images: [],
+    error: undefined,
+  };
+}
+
+export const StructuredToolResponse = {
+  encode(message: StructuredToolResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.variableName !== "") {
+      writer.uint32(10).string(message.variableName);
+    }
+    if (message.content !== "") {
+      writer.uint32(18).string(message.content);
+    }
+    if (message.localFilePath !== undefined) {
+      writer.uint32(26).string(message.localFilePath);
+    }
+    Object.entries(message.metadata).forEach(([key, value]) => {
+      StructuredToolResponse_MetadataEntry.encode({ key: key as any, value }, writer.uint32(34).fork()).ldelim();
+    });
+    if (message.memoryPush !== false) {
+      writer.uint32(40).bool(message.memoryPush);
+    }
+    for (const v of message.images) {
+      ImageToolResponse.encode(v!, writer.uint32(50).fork()).ldelim();
+    }
+    if (message.error !== undefined) {
+      writer.uint32(58).string(message.error);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): StructuredToolResponse {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStructuredToolResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.variableName = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.content = reader.string();
+          continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.localFilePath = reader.string();
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
+          const entry4 = StructuredToolResponse_MetadataEntry.decode(reader, reader.uint32());
+          if (entry4.value !== undefined) {
+            message.metadata[entry4.key] = entry4.value;
+          }
+          continue;
+        case 5:
+          if (tag !== 40) {
+            break;
+          }
+
+          message.memoryPush = reader.bool();
+          continue;
+        case 6:
+          if (tag !== 50) {
+            break;
+          }
+
+          message.images.push(ImageToolResponse.decode(reader, reader.uint32()));
+          continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.error = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StructuredToolResponse {
+    return {
+      variableName: isSet(object.variableName) ? globalThis.String(object.variableName) : "",
+      content: isSet(object.content) ? globalThis.String(object.content) : "",
+      localFilePath: isSet(object.localFilePath) ? globalThis.String(object.localFilePath) : undefined,
+      metadata: isObject(object.metadata)
+        ? Object.entries(object.metadata).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {})
+        : {},
+      memoryPush: isSet(object.memoryPush) ? globalThis.Boolean(object.memoryPush) : false,
+      images: globalThis.Array.isArray(object?.images)
+        ? object.images.map((e: any) => ImageToolResponse.fromJSON(e))
+        : [],
+      error: isSet(object.error) ? globalThis.String(object.error) : undefined,
+    };
+  },
+
+  toJSON(message: StructuredToolResponse): unknown {
+    const obj: any = {};
+    if (message.variableName !== "") {
+      obj.variableName = message.variableName;
+    }
+    if (message.content !== "") {
+      obj.content = message.content;
+    }
+    if (message.localFilePath !== undefined) {
+      obj.localFilePath = message.localFilePath;
+    }
+    if (message.metadata) {
+      const entries = Object.entries(message.metadata);
+      if (entries.length > 0) {
+        obj.metadata = {};
+        entries.forEach(([k, v]) => {
+          obj.metadata[k] = v;
+        });
+      }
+    }
+    if (message.memoryPush !== false) {
+      obj.memoryPush = message.memoryPush;
+    }
+    if (message.images?.length) {
+      obj.images = message.images.map((e) => ImageToolResponse.toJSON(e));
+    }
+    if (message.error !== undefined) {
+      obj.error = message.error;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StructuredToolResponse>, I>>(base?: I): StructuredToolResponse {
+    return StructuredToolResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StructuredToolResponse>, I>>(object: I): StructuredToolResponse {
+    const message = createBaseStructuredToolResponse();
+    message.variableName = object.variableName ?? "";
+    message.content = object.content ?? "";
+    message.localFilePath = object.localFilePath ?? undefined;
+    message.metadata = Object.entries(object.metadata ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
+    message.memoryPush = object.memoryPush ?? false;
+    message.images = object.images?.map((e) => ImageToolResponse.fromPartial(e)) || [];
+    message.error = object.error ?? undefined;
+    return message;
+  },
+};
+
+function createBaseStructuredToolResponse_MetadataEntry(): StructuredToolResponse_MetadataEntry {
+  return { key: "", value: "" };
+}
+
+export const StructuredToolResponse_MetadataEntry = {
+  encode(message: StructuredToolResponse_MetadataEntry, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): StructuredToolResponse_MetadataEntry {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStructuredToolResponse_MetadataEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): StructuredToolResponse_MetadataEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: StructuredToolResponse_MetadataEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<StructuredToolResponse_MetadataEntry>, I>>(
+    base?: I,
+  ): StructuredToolResponse_MetadataEntry {
+    return StructuredToolResponse_MetadataEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<StructuredToolResponse_MetadataEntry>, I>>(
+    object: I,
+  ): StructuredToolResponse_MetadataEntry {
+    const message = createBaseStructuredToolResponse_MetadataEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
+    return message;
+  },
+};
+
 function createBaseExecuteResponse(): ExecuteResponse {
-  return { jsonResult: undefined, protoResult: undefined, error: undefined };
+  return { jsonResult: undefined, protoResult: undefined, structuredResult: undefined, error: undefined };
 }
 
 export const ExecuteResponse = {
@@ -349,8 +706,11 @@ export const ExecuteResponse = {
     if (message.protoResult !== undefined) {
       writer.uint32(18).bytes(message.protoResult);
     }
+    if (message.structuredResult !== undefined) {
+      StructuredToolResponse.encode(message.structuredResult, writer.uint32(26).fork()).ldelim();
+    }
     if (message.error !== undefined) {
-      ToolError.encode(message.error, writer.uint32(26).fork()).ldelim();
+      ToolError.encode(message.error, writer.uint32(34).fork()).ldelim();
     }
     return writer;
   },
@@ -381,6 +741,13 @@ export const ExecuteResponse = {
             break;
           }
 
+          message.structuredResult = StructuredToolResponse.decode(reader, reader.uint32());
+          continue;
+        case 4:
+          if (tag !== 34) {
+            break;
+          }
+
           message.error = ToolError.decode(reader, reader.uint32());
           continue;
       }
@@ -396,6 +763,9 @@ export const ExecuteResponse = {
     return {
       jsonResult: isSet(object.jsonResult) ? globalThis.String(object.jsonResult) : undefined,
       protoResult: isSet(object.protoResult) ? bytesFromBase64(object.protoResult) : undefined,
+      structuredResult: isSet(object.structuredResult)
+        ? StructuredToolResponse.fromJSON(object.structuredResult)
+        : undefined,
       error: isSet(object.error) ? ToolError.fromJSON(object.error) : undefined,
     };
   },
@@ -407,6 +777,9 @@ export const ExecuteResponse = {
     }
     if (message.protoResult !== undefined) {
       obj.protoResult = base64FromBytes(message.protoResult);
+    }
+    if (message.structuredResult !== undefined) {
+      obj.structuredResult = StructuredToolResponse.toJSON(message.structuredResult);
     }
     if (message.error !== undefined) {
       obj.error = ToolError.toJSON(message.error);
@@ -421,6 +794,9 @@ export const ExecuteResponse = {
     const message = createBaseExecuteResponse();
     message.jsonResult = object.jsonResult ?? undefined;
     message.protoResult = object.protoResult ?? undefined;
+    message.structuredResult = (object.structuredResult !== undefined && object.structuredResult !== null)
+      ? StructuredToolResponse.fromPartial(object.structuredResult)
+      : undefined;
     message.error = (object.error !== undefined && object.error !== null)
       ? ToolError.fromPartial(object.error)
       : undefined;
@@ -871,6 +1247,10 @@ function longToNumber(long: Long): number {
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
   _m0.configure();
+}
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
 }
 
 function isSet(value: any): boolean {

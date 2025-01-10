@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WabeeClient } from '../client';
+import { WabeeClient, StructuredToolResponse } from '../client';
 import { ToolErrorType, ToolError } from './toolError';
 
 export interface ToolOptions {
@@ -12,7 +12,7 @@ export function simpleTool(
     toolName: string,
     schema?: z.ZodType,
     options: ToolOptions = {}
-) {
+): { schema: z.ZodType | undefined, execute: (input: any) => Promise<[StructuredToolResponse | null, ToolError | null]> } {
     // Create a single client instance that can be reused
     const client = new WabeeClient(
         options.host,

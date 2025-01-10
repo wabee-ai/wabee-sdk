@@ -5,6 +5,7 @@ from pydantic import BaseModel, create_model, ConfigDict
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.base_model import StructuredToolResponse
 
 T = TypeVar('T')
 P = ParamSpec('P')
@@ -14,7 +15,7 @@ def simple_tool(
     description: Optional[str] = None,
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[StructuredToolResponse], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -60,7 +61,7 @@ def simple_tool(
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[T, None], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[StructuredToolResponse, None], Optional[ToolError]]:
             # Get tool name and description
             tool_name = name or func.__name__
             tool_description = description or func.__doc__ or ""

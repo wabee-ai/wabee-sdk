@@ -24,13 +24,15 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#wabee/rpc/protos/tool_service.proto\x12\x0bwabee.tools\"\x1b\n\nInt64Value\x12\r\n\x05value\x18\x01 \x01(\x03\"\x1c\n\x0bStringValue\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nFloatValue\x12\r\n\x05value\x18\x01 \x01(\x01\"W\n\x0e\x45xecuteRequest\x12\x11\n\ttool_name\x18\x01 \x01(\t\x12\x13\n\tjson_data\x18\x02 \x01(\tH\x00\x12\x14\n\nproto_data\x18\x03 \x01(\x0cH\x00\x42\x07\n\x05input\"q\n\x0f\x45xecuteResponse\x12\x15\n\x0bjson_result\x18\x01 \x01(\tH\x00\x12\x16\n\x0cproto_result\x18\x02 \x01(\x0cH\x00\x12%\n\x05\x65rror\x18\x03 \x01(\x0b\x32\x16.wabee.tools.ToolErrorB\x08\n\x06result\"*\n\tToolError\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\")\n\x14GetToolSchemaRequest\x12\x11\n\ttool_name\x18\x01 \x01(\t\"^\n\nToolSchema\x12\x11\n\ttool_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12(\n\x06\x66ields\x18\x03 \x03(\x0b\x32\x18.wabee.tools.FieldSchema\"P\n\x0b\x46ieldSchema\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x10\n\x08required\x18\x03 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t2\xa0\x01\n\x0bToolService\x12\x44\n\x07\x45xecute\x12\x1b.wabee.tools.ExecuteRequest\x1a\x1c.wabee.tools.ExecuteResponse\x12K\n\rGetToolSchema\x12!.wabee.tools.GetToolSchemaRequest\x1a\x17.wabee.tools.ToolSchemab\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#wabee/rpc/protos/tool_service.proto\x12\x0bwabee.tools\"\x1b\n\nInt64Value\x12\r\n\x05value\x18\x01 \x01(\x03\"\x1c\n\x0bStringValue\x12\r\n\x05value\x18\x01 \x01(\t\"\x1b\n\nFloatValue\x12\r\n\x05value\x18\x01 \x01(\x01\"W\n\x0e\x45xecuteRequest\x12\x11\n\ttool_name\x18\x01 \x01(\t\x12\x13\n\tjson_data\x18\x02 \x01(\tH\x00\x12\x14\n\nproto_data\x18\x03 \x01(\x0cH\x00\x42\x07\n\x05input\"4\n\x11ImageToolResponse\x12\x11\n\tmime_type\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\"\xe0\x02\n\x16StructuredToolResponse\x12\x15\n\rvariable_name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x1c\n\x0flocal_file_path\x18\x03 \x01(\tH\x00\x88\x01\x01\x12\x43\n\x08metadata\x18\x04 \x03(\x0b\x32\x31.wabee.tools.StructuredToolResponse.MetadataEntry\x12\x18\n\x0bmemory_push\x18\x05 \x01(\x08H\x01\x88\x01\x01\x12.\n\x06images\x18\x06 \x03(\x0b\x32\x1e.wabee.tools.ImageToolResponse\x12\x12\n\x05\x65rror\x18\x07 \x01(\tH\x02\x88\x01\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\x12\n\x10_local_file_pathB\x0e\n\x0c_memory_pushB\x08\n\x06_error\"\xb3\x01\n\x0f\x45xecuteResponse\x12\x15\n\x0bjson_result\x18\x01 \x01(\tH\x00\x12\x16\n\x0cproto_result\x18\x02 \x01(\x0cH\x00\x12@\n\x11structured_result\x18\x03 \x01(\x0b\x32#.wabee.tools.StructuredToolResponseH\x00\x12%\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x16.wabee.tools.ToolErrorB\x08\n\x06result\"*\n\tToolError\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\")\n\x14GetToolSchemaRequest\x12\x11\n\ttool_name\x18\x01 \x01(\t\"^\n\nToolSchema\x12\x11\n\ttool_name\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x02 \x01(\t\x12(\n\x06\x66ields\x18\x03 \x03(\x0b\x32\x18.wabee.tools.FieldSchema\"P\n\x0b\x46ieldSchema\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x10\n\x08required\x18\x03 \x01(\x08\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t2\xa0\x01\n\x0bToolService\x12\x44\n\x07\x45xecute\x12\x1b.wabee.tools.ExecuteRequest\x1a\x1c.wabee.tools.ExecuteResponse\x12K\n\rGetToolSchema\x12!.wabee.tools.GetToolSchemaRequest\x1a\x17.wabee.tools.ToolSchemab\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'wabee.rpc.protos.tool_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
+  _globals['_STRUCTUREDTOOLRESPONSE_METADATAENTRY']._loaded_options = None
+  _globals['_STRUCTUREDTOOLRESPONSE_METADATAENTRY']._serialized_options = b'8\001'
   _globals['_INT64VALUE']._serialized_start=52
   _globals['_INT64VALUE']._serialized_end=79
   _globals['_STRINGVALUE']._serialized_start=81
@@ -39,16 +41,22 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_FLOATVALUE']._serialized_end=138
   _globals['_EXECUTEREQUEST']._serialized_start=140
   _globals['_EXECUTEREQUEST']._serialized_end=227
-  _globals['_EXECUTERESPONSE']._serialized_start=229
-  _globals['_EXECUTERESPONSE']._serialized_end=342
-  _globals['_TOOLERROR']._serialized_start=344
-  _globals['_TOOLERROR']._serialized_end=386
-  _globals['_GETTOOLSCHEMAREQUEST']._serialized_start=388
-  _globals['_GETTOOLSCHEMAREQUEST']._serialized_end=429
-  _globals['_TOOLSCHEMA']._serialized_start=431
-  _globals['_TOOLSCHEMA']._serialized_end=525
-  _globals['_FIELDSCHEMA']._serialized_start=527
-  _globals['_FIELDSCHEMA']._serialized_end=607
-  _globals['_TOOLSERVICE']._serialized_start=610
-  _globals['_TOOLSERVICE']._serialized_end=770
+  _globals['_IMAGETOOLRESPONSE']._serialized_start=229
+  _globals['_IMAGETOOLRESPONSE']._serialized_end=281
+  _globals['_STRUCTUREDTOOLRESPONSE']._serialized_start=284
+  _globals['_STRUCTUREDTOOLRESPONSE']._serialized_end=636
+  _globals['_STRUCTUREDTOOLRESPONSE_METADATAENTRY']._serialized_start=543
+  _globals['_STRUCTUREDTOOLRESPONSE_METADATAENTRY']._serialized_end=590
+  _globals['_EXECUTERESPONSE']._serialized_start=639
+  _globals['_EXECUTERESPONSE']._serialized_end=818
+  _globals['_TOOLERROR']._serialized_start=820
+  _globals['_TOOLERROR']._serialized_end=862
+  _globals['_GETTOOLSCHEMAREQUEST']._serialized_start=864
+  _globals['_GETTOOLSCHEMAREQUEST']._serialized_end=905
+  _globals['_TOOLSCHEMA']._serialized_start=907
+  _globals['_TOOLSCHEMA']._serialized_end=1001
+  _globals['_FIELDSCHEMA']._serialized_start=1003
+  _globals['_FIELDSCHEMA']._serialized_end=1083
+  _globals['_TOOLSERVICE']._serialized_start=1086
+  _globals['_TOOLSERVICE']._serialized_end=1246
 # @@protoc_insertion_point(module_scope)

@@ -2,6 +2,7 @@ import json
 import grpc
 from typing import Any, Optional, Dict, Union
 
+from wabee.tools.base_model import StructuredToolResponse
 from wabee.rpc.protos import tool_service_pb2
 from wabee.rpc.protos import tool_service_pb2_grpc
 
@@ -57,7 +58,7 @@ class ToolServiceClient:
         self,
         tool_name: str,
         input_data: Dict[str, Any]
-    ) -> tuple[Optional[Any], Optional[Dict]]:
+    ) -> tuple[Optional[StructuredToolResponse], Optional[Dict]]:
         """Execute a tool with the given input data"""
         try:
             request = tool_service_pb2.ExecuteRequest(
@@ -78,9 +79,11 @@ class ToolServiceClient:
                 }
             
             if response.HasField('json_result'):
-                return json.loads(response.json_result), None
+                result_dict = json.loads(response.json_result), None
             else:
-                return json.loads(response.proto_result.decode()), None
+                result_dict = json.loads(response.proto_result.decode()), None
+            
+            return StructuredToolResponse(**result_dict), None
             
         except grpc.RpcError as e:
             return None, {

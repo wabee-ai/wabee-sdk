@@ -8,6 +8,7 @@ from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.base_model import StructuredToolResponse
 from wabee.rpc.schema import ProtoSchemaGenerator
 
 from wabee.rpc.protos import tool_service_pb2
@@ -111,11 +112,19 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
             response.error.type = str(error.type)
             response.error.message = error.message
         else:
-            # Use same format as request
-            if input_case == 'json_data':
-                response.json_result = json.dumps(result)
-            else:
-                response.proto_result = json.dumps(result).encode()
+            # Convert result to dict if it's a StructuredToolResponse                                                                                                                                                                                 
+            if isinstance(result, StructuredToolResponse):                                                                                                                                                                                            
+                result_dict = result.model_dump()                                                                                                                                                                                                     
+            else:                                                                                                                                                                                                                                     
+                result_dict = result
+  
+            response.structured_result.variable_name = result_dict.get('variable_name', '')
+            response.structured_result.content = result_dict.get('content', '')
+            response.structured_result.local_file_path = result_dict.get('local_file_path', '')
+            response.structured_result.metadata.update(result_dict.get('metadata', {}))
+            response.structured_result.memory_push = result_dict.get('memory_push', False)
+            response.structured_result.images.extend(result_dict.get('images', []))
+            response.structured_result.error = result_dict.get('error', '')
                 
         return response
 

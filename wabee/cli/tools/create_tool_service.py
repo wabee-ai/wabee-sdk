@@ -232,7 +232,7 @@ class {class_name}Tool(BaseTool):
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return '''wabee>=0.2.6
+        return '''wabee>=0.2.7
 pydantic>=2.0.0
 '''
 
@@ -244,13 +244,12 @@ pydantic>=2.0.0
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {{
-    "build": "npm run generate-protos && npx tsc",
+    "build": "npx tsc",
     "start": "node server.js",
-    "test": "jest",
-    "generate-protos": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/protos --ts_proto_opt=outputServices=grpc-js,esModuleInterop=true -I ./protos tool_service.proto"
+    "test": "jest"
   }},
   "dependencies": {{
-    "@wabee_ai/sdk": "^0.1.4",
+    "@wabee_ai/sdk": "^0.1.5",
     "@grpc/grpc-js": "^1.8.0",
     "@grpc/proto-loader": "^0.7.0",
     "zod": "^3.21.0"
