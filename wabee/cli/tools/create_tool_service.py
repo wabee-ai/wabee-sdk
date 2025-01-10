@@ -265,16 +265,9 @@ export const {class_name}Schema = z.object({{
 export type {class_name}Input = z.infer<typeof {class_name}Schema>;
 
 export function create{class_name}Tool(options?: ToolOptions) {{
-    return simpleTool<{class_name}Input, StructuredToolResponse>(
+    return simpleTool(
         '{name}',
         {class_name}Schema,
-        async (input: {class_name}Input): Promise<StructuredToolResponse> => {{
-            return {{
-                variable_name: "result",
-                content: `Processed: ${{input.message}}`,
-                memory_push: false
-            }};
-        }},
         options
     );
 }}
