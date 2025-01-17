@@ -12,5 +12,5 @@ class StructuredToolResponse(BaseModel):
 
     local_file_path: str | None = Field(default=None, description="Optional path to a local file that contains the full content for what is needed.")
     metadata: dict | None = Field(default=None, description="Additional metadata to be stored with the response.")
-    memory_push: bool = Field(default=False, description="Indicates whether tool response should be added to memory")
+    memory_push: bool | None = Field(default=False, description="Indicates whether tool response should be added to memory")
     images: List[ImageToolResponse] | None = Field(default=None, description="Optional list of images that are part of the response.")
