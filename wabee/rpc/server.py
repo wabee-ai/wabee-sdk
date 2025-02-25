@@ -158,7 +158,7 @@ async def serve(
     tool_service_pb2_grpc.add_ToolServiceServicer_to_server(
         ToolServicer(tools), server
     )
-    server.add_insecure_port(f'[::]:{port}')
+    server.add_insecure_port(f'0.0.0.0:{port}')
     
     shutdown_event = asyncio.Event()
     
