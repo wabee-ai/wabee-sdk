@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 from typing import Literal
 
 def to_camel_case(name: str) -> str:
@@ -47,7 +48,9 @@ class CreateToolService:
         name: str, 
         tool_type: TOOL_TYPES,
         description: str,
-        version: str
+        version: str,
+        tool_language: Literal["python", "javascript"] = "python",
+        generate_js: bool = True
     ) -> None:
         """Create a new tool project with the given name and type."""
         # Sanitize the name
@@ -58,13 +61,33 @@ class CreateToolService:
         # Create project directory
         os.makedirs(sanitized_name, exist_ok=True)
         
+        if tool_language == "python":
+            # Create Python files
+            self._create_python_files(sanitized_name, camel_case_name, tool_type, description, version)
+            
+            if generate_js:
+                # Create JavaScript client
+                self._create_js_files(sanitized_name, camel_case_name, description, version)
+        else:  # javascript
+            # Create only JavaScript files
+            self._create_js_files(sanitized_name, camel_case_name, description, version)
+
+    def _create_python_files(
+        self,
+        sanitized_name: str,
+        camel_case_name: str,
+        tool_type: TOOL_TYPES,
+        description: str,
+        version: str
+    ) -> None:
+        """Create Python-specific files for the tool."""
         # Create tool file
         tool_file = os.path.join(sanitized_name, f"{sanitized_name}_tool.py")
         with open(tool_file, "w") as f:
             if tool_type == "simple":
-                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name))
+                f.write(self._get_simple_tool_template(sanitized_name, camel_case_name, description))
             else:
-                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name))
+                f.write(self._get_complete_tool_template(sanitized_name, camel_case_name, description))
         
         # Create toolspec.yaml
         toolspec_file = os.path.join(sanitized_name, "toolspec.yaml")
@@ -78,34 +101,82 @@ class CreateToolService:
                 
         # Create server.py
         self._create_server_file(sanitized_name)
+
+    def _create_js_files(
+        self,
+        sanitized_name: str,
+        camel_case_name: str,
+        description: str,
+        version: str
+    ) -> None:
+        """Create JavaScript/TypeScript files for the tool."""
+        # Create package.json
+        package_file = os.path.join(sanitized_name, "package.json")
+        with open(package_file, "w") as f:
+            f.write(self._get_js_package_template(sanitized_name, description, version))
         
-    def _get_simple_tool_template(self, snake_name: str, class_name: str) -> str:
+        # Create TypeScript client
+        src_dir = os.path.join(sanitized_name, "src")
+        os.makedirs(src_dir, exist_ok=True)
+        client_file = os.path.join(src_dir, "index.ts")
+        with open(client_file, "w") as f:
+            f.write(self._get_ts_client_template(sanitized_name, camel_case_name, description))
+        
+        # Copy the server.js template
+        server_template_path = os.path.join(os.path.dirname(__file__), "templates", "js_server.js")
+        shutil.copy2(server_template_path, os.path.join(sanitized_name, "server.js"))
+        
+        # Create protos directory and copy proto file
+        protos_dir = os.path.join(sanitized_name, "protos")
+        os.makedirs(protos_dir, exist_ok=True)
+        
+        # Copy the proto file from the wabee package
+        proto_source = os.path.join(os.path.dirname(__file__), "..", "..", "rpc", "protos", "tool_service.proto")
+        proto_dest = os.path.join(protos_dir, "tool_service.proto")
+        shutil.copy2(proto_source, proto_dest)
+        
+        # Create tsconfig.json
+        tsconfig_file = os.path.join(sanitized_name, "tsconfig.json")
+        with open(tsconfig_file, "w") as f:
+            f.write(self._get_tsconfig_template())
+        
+    def _get_simple_tool_template(self, snake_name: str, class_name: str, description: str) -> str:
         return f'''from typing import Optional
 from pydantic import BaseModel
 from wabee.tools.simple_tool import simple_tool
 from wabee.tools.tool_error import ToolError
+from wabee.tools.base_model import StructuredToolResponse
 
 class {class_name}Input(BaseModel):
     message: str
 
-@simple_tool(schema={class_name}Input)
-async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> str:
+@simple_tool(
+    name="{class_name}",
+    description="{description}",
+    schema={class_name}Input
+)
+async def {snake_name.lower()}_tool(input_data: {class_name}Input) -> StructuredToolResponse:
     """
-    A simple tool that processes the input message.
+    {description}
     
     Args:
         input_data: The input data containing the message to process
         
     Returns:
-        The processed message
+        A structured response containing the processed message
     """
-    return f"Processed: {{input_data.message}}"
+    return StructuredToolResponse(
+        variable_name="result",
+        content=f"Processed: {{input_data.message}}",
+        memory_push=False
+    )
 '''
 
-    def _get_complete_tool_template(self, snake_name: str, class_name: str) -> str:
+    def _get_complete_tool_template(self, snake_name: str, class_name: str, description: str) -> str:
         return f'''from typing import Optional, Type
 from pydantic import BaseModel
 from wabee.tools.base_tool import BaseTool
+from wabee.tools.base_model import StructuredToolResponse
 from wabee.tools.tool_error import ToolError, ToolErrorType
 
 class {class_name}Input(BaseModel):
@@ -114,9 +185,17 @@ class {class_name}Input(BaseModel):
 class {class_name}Tool(BaseTool):
     args_schema: Type[BaseModel] = {class_name}Input
 
-    async def execute(self, input_data: {class_name}Input) -> tuple[Optional[str], Optional[ToolError]]:
+    def __init__(self, **kwargs):
+        """Initialize the tool with configuration."""
+        super().__init__(
+            name="{class_name}",
+            description="{description}",
+            **kwargs
+        )
+
+    async def execute(self, input_data: {class_name}Input) -> tuple[Optional[StructuredToolResponse], Optional[ToolError]]:
         """
-        Execute the tool's main functionality.
+        {description}
         
         Args:
             input_data: The validated input data
@@ -125,7 +204,11 @@ class {class_name}Tool(BaseTool):
             A tuple of (result, error) where one will be None
         """
         try:
-            result = f"Processed: {{input_data.message}}"
+            result = StructuredToolResponse(
+                variable_name="result",
+                content=f"Processed: {{input_data.message}}",
+                memory_push=False
+            )
             return result, None
         except Exception as e:
             return None, ToolError(
@@ -145,60 +228,78 @@ class {class_name}Tool(BaseTool):
   name: {name}
   description: {description}
   version: {version}
-  entrypoint: {name}_tool.py
+  entrypoint: {name.lower()}_tool.py
 '''
 
     def _get_requirements_template(self, name: str, description: str, version: str) -> str:
-        return '''wabee>=0.2.1
+        return '''wabee>=0.2.9
 pydantic>=2.0.0
 '''
 
+    def _get_js_package_template(self, name: str, description: str, version: str) -> str:
+        return f'''{{
+  "name": "{name}",
+  "version": "{version}",
+  "description": "{description}",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {{
+    "build": "npx tsc",
+    "start": "node server.js",
+    "test": "jest"
+  }},
+  "dependencies": {{
+    "@wabee_ai/sdk": "^0.1.5",
+    "@grpc/grpc-js": "^1.8.0",
+    "@grpc/proto-loader": "^0.7.0",
+    "zod": "^3.21.0"
+  }},
+  "devDependencies": {{
+    "@types/node": "^18.0.0",
+    "typescript": "^4.9.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-proto": "^1.181.2"
+  }}
+}}'''
+
+    def _get_ts_client_template(self, name: str, class_name: str, description: str) -> str:
+        return f'''import {{ z }} from 'zod';
+import {{ simpleTool, ToolOptions, StructuredToolResponse }} from '@wabee_ai/sdk';
+
+export const {class_name}Schema = z.object({{
+    message: z.string().describe("Message to be displayed")
+}}).describe("{description}");
+
+export type {class_name}Input = z.infer<typeof {class_name}Schema>;
+
+export function create{class_name}Tool(options?: ToolOptions) {{
+    return simpleTool(
+        '{name}',
+        {class_name}Schema,
+        options
+    );
+}}
+'''
+
+    def _get_tsconfig_template(self) -> str:
+        return '''{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}'''
+
     def _create_server_file(self, name: str) -> None:
         """Create the server.py file in the tool directory."""
-        server_content = '''import asyncio
-import importlib
-import os
-import yaml
-from wabee.rpc.server import serve
-from typing import Dict, Any, List, Tuple
-
-def load_tools() -> Dict[str, Any]:
-    tools = {}
-    tool_module = os.environ.get('WABEE_TOOL_MODULE', 'tool')
-    tool_name = os.environ.get('WABEE_TOOL_NAME', 'tool')
-
-    tool_args: List[Tuple[str, Any]] = []
-    toolspec_path = os.environ.get('WABEE_TOOLSPEC_PATH', 'toolspec.yaml')
-
-    if os.path.exists(toolspec_path):
-        with open(toolspec_path, 'r') as f:
-            toolspec = yaml.safe_load(f)
-            if isinstance(toolspec, dict) and 'tool_args' in toolspec['tool']:
-                tool_args = [(arg['name'], arg['value']) for arg in toolspec['tool']['tool_args']]
-    
-    print(f"Loading tool module: {tool_module}")
-    print(f"Loading tool name: {tool_name}")
-    
-    try:
-        module = importlib.import_module(tool_module)
-        tool = getattr(module, tool_name)
-        config = dict(tool_args)
-        tool_instance = tool.create(**config)
-        tools[tool_name] = tool_instance
-    except Exception as e:
-        print(f"Error loading tool: {str(e)}")
-        raise
-        
-    return tools
-
-def main():
-    port = int(os.environ.get('WABEE_GRPC_PORT', '50051'))
-    tools = load_tools()
-    print(f"Starting gRPC server with tools: {list(tools.keys())}")
-    asyncio.run(serve(tools, port=port))
-
-if __name__ == '__main__':
-    main()
-'''
-        with open(os.path.join(name, "server.py"), "w") as f:
-            f.write(server_content)
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "python_server.py")
+        shutil.copy2(template_path, os.path.join(name, "server.py"))

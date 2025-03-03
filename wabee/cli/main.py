@@ -26,6 +26,7 @@ def main() -> None:
     build_parser.add_argument('path', help='Path to the tool directory')
     build_parser.add_argument('--image', help='Name for the built image', default=None)
     build_parser.add_argument('--s2i-commit', help='S2I commit hash to use', default=None)
+    build_parser.add_argument('--builder', help='S2I builder image to use', default=None)
     
     args = parser.parse_args()
 
@@ -34,14 +35,18 @@ def main() -> None:
             # Interactive prompts for tool creation
             questions = [
                 inquirer.Text('name', message="What is the name of your tool?"),
+                inquirer.List('language',
+                            message="What language do you want to use?",
+                            choices=['python', 'javascript']),
                 inquirer.List('type',
                             message="What type of tool do you want to create?",
-                            choices=['simple', 'complete']),
+                            choices=['simple', 'complete'],
+                            ignore=lambda answers: answers['language'] == 'javascript'),
                 inquirer.Text('description',
                             message="Provide a description for your tool"),
                 inquirer.Text('version',
                             message="What is the initial version?",
-                            default="0.1.0")
+                            default="0.1.0"),
             ]
             answers = inquirer.prompt(questions)
             
@@ -49,15 +54,21 @@ def main() -> None:
                 service = CreateToolService()
                 service.create_tool(
                     name=answers['name'],
-                    tool_type=answers['type'],
+                    tool_type=answers.get('type', 'simple'),  # Default to simple for JS
                     description=answers['description'],
-                    version=answers['version']
+                    version=answers['version'],
+                    tool_language=answers['language'],
+                    generate_js=answers.get('generate_js', False)  # Default to False for JS
                 )
                 print(f"Tool '{answers['name']}' created successfully!")
         elif args.act_command == "build":
             build_service = BuildToolService(s2i_commit=args.s2i_commit)
             try:
-                build_service.build_tool(args.path, image_name=args.image)
+                build_service.build_tool(
+                    args.path,
+                    image_name=args.image,
+                    builder_name=args.builder
+                )
             except Exception as e:
                 print(f"Error: {e}", file=sys.stderr)
                 sys.exit(1)

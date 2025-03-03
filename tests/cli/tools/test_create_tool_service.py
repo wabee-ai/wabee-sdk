@@ -57,7 +57,8 @@ class TestCreateToolService:
         with open("my_test_tool/my_test_tool_tool.py", "r") as f:
             content = f.read()
             assert "class MyTestToolInput(BaseModel)" in content
-            assert "@simple_tool(schema=MyTestToolInput)" in content
+            assert "@simple_tool(" in content
+            assert "schema=MyTestToolInput" in content
             assert "async def my_test_tool_tool(input_data: MyTestToolInput)" in content
             assert "message: str" in content
 
@@ -124,8 +125,9 @@ class TestCreateToolService:
             spec.loader.exec_module(module)
             
             # Add tool to servicer
-            servicer = await anext(tool_servicer)
-            servicer.tools["simple_exec_tool"] = module.simple_exec_tool_tool
+            async for servicer in tool_servicer:
+                servicer.tools["simple_exec_tool"] = module.simple_exec_tool_tool
+                break
 
             # Execute tool
             result, error = await servicer._execute_tool(
@@ -134,7 +136,7 @@ class TestCreateToolService:
             )
             
             assert error is None
-            assert "Processed: test" in result
+            assert "Processed: test" in result.content
 
         # Cleanup
         sys.path.remove(str(Path.cwd()))
@@ -167,8 +169,9 @@ class TestCreateToolService:
             
             # Create tool instance and add to servicer
             tool_instance = module.CompleteExecToolTool.create()
-            servicer = await anext(tool_servicer)
-            servicer.tools["complete_exec_tool"] = tool_instance
+            async for servicer in tool_servicer:
+                servicer.tools["complete_exec_tool"] = tool_instance
+                break
 
             # Execute tool
             result, error = await servicer._execute_tool(
@@ -177,7 +180,7 @@ class TestCreateToolService:
             )
             
             assert error is None
-            assert "Processed: test" in result
+            assert "Processed: test" in result.content
 
         # Cleanup
         sys.path.remove(str(Path.cwd()))

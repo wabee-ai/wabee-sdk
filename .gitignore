@@ -7,5 +7,6 @@
 teste_tools.py
 .venv
 dist
+node_modules
 .aider*
 .env

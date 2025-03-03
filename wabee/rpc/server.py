@@ -3,11 +3,12 @@ import asyncio
 import logging
 import signal
 import grpc
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, Union
 from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.base_model import StructuredToolResponse
 from wabee.rpc.schema import ProtoSchemaGenerator
 
 from wabee.rpc.protos import tool_service_pb2
@@ -15,8 +16,14 @@ from wabee.rpc.protos import tool_service_pb2_grpc
 
 logger = logging.getLogger(__name__)
 
+# Configure default logging format
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
-    def __init__(self, tools: Dict[str, BaseTool | Any]):
+    def __init__(self, tools: Dict[str, Union[BaseTool, Any]]):
         self.tools = tools
         self.schema_generator = ProtoSchemaGenerator()
 
@@ -35,7 +42,8 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         schema = self.schema_generator.get_tool_schema(tool)
         
         response = tool_service_pb2.ToolSchema(
-            tool_name=tool_name
+            tool_name=tool_name,
+            description=tool.description if hasattr(tool, 'description') else ""
         )
         
         for name, details in schema.get("properties", {}).items():
@@ -49,7 +57,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
 
     async def _execute_tool(
         self,
-        tool: BaseTool | Any,
+        tool: Union[BaseTool, Any],
         input_data: Dict[str, Any]
     ) -> tuple[Any, Optional[ToolError]]:
         try:
@@ -104,26 +112,53 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
             response.error.type = str(error.type)
             response.error.message = error.message
         else:
-            # Use same format as request
-            if input_case == 'json_data':
-                response.json_result = json.dumps(result)
-            else:
-                response.proto_result = json.dumps(result).encode()
+            # Convert result to dict if it's a StructuredToolResponse                                                                                                                                                                                 
+            if isinstance(result, StructuredToolResponse):                                                                                                                                                                                            
+                result_dict = result.model_dump()                                                                                                                                                                                                     
+            else:                                                                                                                                                                                                                                     
+                result_dict = result
+  
+            response.structured_result.variable_name = result_dict.get('variable_name', '')
+            response.structured_result.content = result_dict.get('content', '')
+            response.structured_result.local_file_path = result_dict.get('local_file_path', '')
+            response.structured_result.metadata.update(result_dict.get('metadata', {}))
+            response.structured_result.memory_push = result_dict.get('memory_push', False)
+            response.structured_result.images.extend(result_dict.get('images', []))
+            response.structured_result.error = result_dict.get('error', '')
                 
         return response
 
 async def serve(
-    tools: Dict[str, BaseTool | Any],
+    tools: Dict[str, Union[BaseTool, Any]],
     port: int = 50051,
     max_workers: int = 10
 ) -> None:
+    """Start a gRPC server for the given tools.
+
+    This is the core server implementation used by both the SDK and tool templates.
+    Tool templates should use ToolLoader to prepare tools before calling this function.
+
+    Args:
+        tools: Dictionary mapping tool names to tool instances
+        port: Port number to listen on
+        max_workers: Maximum number of worker threads
+
+    Example:
+        # In a tool's server.py:
+        from wabee.rpc import serve
+        from wabee.rpc.loader import ToolLoader
+
+        loader = ToolLoader()
+        tool = loader.load_from_env()
+        asyncio.run(serve({tool.name: tool}))
+    """
     server = grpc.aio.server(
         futures.ThreadPoolExecutor(max_workers=max_workers)
     )
     tool_service_pb2_grpc.add_ToolServiceServicer_to_server(
         ToolServicer(tools), server
     )
-    server.add_insecure_port(f'[::]:{port}')
+    server.add_insecure_port(f'0.0.0.0:{port}')
     
     shutdown_event = asyncio.Event()
     

@@ -1,21 +1,40 @@
 from abc import ABC, abstractmethod
 from wabee.tools.tool_error import ToolError, ToolErrorType
+from wabee.tools.base_model import StructuredToolResponse
 from typing import TypeVar, Generic, Optional, Dict, Type, Any
 from pydantic import BaseModel, ValidationError
 
 InputType = TypeVar('InputType', Dict, BaseModel)
-OutputType = TypeVar('OutputType', str, Dict, BaseModel)
+OutputType = TypeVar('OutputType', bound=StructuredToolResponse)
 
 class BaseTool(ABC, Generic[InputType, OutputType]):
     args_schema: Optional[Type[BaseModel]] = None
     
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        name: str = "",
+        description: str = "",
+        **kwargs: Any
+    ) -> None:
         """
-        Initialize the tool with optional predefined arguments.
-        These will be set as instance attributes.
+        Initialize the tool with name and description, plus optional arguments.
+        
+        Args:
+            name: The name of the tool
+            description: A description of what the tool does
+            **kwargs: Additional tool-specific configuration
         """
+        self.name = name
+        self.description = description
+        
+        # Set any additional attributes
         for key, value in kwargs.items():
             setattr(self, key, value)
+            
+    @property
+    def tool_name(self) -> str:
+        """Return the tool's name."""
+        return self.name
             
     @abstractmethod
     async def execute(self, input_data: InputType) -> tuple[Optional[OutputType], Optional[ToolError]]:

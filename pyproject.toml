@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wabee"
-version = "0.2.1"
+version = "0.2.9"
 description = "Wabee AI Software Development Kit"
 authors = ["Developers <developers@wabee.ai>"]
 maintainers = ["Developers <developers@wabee.ai>"]
@@ -18,15 +18,16 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.13"
 chardet = "^5.2.0"
 restrictedpython = "^7.1"
 pyyaml = "^6.0.1"
 inquirer = "^3.4.0"
 grpcio = "^1.68.0"
 grpcio-tools = "^1.68.0"
-pydantic = "2.9.2"
+pydantic = "^2.7.4"
 typing-extensions = "^4.12.2"
+requests = "^2.32.3"
 
 [tool.poetry.scripts]
 wb = 'wabee.cli.main:main'
@@ -36,6 +37,8 @@ wabee = 'wabee.cli.main:main'
 pytest = "^8.1.1"
 pytest-cov = "^5.0.0"
 pytest-asyncio = "^0.24.0"
+mypy = "1.13.0"
+ruff = "^0.9.9"
 
 [tool.coverage.run]
 omit = ["tests/*"]
