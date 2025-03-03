@@ -63,7 +63,7 @@ jobs:
         pipx inject poetry "poetry-dynamic-versioning[plugin]"
     - name: Configure Poetry
       run: |
-        poetry config repositories.pypi https://pypi.org/legacy/
+        poetry config repositories.pypi https://upload.pypi.org/legacy/
         poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
     - name: Build and publish
       run: poetry publish --build -r pypi
