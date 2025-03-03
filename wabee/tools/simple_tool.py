@@ -15,7 +15,7 @@ def simple_tool(
     description: Optional[str] = None,
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[Union[StructuredToolResponse, T]], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -64,17 +64,18 @@ def simple_tool(
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Optional[T], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Optional[Union[StructuredToolResponse, T]], Optional[ToolError]]:
             # Get tool name and description
             tool_name = name or func.__name__
             tool_description = description or func.__doc__ or ""
             
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
-                args_schema = dynamic_schema if dynamic_schema else BaseModel
+                args_schema: Type[BaseModel] = dynamic_schema if dynamic_schema is not None else BaseModel
 
                 def __init__(self):
-                    super().__init__(name=tool_name, description=tool_description)
+                    self.name = tool_name
+                    self.description = tool_description
 
                 async def execute(self, input_data: Any) -> tuple[Union[T, None], Optional[ToolError]]:
                     try:
@@ -117,7 +118,10 @@ def simple_tool(
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 
                                     if args:
-                                        result = await func(*args)
+                                        if len(args) > 0:
+                                            result = await func(*args)
+                                        else:
+                                            result = await func()
                                     else:
                                         result = await func(**kwargs)
                             except (ValueError, TypeError) as e:
@@ -152,12 +156,12 @@ def simple_tool(
 
             # Create and call the tool instance
             tool = FunctionalTool()
-            if dynamic_schema:
+            if dynamic_schema is not None:
                 return await tool.execute(kwargs)
             elif args and len(args) > 0:
                 return await tool.execute(args[0])
             else:
-                return await tool.execute(kwargs)
+                return await tool.execute(kwargs or {})
 
         return wrapped_tool
 
