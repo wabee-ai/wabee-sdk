@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, Dict, cast
 from typing_extensions import ParamSpec
-from pydantic import BaseModel, create_model, ConfigDict
+from pydantic import BaseModel, create_model, ConfigDict, ValidationError
 
 from wabee.tools.base_tool import BaseTool
 from wabee.tools.tool_error import ToolError, ToolErrorType
@@ -132,6 +132,13 @@ def simple_tool(
                                 )
                         # Return the result
                         return result, None
+                    except ValidationError as e:
+                        # Pydantic validation errors
+                        return None, ToolError(
+                            type=ToolErrorType.INVALID_INPUT,
+                            message=str(e),
+                            original_error=e
+                        )
                     except ValueError as e:
                         # Business logic errors raised by the function
                         return None, ToolError(
