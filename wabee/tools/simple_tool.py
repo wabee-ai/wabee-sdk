@@ -52,10 +52,10 @@ def simple_tool(
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
                 model_name,
-                **annotated_fields,
                 __config__=ConfigDict(arbitrary_types_allowed=True),
                 __module__=func.__module__,
-                __base__=None
+                __base__=None,
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
@@ -97,20 +97,21 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
-                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
                                         __module__=func.__module__,
-                                        __base__=None
+                                        __base__=None,
+                                        **fields
                                     )
                                     # Validate kwargs against the runtime schema
-                                    validated_kwargs = runtime_schema(**kwargs).model_dump()
+                                    model_instance = runtime_schema(**kwargs)
+                                    validated_kwargs = model_instance.model_dump()
                                     result = await func(**validated_kwargs)
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 
                                     if args:
-                                        result = await func(*args)
+                                        result = await func(*args, **{})
                                     else:
-                                        result = await func(**kwargs)
+                                        result = await func(**kwargs, **{})
                             except (ValueError, TypeError) as e:
                                 return None, ToolError(
                                     type=ToolErrorType.INVALID_INPUT,
@@ -142,7 +143,12 @@ def simple_tool(
 
             # Create and call the tool instance
             tool = FunctionalTool()
-            return await tool(kwargs if dynamic_schema else args[0] if args else kwargs)
+            if dynamic_schema:
+                return await tool.execute(kwargs)
+            elif args:
+                return await tool.execute(args[0])
+            else:
+                return await tool.execute(kwargs)
 
         return wrapped_tool
 
