@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, Dict, cast
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, cast
 from typing_extensions import ParamSpec
 from pydantic import BaseModel, create_model, ConfigDict, ValidationError
 

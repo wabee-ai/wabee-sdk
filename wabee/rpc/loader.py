@@ -2,7 +2,7 @@ import os
 import yaml
 import logging
 import importlib
-from typing import Dict, Any, Optional, Type
+from typing import Dict, Any, Optional
 from pathlib import Path
 from pydantic import BaseModel
 
