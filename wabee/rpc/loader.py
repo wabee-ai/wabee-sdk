@@ -83,7 +83,7 @@ class ToolLoader:
             if hasattr(tool_class, 'create'):
                 logger.info("Creating tool instance using create() method")
                 return tool_class.create(**(config.args or {}))
-            elif isinstance(tool_class, Type):
+            elif isinstance(tool_class, type):
                 logger.info("Creating tool instance directly")
                 return tool_class(**(config.args or {}))
             else:

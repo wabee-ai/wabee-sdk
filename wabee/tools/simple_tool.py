@@ -15,7 +15,7 @@ def simple_tool(
     description: Optional[str] = None,
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[StructuredToolResponse], Optional[ToolError]]]]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[Union[StructuredToolResponse, T]], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -41,7 +41,7 @@ def simple_tool(
             
         result, error = await add_numbers(x=5, y=3)
     """
-    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]:
+    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[tuple[Optional[Union[StructuredToolResponse, T]], Optional[ToolError]]]]:
         # Create a schema on the fly if fields are provided but no schema
         if schema is None and schema_fields:
             # Convert field definitions to proper Pydantic field annotations
@@ -52,16 +52,16 @@ def simple_tool(
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
                 model_name,
+                **annotated_fields,
                 __config__=ConfigDict(arbitrary_types_allowed=True),
                 __module__=func.__module__,
-                __base__=None,
-                **annotated_fields
+                __base__=None
             )
         else:
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Union[StructuredToolResponse, None], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Optional[StructuredToolResponse], Optional[ToolError]]:
             # Get tool name and description
             tool_name = name or func.__name__
             tool_description = description or func.__doc__ or ""
@@ -97,13 +97,13 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
+                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
                                         __module__=func.__module__,
-                                        __base__=None,
-                                        **fields
+                                        __base__=None
                                     )
                                     # Validate kwargs against the runtime schema
-                                    validated_kwargs = runtime_schema(**kwargs).dict()
+                                    validated_kwargs = runtime_schema(**kwargs).model_dump()
                                     result = await func(**validated_kwargs)
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 

@@ -3,7 +3,7 @@ import asyncio
 import logging
 import signal
 import grpc
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, Union
 from concurrent import futures
 
 from wabee.tools.base_tool import BaseTool
@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
-    def __init__(self, tools: Dict[str, BaseTool | Any]):
+    def __init__(self, tools: Dict[str, Union[BaseTool, Any]]):
         self.tools = tools
         self.schema_generator = ProtoSchemaGenerator()
 
@@ -57,7 +57,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
 
     async def _execute_tool(
         self,
-        tool: BaseTool | Any,
+        tool: Union[BaseTool, Any],
         input_data: Dict[str, Any]
     ) -> tuple[Any, Optional[ToolError]]:
         try:
@@ -129,7 +129,7 @@ class ToolServicer(tool_service_pb2_grpc.ToolServiceServicer):
         return response
 
 async def serve(
-    tools: Dict[str, BaseTool | Any],
+    tools: Dict[str, Union[BaseTool, Any]],
     port: int = 50051,
     max_workers: int = 10
 ) -> None:

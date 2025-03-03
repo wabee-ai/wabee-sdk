@@ -79,9 +79,9 @@ class ToolServiceClient:
                 }
             
             if response.HasField('json_result'):
-                result_dict = json.loads(response.json_result), None
+                result_dict = json.loads(response.json_result)
             else:
-                result_dict = json.loads(response.proto_result.decode()), None
+                result_dict = json.loads(response.proto_result.decode())
             
             return StructuredToolResponse(**result_dict), None
             
