@@ -11,7 +11,7 @@ import pkg_resources
 import re
 import json
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
 
 class BuildToolService:
     S2I_VERSION = "v1.4.0"
