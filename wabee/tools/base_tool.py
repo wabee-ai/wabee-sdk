@@ -12,12 +12,12 @@ class BaseTool(ABC, Generic[InputType, OutputType]):
     
     def __init__(
         self,
-        name: str,
-        description: str,
+        name: str = "",
+        description: str = "",
         **kwargs: Any
     ) -> None:
         """
-        Initialize the tool with required name and description, plus optional arguments.
+        Initialize the tool with name and description, plus optional arguments.
         
         Args:
             name: The name of the tool

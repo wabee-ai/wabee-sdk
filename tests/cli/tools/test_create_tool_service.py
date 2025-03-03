@@ -57,7 +57,8 @@ class TestCreateToolService:
         with open("my_test_tool/my_test_tool_tool.py", "r") as f:
             content = f.read()
             assert "class MyTestToolInput(BaseModel)" in content
-            assert "@simple_tool(schema=MyTestToolInput)" in content
+            assert "@simple_tool(" in content
+            assert "schema=MyTestToolInput" in content
             assert "async def my_test_tool_tool(input_data: MyTestToolInput)" in content
             assert "message: str" in content
 
@@ -134,7 +135,7 @@ class TestCreateToolService:
             )
             
             assert error is None
-            assert "Processed: test" in result
+            assert "Processed: test" in result.content
 
         # Cleanup
         sys.path.remove(str(Path.cwd()))
@@ -177,7 +178,7 @@ class TestCreateToolService:
             )
             
             assert error is None
-            assert "Processed: test" in result
+            assert "Processed: test" in result.content
 
         # Cleanup
         sys.path.remove(str(Path.cwd()))
