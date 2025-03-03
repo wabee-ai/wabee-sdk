@@ -71,7 +71,7 @@ def simple_tool(
             
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
-                args_schema: Type[BaseModel] = dynamic_schema if dynamic_schema is not None else BaseModel
+                args_schema = cast(Type[BaseModel], dynamic_schema if dynamic_schema is not None else BaseModel)
 
                 def __init__(self):
                     self.name = tool_name
