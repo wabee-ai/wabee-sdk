@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable
+from typing import Callable, Type, Optional, Any, Union, TypeVar, Awaitable, Dict, cast
 from typing_extensions import ParamSpec
 from pydantic import BaseModel, create_model, ConfigDict
 
@@ -52,10 +52,10 @@ def simple_tool(
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
                 model_name,
+                **annotated_fields,
                 __config__=ConfigDict(arbitrary_types_allowed=True),
                 __module__=func.__module__,
-                __base__=None,
-                **annotated_fields
+                __base__=None
             )
         else:
             dynamic_schema = schema
@@ -68,7 +68,7 @@ def simple_tool(
             
             # Create an anonymous class inheriting from BaseTool
             class FunctionalTool(BaseTool):
-                args_schema = dynamic_schema
+                args_schema = dynamic_schema if dynamic_schema else BaseModel
 
                 def __init__(self):
                     super().__init__(name=tool_name, description=tool_description)
@@ -97,28 +97,35 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
+                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
                                         __module__=func.__module__,
-                                        __base__=None,
-                                        **fields
+                                        __base__=None
                                     )
                                     # Validate kwargs against the runtime schema
-                                    model_instance = runtime_schema(**kwargs)
+                                    # Create model instance with validated kwargs
+                                    input_kwargs = {k: v for k, v in kwargs.items() if k in fields}
+                                    model_instance = runtime_schema(**input_kwargs)
                                     validated_kwargs = model_instance.model_dump()
                                     result = await func(**validated_kwargs)
                                 else:
                                     # When no schema and no type hints, pass args/kwargs directly 
                                     if args:
-                                        result = await func(*args, **{})
+                                        result = await func(*args)
                                     else:
-                                        result = await func(**kwargs, **{})
+                                        result = await func(**kwargs)
                             except (ValueError, TypeError) as e:
                                 return None, ToolError(
                                     type=ToolErrorType.INVALID_INPUT,
                                     message=str(e),
                                     original_error=e
                                 )
-                        return result, None
+                        # Ensure we're returning the right type
+                        if isinstance(result, StructuredToolResponse):
+                            return result, None
+                        else:
+                            # Cast the result to make mypy happy
+                            return cast(Union[StructuredToolResponse, T], result), None
                     except ValueError as e:
                         # Business logic errors raised by the function
                         return None, ToolError(
