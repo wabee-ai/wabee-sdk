@@ -13,3 +13,4 @@ class StructuredToolResponse(BaseModel):
     memory_push: bool = Field(False, description="Indicates whether tool response should be added to memory")
     images: Optional[List[ImageToolResponse]] = Field(None, description="Optional list of images that are part of the response.")
     error: Optional[str] = Field(None, description="Use this field to include an error message if an error occurred during the tool execution.")
+    is_final_answer: bool = Field(False, description="Indicates whether this tool response is the final answer to the user.")
