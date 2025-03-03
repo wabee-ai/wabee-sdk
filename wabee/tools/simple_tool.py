@@ -15,7 +15,7 @@ def simple_tool(
     description: Optional[str] = None,
     schema: Optional[Type[BaseModel]] = None,
     **schema_fields: Any
-) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[Union[StructuredToolResponse, T]], Optional[ToolError]]]]]:
+) -> Callable[[Callable[P, Awaitable[T]]], Callable[P, Awaitable[tuple[Optional[T], Optional[ToolError]]]]]:
     """
     A decorator that transforms a simple async function into a BaseTool-compatible interface.
     
@@ -51,17 +51,20 @@ def simple_tool(
             }
             model_name = f"{func.__name__.title()}Input"
             dynamic_schema = create_model(
-                model_name,
-                **annotated_fields,
+                model_name, 
                 __config__=ConfigDict(arbitrary_types_allowed=True),
+                __doc__=None,
+                __base__=None,
                 __module__=func.__module__,
-                __base__=None
+                __validators__=None,
+                __cls_kwargs__=None,
+                **annotated_fields
             )
         else:
             dynamic_schema = schema
 
         @wraps(func)
-        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Optional[StructuredToolResponse], Optional[ToolError]]:
+        async def wrapped_tool(*args: P.args, **kwargs: P.kwargs) -> tuple[Optional[T], Optional[ToolError]]:
             # Get tool name and description
             tool_name = name or func.__name__
             tool_description = description or func.__doc__ or ""
@@ -97,10 +100,13 @@ def simple_tool(
                                     model_name = f"{func.__name__}RuntimeSchema"
                                     runtime_schema = create_model(
                                         model_name,
-                                        **fields,
                                         __config__=ConfigDict(arbitrary_types_allowed=True),
+                                        __doc__=None,
+                                        __base__=None,
                                         __module__=func.__module__,
-                                        __base__=None
+                                        __validators__=None,
+                                        __cls_kwargs__=None,
+                                        **fields
                                     )
                                     # Validate kwargs against the runtime schema
                                     # Create model instance with validated kwargs
@@ -120,12 +126,8 @@ def simple_tool(
                                     message=str(e),
                                     original_error=e
                                 )
-                        # Ensure we're returning the right type
-                        if isinstance(result, StructuredToolResponse):
-                            return result, None
-                        else:
-                            # Cast the result to make mypy happy
-                            return cast(Union[StructuredToolResponse, T], result), None
+                        # Return the result
+                        return result, None
                     except ValueError as e:
                         # Business logic errors raised by the function
                         return None, ToolError(
@@ -152,7 +154,7 @@ def simple_tool(
             tool = FunctionalTool()
             if dynamic_schema:
                 return await tool.execute(kwargs)
-            elif args:
+            elif args and len(args) > 0:
                 return await tool.execute(args[0])
             else:
                 return await tool.execute(kwargs)
